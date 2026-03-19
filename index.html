@@ -2,13 +2,12 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>MSN Messenger - Versión Completa Restaurada</title>
+    <title>MSN Messenger - Power Edition</title>
     <style>
         :root { --msn-blue: #0055e5; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background: #71ADFF; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 
-        /* Estructura */
         #login-box { background: white; padding: 30px; border-radius: 12px; width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 1000; }
         #login-box input { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
         #login-box button { width: 100%; padding: 10px; background: var(--msn-blue); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
@@ -21,31 +20,38 @@
 
         main { display: flex; flex: 1; overflow: hidden; }
 
-        /* Sidebar Izquierda */
         #side-left { width: 260px; border-right: 1px solid #d0deee; display: flex; flex-direction: column; background: #fff; }
         .label { background: #eff6ff; padding: 8px 12px; font-size: 11px; font-weight: bold; color: #5a708a; border-bottom: 1px solid #d0deee; }
-        .item { display: flex; align-items: center; gap: 10px; padding: 12px; cursor: pointer; border: none; background: none; width: 100%; text-align: left; font-size: 13px; border-bottom: 1px solid #f2f6fb; }
+        
+        .item { display: flex; align-items: center; gap: 10px; padding: 12px; cursor: pointer; border: none; background: none; width: 100%; text-align: left; font-size: 13px; border-bottom: 1px solid #f2f6fb; position: relative; }
         .item:hover { background: #f1f7ff; }
+        
+        /* CONTADOR DE MENSAJES */
+        .unread-count { position: absolute; right: 10px; background: #ff8c00; color: white; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 10px; display: none; }
+
         .img-min { width: 34px; height: 34px; border-radius: 4px; object-fit: cover; border: 1px solid #ccc; }
         .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
         .on { background: #31a24c; } .off { background: #bdc1c6; }
 
-        /* Chat */
         #chat-main { flex: 1; display: flex; flex-direction: column; background: white; }
         #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
         
+        .msg-time { font-size: 10px; color: #999; margin-left: 8px; font-weight: normal; }
+
         #toolbar { padding: 8px 15px; background: #f0f4f9; border-top: 1px solid #d0deee; display: flex; gap: 8px; }
-        .emo-btn { cursor: pointer; font-size: 18px; filter: grayscale(0.3); transition: 0.2s; }
-        .emo-btn:hover { filter: grayscale(0); transform: scale(1.2); }
+        .emo-btn { cursor: pointer; font-size: 18px; }
 
         #input-area { padding: 15px; background: #f7faff; flex-shrink: 0; }
         #text-in { width: 100%; height: 70px; padding: 10px; border: 1px solid #a0b5d0; border-radius: 4px; resize: none; font-size: 13px; outline: none; }
 
-        /* Sidebar Derecha */
         #side-right { width: 220px; background: #fdfdfd; display: flex; flex-direction: column; align-items: center; padding: 30px 10px; gap: 40px; border-left: 1px solid #d0deee; }
-        .img-big { width: 140px; height: 140px; border: 6px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 10px; object-fit: cover; background: #f0f0f0; }
+        .img-big { width: 140px; height: 140px; border: 6px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 10px; object-fit: cover; }
 
-        /* MODAL PERFIL */
+        /* TOAST NOTIFICATION */
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 5000; }
+        .msn-toast { background: linear-gradient(#f0f7ff, #bcd7ff); border: 1px solid var(--msn-blue); padding: 10px 15px; border-radius: 8px 8px 0 0; width: 220px; box-shadow: 0 -2px 10px rgba(0,0,0,0.2); animation: slideUp 0.5s ease; margin-top: 5px; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
         #modal-perfil { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 2000; }
         .modal-box { background: white; padding: 25px; border-radius: 10px; width: 320px; text-align: center; border: 2px solid var(--msn-blue); }
         .modal-box input { width: 100%; padding: 8px; margin: 10px 0; }
@@ -54,7 +60,7 @@
         @keyframes s { 0%, 100% {transform:translate(0,0)} 25% {transform:translate(5px,5px)} 50% {transform:translate(-5px,-5px)} }
     </style>
 </head>
-<body onclick="iniciarAudio()">
+<body onclick="desbloquearAudio()">
 
     <div id="login-box">
         <h2 style="color:var(--msn-blue); margin-bottom:20px;">THE REALS MSN</h2>
@@ -69,7 +75,7 @@
                 <img id="my-img" src="">
                 <div><b id="my-name" style="color:var(--msn-blue); font-size:15px;">...</b><br><small id="my-desc" style="color:#666;">Disponible</small></div>
             </div>
-            <button onclick="toggleModal(true)" style="font-size:11px; padding:5px 10px; cursor:pointer; background:#fff; border:1px solid #ccc; border-radius:4px;">Mi Perfil</button>
+            <button onclick="toggleModal(true)" style="font-size:11px; padding:5px 10px; cursor:pointer;">Mi Perfil</button>
         </header>
 
         <main>
@@ -78,14 +84,17 @@
                 <button class="item" onclick="cambiarSala('conversando', 'Conversando', '/logo-conversando.png')">
                     <img src="/logo-conversando.png" class="img-min" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
                     <b>Conversando</b>
+                    <span class="unread-count" id="badge-conversando">0</span>
                 </button>
                 <button class="item" onclick="cambiarSala('juegos', 'Juegos', '/logo-juegos.png')">
                     <img src="/logo-juegos.png" class="img-min" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686431.png'">
                     <b>Juegos</b>
+                    <span class="unread-count" id="badge-juegos">0</span>
                 </button>
                 <button class="item" onclick="cambiarSala('solotodo', 'SoloTodo', '/logo-solotodo.png')">
                     <img src="/logo-solotodo.png" class="img-min" style="object-fit:contain" onerror="this.src='https://www.solotodo.cl/static/logo.png'">
                     <b>SoloTodo</b>
+                    <span class="unread-count" id="badge-solotodo">0</span>
                 </button>
                 
                 <div class="label">CONTACTOS</div>
@@ -98,9 +107,7 @@
                     <span class="emo-btn" onclick="addEmo('😊')">😊</span>
                     <span class="emo-btn" onclick="addEmo('😛')">😛</span>
                     <span class="emo-btn" onclick="addEmo('❤️')">❤️</span>
-                    <span class="emo-btn" onclick="addEmo('👍')">👍</span>
-                    <span class="emo-btn" onclick="addEmo('😮')">😮</span>
-                    <button onclick="enviarZumbido()" style="margin-left:auto; font-size:11px; cursor:pointer; padding:2px 8px;">🔔 Zumbido</button>
+                    <button onclick="enviarZumbido()" style="margin-left:auto; font-size:11px; cursor:pointer;">🔔 Zumbido</button>
                 </div>
                 <div id="input-area">
                     <textarea id="text-in" placeholder="Escribe un mensaje..."></textarea>
@@ -119,24 +126,32 @@
         <div id="modal-perfil">
             <div class="modal-box">
                 <h3>Editar Mi Perfil</h3>
-                <input id="up-desc" placeholder="Estado (ej: Almuerzo...)">
-                <input type="file" id="up-foto" style="font-size:11px;">
+                <input id="up-desc" placeholder="¿Qué estás pensando?">
+                <input type="file" id="up-foto">
                 <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button onclick="guardarPerfil()" style="flex:1; padding:10px; background:var(--msn-blue); color:white; border:none; border-radius:5px; cursor:pointer;">Guardar</button>
-                    <button onclick="toggleModal(false)" style="flex:1; padding:10px; background:#eee; border:none; border-radius:5px; cursor:pointer;">Cerrar</button>
+                    <button onclick="guardarPerfil()" style="flex:1; padding:10px; background:var(--msn-blue); color:white; border:none; border-radius:5px;">Guardar</button>
+                    <button onclick="toggleModal(false)" style="flex:1; padding:10px; background:#eee; border:none; border-radius:5px;">Cerrar</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <div id="toast-container"></div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
         let yo = localStorage.getItem('msn_user') || "";
         let salaActual = 'conversando';
-        const msnAudio = new Audio('https://raw.githubusercontent.com/pabluro/msn-assets/main/buzz.mp3');
+        let unreadData = {}; // Para guardar conteos
+        
+        const msnBuzz = new Audio('https://www.myinstants.com/media/sounds/msn-messenger-buzz.mp3');
+        const msnMsg = new Audio('https://www.myinstants.com/media/sounds/messenger-mensaje.mp3');
 
-        function iniciarAudio() { msnAudio.play().then(()=> { msnAudio.pause(); msnAudio.currentTime = 0; }); }
+        function desbloquearAudio() { 
+            msnBuzz.play().then(()=> { msnBuzz.pause(); msnBuzz.currentTime=0; });
+            msnMsg.play().then(()=> { msnMsg.pause(); msnMsg.currentTime=0; });
+        }
 
         document.getElementById('text-in').addEventListener('keydown', e => {
             if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviarTexto(); }
@@ -180,18 +195,25 @@
                 if(u.user === yo) return;
                 const b = document.createElement('button');
                 b.className = "item";
+                b.id = "btn-" + u.user;
                 const dotClass = u.online ? 'on' : 'off';
-                b.innerHTML = `<img src="${u.foto || 'https://via.placeholder.com/34'}" class="img-min"> <div><span class="dot ${dotClass}"></span><b>${u.user}</b></div>`;
+                b.innerHTML = `<img src="${u.foto || 'https://via.placeholder.com/34'}" class="img-min"> 
+                               <div><span class="dot ${dotClass}"></span><b>${u.user}</b></div>
+                               <span class="unread-count" id="badge-${u.user}">0</span>`;
                 b.onclick = () => cambiarSala(u.user, u.user, u.foto);
                 div.appendChild(b);
+                // Restaurar badge si habia datos
+                if(unreadData[u.user]) updateBadge(u.user, unreadData[u.user]);
             });
         });
 
         function cambiarSala(id, nombre, img) {
             salaActual = id;
+            unreadData[id] = 0;
+            updateBadge(id, 0);
+
             document.getElementById('target-name').innerText = nombre;
             let finalImg = img || "https://via.placeholder.com/140?text=" + nombre;
-            // Mantener logos de salas
             if(id === 'conversando') finalImg = '/logo-conversando.png';
             if(id === 'juegos') finalImg = '/logo-juegos.png';
             if(id === 'solotodo') finalImg = '/logo-solotodo.png';
@@ -199,6 +221,14 @@
             document.getElementById('target-img').src = finalImg;
             document.getElementById('messages').innerHTML = "";
             socket.emit('get_private_history', id);
+        }
+
+        function updateBadge(id, count) {
+            const badge = document.getElementById('badge-' + id);
+            if(badge) {
+                badge.innerText = count;
+                badge.style.display = count > 0 ? 'block' : 'none';
+            }
         }
 
         function enviarTexto() {
@@ -211,20 +241,37 @@
 
         socket.on('chat message', m => {
             const dest = m.to || 'conversando';
-            const esGlobal = ['conversando', 'juegos', 'solotodo'].includes(dest) && dest === salaActual;
-            const esParaMi = (m.user === salaActual && m.to === yo);
-            const esMioParaEl = (m.user === yo && m.to === salaActual);
+            const esGlobal = ['conversando', 'juegos', 'solotodo'].includes(dest);
+            const esParaSalaActual = (esGlobal && dest === salaActual) || 
+                                     (m.user === salaActual && m.to === yo) || 
+                                     (m.user === yo && m.to === salaActual);
 
-            if (esGlobal || esParaMi || esMioParaEl) {
+            if (esParaSalaActual) {
                 renderMsg(m);
+            } else {
+                // Notificacion para otro chat
+                const origin = esGlobal ? dest : m.user;
+                unreadData[origin] = (unreadData[origin] || 0) + 1;
+                updateBadge(origin, unreadData[origin]);
+                showToast(m.user, m.isBuzz ? "Te envió un zumbido" : m.text);
+                msnMsg.play().catch(()=>{});
             }
 
-            if(m.isBuzz && (dest === salaActual || m.to === yo)) {
+            if(m.isBuzz && esParaSalaActual) {
                 document.getElementById('app').classList.add('shake');
                 setTimeout(()=>document.getElementById('app').classList.remove('shake'), 600);
-                msnAudio.play().catch(()=>{});
+                msnBuzz.play().catch(()=>{});
             }
         });
+
+        function showToast(user, msg) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'msn-toast';
+            toast.innerHTML = `<b style="color:var(--msn-blue)">${user} dice:</b><br><small>${msg.substring(0,25)}...</small>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
 
         socket.on('actualizar_historial', res => {
             if(res.target === salaActual) {
@@ -236,9 +283,13 @@
         function renderMsg(m) {
             const div = document.getElementById('messages');
             const d = document.createElement('div');
+            const ahora = new Date();
+            const hora = ahora.getHours().toString().padStart(2,'0') + ":" + ahora.getMinutes().toString().padStart(2,'0');
+            
             let txt = m.texto || m.text || "";
-            if(m.isBuzz) txt = `<span style="color:red; font-weight:bold;">¡Zumbido!</span>`;
-            d.innerHTML = `<b style="color:var(--msn-blue); font-size:12px;">${m.user} dice:</b><br><span style="font-size:13px;">${txt}</span>`;
+            if(m.isBuzz) txt = `<span style="color:red; font-weight:bold;">¡Ha enviado un zumbido!</span>`;
+            
+            d.innerHTML = `<b style="color:var(--msn-blue); font-size:12px;">${m.user} dice: <span class="msg-time">[${hora}]</span></b><br><span style="font-size:13px;">${txt}</span>`;
             div.appendChild(d);
             div.scrollTop = div.scrollHeight;
         }
