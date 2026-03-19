@@ -2,144 +2,139 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>MSN Messenger 2009 - Estable</title>
+    <title>MSN Messenger 2009 - The Reals</title>
     <style>
-        :root { --blue: #0055e5; --light-blue: #dcecfc; }
+        :root { --msn-blue: #0055e5; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
-        
         body { background: #71ADFF; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 
         /* LOGIN */
-        #login-box { background: white; padding: 30px; border-radius: 12px; width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 500; }
+        #login-box { background: white; padding: 30px; border-radius: 12px; width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 100; }
         #login-box input { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
-        #login-box button { width: 100%; padding: 10px; background: var(--blue); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        #login-box button { width: 100%; padding: 10px; background: var(--msn-blue); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
 
-        /* CONTENEDOR PRINCIPAL */
-        #app { display: none; width: 960px; height: 660px; background: white; border-radius: 8px; border: 1px solid #555; flex-direction: column; overflow: hidden; box-shadow: 0 15px 50px rgba(0,0,0,0.4); position: relative; }
+        /* APP PRINCIPAL */
+        #app { display: none; width: 980px; height: 680px; background: white; border-radius: 8px; border: 1px solid #555; flex-direction: column; overflow: hidden; box-shadow: 0 15px 50px rgba(0,0,0,0.4); }
 
         header { background: linear-gradient(#f9fcff, #dcecfc); padding: 10px 15px; border-bottom: 1px solid #b4c7de; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
         .my-info { display: flex; align-items: center; gap: 10px; }
-        #my-img { width: 42px; height: 42px; border: 2px solid white; border-radius: 4px; object-fit: cover; background: #eee; }
+        #my-img { width: 45px; height: 45px; border: 2px solid white; border-radius: 4px; object-fit: cover; background: #eee; }
 
         main { display: flex; flex: 1; overflow: hidden; }
 
-        /* COLUMNA IZQUIERDA */
-        #side-left { width: 250px; border-right: 1px solid #d0deee; display: flex; flex-direction: column; background: #fff; }
-        .label { background: #eff6ff; padding: 6px 12px; font-size: 11px; font-weight: bold; color: #5a708a; border-bottom: 1px solid #d0deee; }
-        .item { display: flex; align-items: center; gap: 8px; padding: 10px; cursor: pointer; border: none; background: none; width: 100%; text-align: left; font-size: 13px; border-bottom: 1px solid #f9f9f9; }
-        .item:hover { background: #f0f7ff; }
-        .img-min { width: 32px; height: 32px; border-radius: 3px; object-fit: cover; }
-        .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+        /* SIDEBAR IZQUIERDO */
+        #side-left { width: 260px; border-right: 1px solid #d0deee; display: flex; flex-direction: column; background: #fff; }
+        .label { background: #eff6ff; padding: 8px 12px; font-size: 11px; font-weight: bold; color: #5a708a; border-bottom: 1px solid #d0deee; }
+        .item { display: flex; align-items: center; gap: 10px; padding: 12px; cursor: pointer; border: none; background: none; width: 100%; text-align: left; font-size: 13px; border-bottom: 1px solid #f2f6fb; }
+        .item:hover { background: #f1f7ff; }
+        .img-min { width: 34px; height: 34px; border-radius: 4px; object-fit: cover; border: 1px solid #ccc; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
         .on { background: #31a24c; } .off { background: #bdc1c6; }
 
-        /* CHAT */
-        #chat-area { flex: 1; display: flex; flex-direction: column; }
-        #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; background: white; }
-        #input-box { padding: 12px; background: #f7faff; border-top: 1px solid #d0deee; flex-shrink: 0; }
-        #text-in { width: 100%; height: 60px; padding: 8px; border: 1px solid #a0b5d0; border-radius: 4px; resize: none; font-size: 13px; }
+        /* CHAT CENTRAL */
+        #chat-main { flex: 1; display: flex; flex-direction: column; background: white; }
+        #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        #input-area { padding: 15px; background: #f7faff; border-top: 1px solid #d0deee; flex-shrink: 0; }
+        #text-in { width: 100%; height: 65px; padding: 10px; border: 1px solid #a0b5d0; border-radius: 4px; resize: none; font-size: 13px; }
 
-        /* DERECHA */
-        #side-right { width: 200px; background: #fdfdfd; display: flex; flex-direction: column; align-items: center; padding: 20px 10px; gap: 30px; border-left: 1px solid #d0deee; }
-        .img-big { width: 130px; height: 130px; border: 5px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-radius: 8px; object-fit: cover; }
+        /* SIDEBAR DERECHO */
+        #side-right { width: 200px; background: #fdfdfd; display: flex; flex-direction: column; align-items: center; padding: 25px 10px; gap: 40px; border-left: 1px solid #d0deee; }
+        .img-big { width: 130px; height: 130px; border: 6px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 10px; object-fit: cover; }
 
-        /* MODAL DE PERFIL (Corregido para que no se pegue) */
-        #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: white; padding: 25px; border-radius: 10px; width: 300px; border: 2px solid var(--blue); text-align: center; }
+        /* MODAL PERFIL */
+        #modal-perfil { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
+        .modal-box { background: white; padding: 30px; border-radius: 12px; width: 320px; text-align: center; border: 2px solid var(--msn-blue); }
 
-        .hidden { display: none !important; }
         .shake { animation: s 0.1s 10; }
-        @keyframes s { 0%, 100% {transform:translate(0,0)} 25% {transform:translate(4px,4px)} 50% {transform:translate(-4px,-4px)} }
+        @keyframes s { 0%, 100% {transform:translate(0,0)} 25% {transform:translate(5px,5px)} 50% {transform:translate(-5px,-5px)} }
     </style>
 </head>
 <body>
 
     <div id="login-box">
-        <h2 style="color:var(--blue); margin-bottom:15px;">THE REALS MSN</h2>
-        <input id="u-in" placeholder="Usuario">
-        <input id="p-in" type="password" placeholder="Contraseña">
-        <button onclick="login()">Iniciar Sesión</button>
+        <h2 style="color:var(--msn-blue); margin-bottom:20px;">THE REALS MSN</h2>
+        <input id="li-user" placeholder="Usuario">
+        <input id="li-pass" type="password" placeholder="Contraseña">
+        <button onclick="intentarLogin()">Iniciar Sesión</button>
     </div>
 
     <div id="app">
         <header>
             <div class="my-info">
                 <img id="my-img" src="">
-                <div><b id="my-name" style="color:var(--blue); font-size:14px;">...</b><br><small id="my-status" style="font-size:11px; color:gray;">Cargando...</small></div>
+                <div><b id="my-name" style="color:var(--msn-blue); font-size:14px;">...</b><br><small id="my-desc" style="font-size:11px; color:#666;">Conectado</small></div>
             </div>
-            <button onclick="toggleModal(true)" style="font-size:11px; padding:4px 8px; cursor:pointer;">Editar Perfil</button>
+            <button onclick="abrirPerfil(true)" style="font-size:11px; padding:5px 10px; cursor:pointer; border-radius:4px; border:1px solid #ccc; background:#fff;">Editar Perfil</button>
         </header>
 
         <main>
             <div id="side-left">
-                <div class="label">SALAS</div>
-                <button class="item" onclick="setChat('conversando', 'Conversando', '/logo-conversando.png')">
+                <div class="label">SALAS DE GRUPO</div>
+                <button class="item" onclick="cambiarSala('conversando', 'Conversando', '/logo-conversando.png')">
                     <img src="/logo-conversando.png" class="img-min" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
                     <b>Conversando</b>
                 </button>
-                <button class="item" onclick="setChat('juegos', 'Juegos', '/logo-juegos.png')">
+                <button class="item" onclick="cambiarSala('juegos', 'Juegos', '/logo-juegos.png')">
                     <img src="/logo-juegos.png" class="img-min" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686431.png'">
                     <b>Juegos</b>
                 </button>
-                <button class="item" onclick="setChat('solotodo', 'SoloTodo', '/logo-solotodo.png')">
+                <button class="item" onclick="cambiarSala('solotodo', 'SoloTodo', '/logo-solotodo.png')">
                     <img src="/logo-solotodo.png" class="img-min" style="object-fit:contain" onerror="this.src='https://www.solotodo.cl/static/logo.png'">
                     <b>SoloTodo</b>
                 </button>
                 <div class="label">CONTACTOS</div>
-                <div id="contacts" style="flex:1; overflow-y:auto;"></div>
+                <div id="lista-contactos" style="flex:1; overflow-y:auto;"></div>
             </div>
 
-            <div id="chat-area">
+            <div id="chat-main">
                 <div id="messages"></div>
-                <div id="input-box">
+                <div id="input-area">
                     <textarea id="text-in" placeholder="Escribe un mensaje..."></textarea>
-                    <div style="display:flex; justify-content: space-between; margin-top:8px;">
-                        <button onclick="sendBuzz()" style="font-size:11px; cursor:pointer; padding:2px 8px;">🔔 Zumbido</button>
-                        <button onclick="sendMsg()" style="background:var(--blue); color:white; border:none; padding:6px 20px; border-radius:4px; cursor:pointer; font-weight:bold;">Enviar</button>
+                    <div style="display:flex; justify-content: space-between; margin-top:10px;">
+                        <button onclick="enviarZumbido()" style="font-size:11px; cursor:pointer; padding:4px 10px;">🔔 Zumbido</button>
+                        <button onclick="enviarTexto()" style="background:var(--msn-blue); color:white; border:none; padding:8px 25px; border-radius:5px; font-weight:bold; cursor:pointer;">Enviar</button>
                     </div>
                 </div>
             </div>
 
             <div id="side-right">
-                <div style="text-align:center;"><img id="target-img" class="img-big" src=""><div id="target-name" style="font-size:13px; font-weight:bold; color:var(--blue); margin-top:8px;">...</div></div>
-                <div style="text-align:center;"><img id="side-my-img" class="img-big" src=""><div style="font-size:12px; color:#666; margin-top:8px;">(Tú)</div></div>
+                <div style="text-align:center;"><img id="target-img" class="img-big" src=""><div id="target-name" style="font-size:14px; font-weight:bold; color:var(--msn-blue); margin-top:10px;">...</div></div>
+                <div style="text-align:center;"><img id="side-my-img" class="img-big" src=""><div style="font-size:12px; color:#666; margin-top:10px;">(Tú)</div></div>
             </div>
         </main>
     </div>
 
-    <div id="modal">
-        <div class="modal-content">
-            <h3 style="margin-bottom:15px;">Mi Perfil</h3>
-            <input id="new-st" placeholder="¿Qué piensas?" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc;">
-            <input type="file" id="new-ph" style="margin-bottom:15px; font-size:11px; width:100%;"><br>
-            <button onclick="saveProf()" style="width:100%; padding:10px; background:var(--blue); color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">Guardar Cambios</button>
-            <button onclick="toggleModal(false)" style="margin-top:10px; border:none; background:none; color:gray; cursor:pointer; font-size:12px;">Cancelar</button>
+    <div id="modal-perfil">
+        <div class="modal-box">
+            <h3>Mi Perfil</h3><br>
+            <input id="up-desc" placeholder="¿En qué piensas?" style="width:100%; padding:10px; margin-bottom:10px;">
+            <input type="file" id="up-foto" style="margin-bottom:20px; font-size:11px; width:100%;"><br>
+            <button onclick="guardarPerfil()" style="width:100%; padding:12px; background:var(--msn-blue); color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">Guardar</button>
+            <button onclick="abrirPerfil(false)" style="margin-top:10px; border:none; background:none; color:gray; cursor:pointer;">Cancelar</button>
         </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        let me = localStorage.getItem('msn_user') || "";
-        let currentRoom = 'conversando';
-        const buzzAudio = new Audio('https://www.myinstants.com/media/sounds/msn-messenger-buzz.mp3');
+        let yo = localStorage.getItem('msn_user') || "";
+        let salaActual = 'conversando';
+        const msnAudio = new Audio('https://www.myinstants.com/media/sounds/msn-messenger-buzz.mp3');
 
-        // --- FUNCIÓN ENTER (CORREGIDA) ---
+        // --- ENVIAR CON ENTER ---
         document.getElementById('text-in').addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                sendMsg();
+                enviarTexto();
             }
         });
 
-        // Toggle Modal
-        function toggleModal(show) {
-            document.getElementById('modal').style.display = show ? 'flex' : 'none';
-        }
+        function abrirPerfil(ver) { document.getElementById('modal-perfil').style.display = ver ? 'flex' : 'none'; }
 
-        if(me) socket.emit('login', { user: me, pass: localStorage.getItem('msn_pass') });
+        if(yo) socket.emit('login', { user: yo, pass: localStorage.getItem('msn_pass') });
 
-        function login() {
-            const u = document.getElementById('u-in').value, p = document.getElementById('p-in').value;
+        function intentarLogin() {
+            const u = document.getElementById('li-user').value, p = document.getElementById('li-pass').value;
             if(u && p) {
                 localStorage.setItem('msn_user', u); localStorage.setItem('msn_pass', p);
                 socket.emit('login', { user: u, pass: p });
@@ -148,94 +143,99 @@
 
         socket.on('login_status', res => {
             if(res.success) {
-                me = res.user;
+                yo = res.user;
                 document.getElementById('login-box').style.display = 'none';
                 document.getElementById('app').style.display = 'flex';
-                syncUI(res.perfil);
-                setChat('conversando', 'Conversando', '/logo-conversando.png');
-            } else { alert("Error al entrar"); }
+                actualizarMiCara(res.perfil);
+                cambiarSala('conversando', 'Conversando', '/logo-conversando.png');
+            }
         });
 
-        function syncUI(p) {
+        function actualizarMiCara(p) {
             const f = p.foto || "https://via.placeholder.com/130";
             document.getElementById('my-img').src = f;
             document.getElementById('side-my-img').src = f;
-            document.getElementById('my-name').innerText = me;
-            document.getElementById('my-status').innerText = p.descripcion || "Disponible";
+            document.getElementById('my-name').innerText = yo;
+            document.getElementById('my-desc').innerText = p.descripcion || "Disponible";
         }
 
-        socket.on('lista_contactos', list => {
-            const div = document.getElementById('contacts');
+        socket.on('lista_contactos', lista => {
+            const div = document.getElementById('lista-contactos');
             div.innerHTML = "";
-            list.forEach(u => {
-                if(u.user === me) return;
+            lista.forEach(u => {
+                if(u.user === yo) return;
                 const b = document.createElement('button');
                 b.className = "item";
-                const s = u.online ? 'on' : 'off';
-                b.innerHTML = `<img src="${u.foto || 'https://via.placeholder.com/32'}" class="img-min"> <div><span class="dot ${s}"></span>${u.user}</div>`;
-                b.onclick = () => setChat(u.user, u.user, u.foto);
+                const dotClass = u.online ? 'on' : 'off';
+                b.innerHTML = `<img src="${u.foto || 'https://via.placeholder.com/34'}" class="img-min"> <div><span class="dot ${dotClass}"></span><b>${u.user}</b></div>`;
+                b.onclick = () => cambiarSala(u.user, u.user, u.foto);
                 div.appendChild(b);
             });
         });
 
-        function setChat(id, name, img) {
-            currentRoom = id;
-            document.getElementById('target-name').innerText = name;
-            let f = img || "https://via.placeholder.com/130?text=" + name;
-            if(id === 'conversando') f = '/logo-conversando.png';
-            if(id === 'juegos') f = '/logo-juegos.png';
-            if(id === 'solotodo') f = '/logo-solotodo.png';
-            document.getElementById('target-img').src = f;
+        function cambiarSala(id, nombre, img) {
+            salaActual = id;
+            document.getElementById('target-name').innerText = nombre;
+            let finalImg = img || "https://via.placeholder.com/130?text=" + nombre;
+            if(id === 'conversando') finalImg = '/logo-conversando.png';
+            if(id === 'juegos') finalImg = '/logo-juegos.png';
+            if(id === 'solotodo') finalImg = '/logo-solotodo.png';
+            document.getElementById('target-img').src = finalImg;
+            
             document.getElementById('messages').innerHTML = "";
             socket.emit('get_private_history', id);
         }
 
-        function sendMsg() {
-            const v = document.getElementById('text-in').value;
-            if(v.trim()) socket.emit('chat message', { to: currentRoom, text: v });
+        function enviarTexto() {
+            const txt = document.getElementById('text-in').value;
+            if(txt.trim()) socket.emit('chat message', { to: salaActual, text: txt });
             document.getElementById('text-in').value = "";
         }
 
-        function sendBuzz() { socket.emit('chat message', { to: currentRoom, isBuzz: true }); }
+        function enviarZumbido() { socket.emit('chat message', { to: salaActual, isBuzz: true }); }
 
         socket.on('chat message', m => {
-            const t = m.to || 'conversando';
-            if(t === currentRoom || (m.user === currentRoom && m.to === me) || (m.user === me && t === currentRoom)) {
-                renderMsg(m);
+            const destino = m.to || 'conversando';
+            // Validar si el mensaje pertenece a la sala/chat abierto
+            if(destino === salaActual || (m.user === salaActual && m.to === yo) || (m.user === yo && destino === salaActual)) {
+                renderizar(m);
             }
-            if(m.isBuzz && (t === currentRoom || m.to === me)) {
+            if(m.isBuzz && (destino === salaActual || m.to === yo)) {
                 document.getElementById('app').classList.add('shake');
                 setTimeout(()=>document.getElementById('app').classList.remove('shake'), 600);
-                buzzAudio.play().catch(()=>{});
+                msnAudio.play().catch(()=>{});
             }
         });
 
         socket.on('actualizar_historial', res => {
-            if(res.target === currentRoom) {
+            if(res.target === salaActual) {
                 document.getElementById('messages').innerHTML = "";
-                res.history.forEach(m => renderMsg(m));
+                res.history.forEach(m => renderizar(m));
             }
         });
 
-        function renderMsg(m) {
+        function renderizar(m) {
             const div = document.getElementById('messages');
             const d = document.createElement('div');
-            let txt = m.texto || m.text || "";
-            if(m.isBuzz) txt = `<span style="color:red; font-weight:bold;">¡Ha enviado un zumbido!</span>`;
-            d.innerHTML = `<b style="color:var(--blue); font-size:12px;">${m.user} dice:</b><br><span style="font-size:13px;">${txt}</span>`;
+            let contenido = m.texto || m.text || "";
+            if(m.isBuzz) contenido = `<span style="color:red; font-weight:bold;">¡ZUMBIDO!</span>`;
+            
+            d.innerHTML = `<b style="color:var(--msn-blue); font-size:12px;">${m.user} dice:</b><br><span style="font-size:13px;">${contenido}</span>`;
             div.appendChild(d);
             div.scrollTop = div.scrollHeight;
         }
 
-        function saveProf() {
-            const f = document.getElementById('new-ph').files[0];
-            const s = document.getElementById('new-st').value;
+        function guardarPerfil() {
+            const f = document.getElementById('up-foto').files[0];
+            const d = document.getElementById('up-desc').value;
             if(f) {
                 const r = new FileReader();
-                r.onload = () => socket.emit('update_profile', { desc: s, foto: r.result });
+                r.onload = () => { socket.emit('update_profile', { desc: d, foto: r.result }); abrirPerfil(false); };
                 r.readAsDataURL(f);
-            } else { socket.emit('update_profile', { desc: s, foto: null }); }
-            toggleModal(false);
+            } else { 
+                socket.emit('update_profile', { desc: d, foto: null }); 
+                abrirPerfil(false); 
+            }
         }
     </script>
 </body>
