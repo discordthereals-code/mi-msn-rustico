@@ -11,7 +11,7 @@ db.serialize(() => {
     db.run("CREATE TABLE IF NOT EXISTS mensajes (user TEXT, destino TEXT, texto TEXT, tipo TEXT, archivo TEXT, isBuzz INTEGER, fecha DATETIME DEFAULT CURRENT_TIMESTAMP)");
 });
 
-app.use(express.static('public'));
+app.use(express.static(__dirname));
 
 io.on('connection', (socket) => {
     
