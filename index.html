@@ -3,130 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE REALS - MSN</title>
+    <title>THE REALS - MSN PRO</title>
     <style>
         body { background-color: #0d0d0d; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; color: #eee; }
+        
+        /* LOGIN */
         #login-screen { background: #1a1a1a; padding: 40px; border-radius: 20px; border: 2px solid #ffff00; text-align: center; width: 320px; box-shadow: 0 0 30px rgba(255, 255, 0, 0.2); }
-        #login-screen h1 { color: #ffff00; margin-bottom: 20px; letter-spacing: 3px; }
         .login-input { width: 100%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #444; color: white; border-radius: 8px; box-sizing: border-box; }
-        .btn-login { width: 100%; padding: 15px; background: #ffff00; color: black; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
-        #chat-window { display: none; width: 95%; max-width: 800px; height: 90vh; background: #1a1a1a; border: 1px solid #333; border-radius: 15px; flex-direction: column; overflow: hidden; box-shadow: 0px 10px 50px rgba(0,0,0,0.8); }
+        .btn-login { width: 100%; padding: 15px; background: #ffff00; color: black; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        
+        /* CHAT WINDOW */
+        #chat-window { display: none; width: 95%; max-width: 850px; height: 90vh; background: #1a1a1a; border: 1px solid #333; border-radius: 15px; flex-direction: column; overflow: hidden; }
         #title-bar { background: #222; color: #ffff00; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ffff00; }
-        #title-bar h2 { margin: 0; font-size: 20px; letter-spacing: 2px; }
-        #logout-btn { background: none; border: 1px solid #444; color: #888; padding: 5px 10px; cursor: pointer; border-radius: 5px; font-size: 12px; }
-        #topic-bar { background: #111; padding: 10px 20px; font-size: 13px; color: #8ab4f8; font-style: italic; }
+        
         #messages-container { flex-grow: 1; overflow-y: auto; padding: 20px; background: #141414; }
         #messages { list-style: none; padding: 0; margin: 0; }
-        #messages li { margin-bottom: 12px; font-size: 15px; line-height: 1.5; border-bottom: 1px solid #222; padding-bottom: 8px; }
-        #messages li strong { color: #ffff00; margin-right: 8px; }
-        .chat-link { color: #00e5ff; text-decoration: underline; font-weight: bold; }
-        #input-area { padding: 20px; background: #1a1a1a; border-top: 1px solid #333; }
+        #messages li { margin-bottom: 12px; border-bottom: 1px solid #222; padding-bottom: 10px; position: relative; }
+        
+        /* ESTILO DE LA HORA Y NOMBRE */
+        .msg-time { font-size: 10px; color: #666; margin-right: 8px; }
+        .msg-user { color: #ffff00; font-weight: bold; margin-right: 5px; }
+        
+        /* MULTIMEDIA */
+        .chat-img { max-width: 100%; max-height: 300px; border-radius: 10px; margin-top: 10px; border: 1px solid #444; display: block; }
+        audio { margin-top: 10px; height: 35px; filter: invert(100%); }
+        .chat-link { color: #00e5ff; text-decoration: underline; }
+
+        /* AREA DE ENTRADA */
+        #input-area { padding: 15px; background: #1a1a1a; border-top: 1px solid #333; }
         #msg-input { width: 100%; padding: 15px; background: #252525; border: 1px solid #444; color: white; border-radius: 10px; font-size: 16px; box-sizing: border-box; }
-        .controls { display: flex; gap: 10px; margin-top: 15px; }
-        .btn { border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .btn-buzz { background: #ff4444; color: white; padding: 15px 25px; }
-        .btn-send { background: #ffff00; color: black; flex-grow: 1; padding: 15px; font-size: 16px; }
-        @keyframes shake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(8px,8px); } 50% { transform: translate(-8px,-8px); } 75% { transform: translate(8px,-8px); } }
+        
+        /* ORDEN DE BOTONES */
+        .controls { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
+        .btn { border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.1s; padding: 12px; display: flex; align-items: center; justify-content: center; height: 50px; }
+        .btn:active { transform: scale(0.95); }
+        
+        .btn-util { background: #333; color: white; font-size: 20px; min-width: 50px; }
+        .btn-buzz { background: #ff4444; color: white; min-width: 50px; font-size: 16px; }
+        .btn-send { background: #ffff00; color: black; flex-grow: 1; font-size: 16px; text-transform: uppercase; }
+
+        /* GRABACIÓN */
+        #rec-indicator { color: #ff4444; font-size: 12px; font-weight: bold; display: none; margin-left: 5px; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+        
+        @keyframes shake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(8px,8px); } 50% { transform: translate(-8px,-8px); } }
         .shake-effect { animation: shake 0.1s 6; }
     </style>
 </head>
 <body>
 
 <div id="login-screen">
-    <h1>THE REALS</h1>
-    <input type="text" id="user" class="login-input" placeholder="Tu Usuario">
-    <input type="password" id="pass" class="login-input" placeholder="Tu Contraseña">
-    <button class="btn-login" onclick="intentarLogin()">ENTRAR / REGISTRAR</button>
-    <p id="error-msg" style="color: #ff4444; font-size: 13px; margin-top: 15px;"></p>
+    <h1 style="color:#ffff00; letter-spacing: 2px;">THE REALS</h1>
+    <input type="text" id="user" class="login-input" placeholder="Usuario">
+    <input type="password" id="pass" class="login-input" placeholder="Contraseña">
+    <button class="btn-login" onclick="intentarLogin()">ENTRAR AL CHAT</button>
 </div>
 
 <div id="chat-window">
     <div id="title-bar">
-        <h2>THE REALS</h2>
-        <button id="logout-btn" onclick="logout()">Cerrar Sesión</button>
+        <h2 style="margin:0">THE REALS</h2>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <span id="rec-indicator">● REC</span>
+            <button onclick="location.reload()" style="background:none; border:1px solid #444; color:#888; cursor:pointer; padding:5px 10px; border-radius:5px;">Salir</button>
+        </div>
     </div>
-    <div id="topic-bar">Canal: <span id="current-topic">Cargando...</span></div>
     <div id="messages-container"><ul id="messages"></ul></div>
     <div id="input-area">
         <input id="msg-input" autocomplete="off" placeholder="Escribe un mensaje..." onkeypress="if(event.key==='Enter')send()">
         <div class="controls">
-            <button class="btn btn-buzz" onclick="buzz()">ZUMBIDO</button>
+            <button class="btn btn-util" onclick="mandarClip()" title="Adjuntar">📎</button>
+            <button class="btn btn-util" id="mic-btn" onclick="toggleAudio()" title="Grabar Audio">🎤</button>
+            <button class="btn btn-buzz" onclick="buzz()">Z!</button>
             <button class="btn btn-send" onclick="send()">ENVIAR MENSAJE</button>
         </div>
     </div>
 </div>
 
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-
 <script>
-    // Conexión forzada
     const socket = io();
     let miUsuario = "";
-
-    socket.on('connect', () => { console.log("✅ Conectado al servidor"); });
-    socket.on('connect_error', (err) => { console.log("❌ Error de conexión:", err); });
-
-    window.onload = () => {
-        const savedUser = localStorage.getItem('reals_user');
-        const savedPass = localStorage.getItem('reals_pass');
-        if(savedUser && savedPass) {
-            document.getElementById('user').value = savedUser;
-            document.getElementById('pass').value = savedPass;
-        }
-    };
+    let mediaRecorder;
+    let audioChunks = [];
 
     function intentarLogin() {
-        const user = document.getElementById('user').value.trim();
-        const pass = document.getElementById('pass').value.trim();
-        if(!user || !pass) return alert("Escribe usuario y clave.");
-        console.log("Intentando login para:", user);
-        socket.emit('login', { user, pass });
+        const u = document.getElementById('user').value;
+        const p = document.getElementById('pass').value;
+        if(u && p) socket.emit('login', { user: u, pass: p });
     }
 
     socket.on('login_status', (res) => {
-        console.log("Respuesta login:", res);
         if(res.success) {
             miUsuario = res.user;
-            localStorage.setItem('reals_user', document.getElementById('user').value);
-            localStorage.setItem('reals_pass', document.getElementById('pass').value);
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('chat-window').style.display = 'flex';
-            document.getElementById('current-topic').innerText = res.tema;
             res.history.forEach(m => appendMessage(m));
-        } else {
-            document.getElementById('error-msg').innerText = res.msg;
-        }
+        } else { alert(res.msg); }
     });
 
-    function logout() { localStorage.clear(); location.reload(); }
-
-    function linkify(text) {
-        const urlRegex = /(https?:\/\/[^\s]+)/g;
-        return text.replace(urlRegex, (url) => `<a href="${url}" target="_blank" class="chat-link">${url}</a>`);
+    function getNow() {
+        const d = new Date();
+        return d.getHours().toString().padStart(2, '0') + ":" + d.getMinutes().toString().padStart(2, '0');
     }
 
     function send() {
         const input = document.getElementById('msg-input');
         if(input.value.trim()) {
-            socket.emit('chat message', { user: miUsuario, text: input.value });
+            socket.emit('chat message', { user: miUsuario, text: input.value, time: getNow() });
             input.value = '';
         }
     }
 
-    function buzz() { socket.emit('chat message', { user: miUsuario, text: "¡ZUMBIDO!", isBuzz: true }); }
-
-    function playSound() {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function n(f, s, d) { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.frequency.value = f; o.connect(g); g.connect(audioCtx.destination); g.gain.setValueAtTime(0.1, s); o.start(s); o.stop(s + d); }
-        n(880, audioCtx.currentTime, 0.1); n(1046, audioCtx.currentTime + 0.15, 0.2);
+    function mandarClip() {
+        const url = prompt("Pega el link de la imagen o video:");
+        if(url) socket.emit('chat message', { user: miUsuario, text: url, time: getNow() });
     }
 
-    socket.on('cambiar tema', (nuevo) => { document.getElementById('current-topic').innerText = nuevo; });
+    function buzz() { socket.emit('chat message', { user: miUsuario, text: "¡HA ENVIADO UN ZUMBIDO!", isBuzz: true, time: getNow() }); }
+
+    async function toggleAudio() {
+        const btn = document.getElementById('mic-btn');
+        const indicator = document.getElementById('rec-indicator');
+        
+        if (!mediaRecorder || mediaRecorder.state === "inactive") {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(audioChunks, { type: 'audio/ogg; codecs=opus' });
+                    const reader = new FileReader();
+                    reader.readAsDataURL(blob);
+                    reader.onloadend = () => {
+                        socket.emit('chat message', { user: miUsuario, audio: reader.result, time: getNow() });
+                    };
+                };
+                mediaRecorder.start();
+                btn.style.background = "#ff4444";
+                indicator.style.display = "block";
+            } catch(e) { alert("No se pudo acceder al micro."); }
+        } else {
+            mediaRecorder.stop();
+            btn.style.background = "#333";
+            indicator.style.display = "none";
+        }
+    }
 
     socket.on('chat message', (data) => {
         appendMessage(data);
         if(data.isBuzz) {
-            playSound();
             document.getElementById('chat-window').classList.add('shake-effect');
             setTimeout(() => document.getElementById('chat-window').classList.remove('shake-effect'), 600);
         }
@@ -134,8 +160,24 @@
 
     function appendMessage(data) {
         const li = document.createElement('li');
-        const textoConLinks = linkify(data.text);
-        li.innerHTML = data.isSystem ? `<span style="color:#888">${textoConLinks}</span>` : `<strong>${data.user}:</strong> ${textoConLinks}`;
+        const timeSpan = `<span class="msg-time">${data.time || getNow()}</span>`;
+        const userSpan = `<span class="msg-user">${data.user}:</span>`;
+        
+        let body = "";
+        if (data.audio) {
+            body = `<br><audio controls src="${data.audio}"></audio>`;
+        } else {
+            const isImg = data.text.match(/\.(jpeg|jpg|gif|png)$/) != null;
+            if (isImg) {
+                body = `<br><img src="${data.text}" class="chat-img">`;
+            } else if (data.text.startsWith('http')) {
+                body = `<a href="${data.text}" target="_blank" class="chat-link">${data.text}</a>`;
+            } else {
+                body = data.text;
+            }
+        }
+
+        li.innerHTML = `${timeSpan} ${userSpan} ${body}`;
         document.getElementById('messages').appendChild(li);
         const container = document.getElementById('messages-container');
         container.scrollTop = container.scrollHeight;
