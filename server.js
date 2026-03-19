@@ -1,108 +1,108 @@
 const express = require('express');
 const app = express();
 const http = require('http').Server(app);
-const path = require('path');
-const io = require('socket.io')(http, { 
-    cors: { origin: "*" }, 
-    maxHttpBufferSize: 1e8 
-});
-const sqlite3 = require('sqlite3');
-const { open } = require('sqlite');
+const io = require('socket.io')(http);
+const sqlite3 = require('sqlite3').verbose();
+const db = new sqlite3.Database('./msn_database.db');
 
-// --- LÍNEA CRÍTICA PARA ARREGLAR EL "CANNOT GET /" ---
-app.use(express.static(path.join(__dirname))); 
-
-let db;
-
-(async () => {
-    db = await open({ 
-        filename: path.join(__dirname, 'database.sqlite'), 
-        driver: sqlite3.Database 
-    });
-    
-    await db.exec(`
-        CREATE TABLE IF NOT EXISTS usuarios (
-            user TEXT PRIMARY KEY, 
-            pass TEXT, 
-            foto TEXT DEFAULT 'https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png', 
-            descripcion TEXT DEFAULT '¿En qué piensas?'
-        );
-        CREATE TABLE IF NOT EXISTS mensajes (
-            id INTEGER PRIMARY KEY AUTOINCREMENT, 
-            de TEXT, 
-            para TEXT, 
-            texto TEXT, 
-            tipo TEXT, 
-            archivo TEXT, 
-            fecha DATETIME DEFAULT CURRENT_TIMESTAMP
-        );
-    `);
-})();
-
-// RUTA PRINCIPAL PARA SERVIR EL INDEX.HTML
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+// Crear tablas si no existen
+db.serialize(() => {
+    db.run("CREATE TABLE IF NOT EXISTS usuarios (user TEXT PRIMARY KEY, pass TEXT, foto TEXT, descripcion TEXT, online INTEGER)");
+    db.run("CREATE TABLE IF NOT EXISTS mensajes (user TEXT, destino TEXT, texto TEXT, tipo TEXT, archivo TEXT, isBuzz INTEGER, fecha DATETIME DEFAULT CURRENT_TIMESTAMP)");
 });
 
-let onlineUsers = {};
+app.use(express.static('public'));
 
 io.on('connection', (socket) => {
-    socket.on('login', async (data) => {
-        let userDB = await db.get('SELECT * FROM usuarios WHERE user = ?', [data.user]);
-        if (!userDB) {
-            await db.run('INSERT INTO usuarios (user, pass) VALUES (?, ?)', [data.user, data.pass]);
-            userDB = await db.get('SELECT * FROM usuarios WHERE user = ?', [data.user]);
-        } else if (userDB.pass !== data.pass) {
-            return socket.emit('login_status', { success: false });
-        }
-
-        socket.userName = data.user;
-        onlineUsers[data.user] = socket.id;
-        
-        const history = await db.all("SELECT de as user, texto as text, tipo, archivo FROM mensajes WHERE para IS NULL OR para = 'conversando' ORDER BY id ASC LIMIT 100");
-        socket.emit('login_status', { success: true, user: data.user, perfil: userDB, history: history });
-        broadcastUserList();
+    
+    // LOGIN
+    socket.on('login', (data) => {
+        db.get("SELECT * FROM usuarios WHERE user = ?", [data.user], (err, row) => {
+            if (row && row.pass === data.pass) {
+                socket.user = data.user;
+                db.run("UPDATE usuarios SET online = 1 WHERE user = ?", [data.user]);
+                enviarListaContactos();
+                socket.emit('login_status', { success: true, user: row.user, perfil: row });
+            } else {
+                socket.emit('login_status', { success: false });
+            }
+        });
     });
 
-    async function broadcastUserList() {
-        const todos = await db.all('SELECT user, foto, descripcion FROM usuarios');
-        const listaFinal = todos.map(u => ({
-            user: u.user,
-            foto: u.foto,
-            descripcion: u.descripcion,
-            online: !!onlineUsers[u.user]
-        }));
-        io.emit('lista_contactos', listaFinal);
+    // GUARDAR PERFIL (Esto era lo que faltaba y hacía que fallara el modal)
+    socket.on('update_profile', (data) => {
+        if (!socket.user) return;
+        if (data.foto) {
+            db.run("UPDATE usuarios SET descripcion = ?, foto = ? WHERE user = ?", [data.desc, data.foto, socket.user], () => {
+                enviarListaContactos();
+            });
+        } else {
+            db.run("UPDATE usuarios SET descripcion = ? WHERE user = ?", [data.desc, socket.user], () => {
+                enviarListaContactos();
+            });
+        }
+    });
+
+    // MENSAJES (SALA Y PRIVADOS)
+    socket.on('chat message', (msg) => {
+        if (!socket.user) return;
+        const destino = msg.to || 'conversando';
+        
+        db.run("INSERT INTO mensajes (user, destino, texto, tipo, archivo, isBuzz) VALUES (?, ?, ?, ?, ?, ?)",
+            [socket.user, destino, msg.text, msg.tipo, msg.archivo, msg.isBuzz ? 1 : 0], 
+            function(err) {
+                // Enviamos a todos (io.emit) y el cliente filtrará si le corresponde verlo
+                io.emit('chat message', { 
+                    user: socket.user, 
+                    to: destino, 
+                    text: msg.text, 
+                    tipo: msg.tipo, 
+                    archivo: msg.archivo, 
+                    isBuzz: msg.isBuzz 
+                });
+            }
+        );
+    });
+
+    // HISTORIAL (Arreglado para salas globales)
+    socket.on('get_private_history', (target) => {
+        if (!socket.user) return;
+        
+        let query;
+        let params;
+
+        // Si el destino es una sala global
+        if (['conversando', 'juegos', 'solotodo'].includes(target)) {
+            query = "SELECT * FROM mensajes WHERE destino = ? ORDER BY fecha ASC LIMIT 50";
+            params = [target];
+        } else {
+            // Si es un chat privado entre dos personas
+            query = `
+                SELECT * FROM mensajes 
+                WHERE (user = ? AND destino = ?) 
+                OR (user = ? AND destino = ?) 
+                ORDER BY fecha ASC LIMIT 50`;
+            params = [socket.user, target, target, socket.user];
+        }
+        
+        db.all(query, params, (err, rows) => {
+            socket.emit('actualizar_historial', { target: target, history: rows || [] });
+        });
+    });
+
+    function enviarListaContactos() {
+        db.all("SELECT user, foto, descripcion, online FROM usuarios", [], (err, rows) => {
+            io.emit('lista_contactos', rows);
+        });
     }
 
-    socket.on('chat message', async (m) => {
-        const tipo = m.isBuzz ? 'zumbido' : (m.tipo || 'texto');
-        const destino = m.to || 'conversando';
-        await db.run('INSERT INTO mensajes (de, para, texto, tipo, archivo) VALUES (?, ?, ?, ?, ?)', [socket.userName, destino, m.text, tipo, m.archivo]);
-        
-        const payload = { user: socket.userName, text: m.text, tipo, archivo: m.archivo, to: destino, isBuzz: m.isBuzz };
-        if (['conversando', 'juegos', 'solotodo'].includes(destino)) {
-            io.emit('chat message', payload);
-        } else {
-            if (onlineUsers[m.to]) io.to(onlineUsers[m.to]).emit('chat message', payload);
-            socket.emit('chat message', payload);
+    socket.on('disconnect', () => {
+        if (socket.user) {
+            db.run("UPDATE usuarios SET online = 0 WHERE user = ?", [socket.user], () => {
+                enviarListaContactos();
+            });
         }
     });
-
-    socket.on('get_private_history', async (target) => {
-        let h = (['juegos', 'solotodo'].includes(target)) ?
-            await db.all('SELECT de as user, texto as text, tipo, archivo FROM mensajes WHERE para = ? ORDER BY id ASC', [target]) :
-            await db.all('SELECT de as user, texto as text, tipo, archivo FROM mensajes WHERE (de=? AND para=?) OR (de=? AND para=?) ORDER BY id ASC', [socket.userName, target, target, socket.userName]);
-        socket.emit('actualizar_historial', h);
-    });
-
-    socket.on('update_profile', async (data) => {
-        if (data.foto) await db.run('UPDATE usuarios SET foto = ? WHERE user = ?', [data.foto, socket.userName]);
-        if (data.desc !== undefined) await db.run('UPDATE usuarios SET descripcion = ? WHERE user = ?', [data.desc, socket.userName]);
-        broadcastUserList();
-    });
-
-    socket.on('disconnect', () => { delete onlineUsers[socket.userName]; broadcastUserList(); });
 });
 
-http.listen(process.env.PORT || 3000, '0.0.0.0');
+http.listen(3000, () => { console.log('MSN corriendo en puerto 3000'); });
