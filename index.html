@@ -7,15 +7,14 @@
         :root { --msn-blue: #0055e5; --bg-gradient: linear-gradient(180deg, #71ADFF 0%, #E2EFFF 100%); }
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; margin:0; padding:0; }
         
-        /* FONDO GENERAL */
         body { background: var(--bg-gradient); height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         
-        /* LOGIN BOX (ESTILO ORIGINAL BONITO) */
+        /* LOGIN BOX ORIGINAL */
         #login-box { background: white; padding: 45px; border-radius: 15px; width: 380px; text-align: center; box-shadow: 0 20px 80px rgba(0,0,0,0.5); z-index: 100; }
         #login-box input { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; outline: none; }
         #login-box button { width: 100%; padding: 14px; background: var(--msn-blue); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
 
-        /* CONTENEDOR PRINCIPAL APP */
+        /* APP CONTAINER */
         #app-container { display: none; width: 1080px; height: 750px; background: #fff; border-radius: 10px; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.4); border: 1px solid #555; overflow: hidden; }
         
         /* HEADER */
@@ -23,34 +22,33 @@
         .my-info { display: flex; align-items: center; gap: 12px; }
         #my-avatar-top { width: 45px; height: 45px; border-radius: 5px; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); object-fit: cover; background: #eee; }
 
-        /* CUERPO DE LA APP */
-        #main-layout { display: flex; flex: 1; min-height: 0; width: 100%; }
+        /* LAYOUT */
+        #main-layout { display: flex; flex: 1; min-height: 0; }
 
-        /* COLUMNA IZQUIERDA (CONTACTOS) */
-        #sidebar-left { width: 280px; border-right: 1px solid #d0deee; display: flex; flex-direction: column; flex-shrink: 0; }
+        /* IZQUIERDA: CONTACTOS Y SALAS */
+        #sidebar-left { width: 280px; border-right: 1px solid #d0deee; display: flex; flex-direction: column; flex-shrink: 0; background: #fff; }
         .cat-title { background: #eff6ff; padding: 8px 15px; font-weight: bold; font-size: 11px; color: #5a708a; border-bottom: 1px solid #d0deee; }
-        .user-item { display: flex; align-items: center; gap: 12px; padding: 12px; cursor: pointer; border: none; width: 100%; background: none; text-align: left; }
+        .user-item { display: flex; align-items: center; gap: 12px; padding: 12px; cursor: pointer; border: none; width: 100%; background: none; text-align: left; border-bottom: 1px solid #f2f6fb; }
         .user-item:hover { background: #f1f7ff; }
         .avatar-min { width: 36px; height: 36px; border-radius: 4px; border: 1px solid #ccc; object-fit: cover; flex-shrink: 0; }
         
-        /* PUNTITO DE ESTADO */
+        /* PUNTO DE ESTADO */
         .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; border: 1px solid rgba(0,0,0,0.1); }
         .online { background: #31a24c; }
         .offline { background: #bdc1c6; }
 
-        /* COLUMNA CENTRAL (CHAT) */
+        /* CENTRO: CHAT */
         #chat-main { flex: 1; display: flex; flex-direction: column; border-right: 1px solid #d0deee; min-width: 0; }
         #msgs { flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; gap: 12px; background: white; }
         #input-area { padding: 15px; background: #f7faff; border-top: 1px solid #d0deee; flex-shrink: 0; }
         #in-msg { width: 100%; height: 70px; padding: 10px; border: 1px solid #a0b5d0; border-radius: 4px; resize: none; font-size: 13px; }
 
-        /* COLUMNA DERECHA (FOTOS) */
+        /* DERECHA: FOTOS GRANDES */
         #sidebar-right { width: 220px; background: #fdfdfd; display: flex; flex-direction: column; align-items: center; padding: 20px 10px; gap: 40px; flex-shrink: 0; }
-        .frame { display: flex; flex-direction: column; align-items: center; width: 100%; }
         .avatar-big { width: 140px; height: 140px; border: 6px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border-radius: 10px; object-fit: cover; background: #eee; }
         .name-label { margin-top: 10px; font-weight: bold; color: var(--msn-blue); font-size: 14px; text-align: center; }
 
-        /* BOTONES Y EXTRAS */
+        /* EXTRAS */
         .tool-bar { display: flex; gap: 10px; margin-top: 10px; align-items: center; }
         .tool-btn { background: white; border: 1px solid #ccc; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
         .emote-img { width: 22px; height: 22px; vertical-align: middle; }
@@ -63,7 +61,7 @@
 
     <div id="login-box">
         <h2 style="color:var(--msn-blue); margin-bottom:25px;">THE REALS MSN</h2>
-        <input id="u" placeholder="Nombre de usuario">
+        <input id="u" placeholder="Usuario">
         <input id="p" type="password" placeholder="Contraseña">
         <button onclick="login()">Iniciar Sesión</button>
     </div>
@@ -73,8 +71,8 @@
             <div class="my-info">
                 <img id="my-avatar-top" src="">
                 <div>
-                    <b id="my-name-top" style="color:var(--msn-blue);">Cargando...</b><br>
-                    <small id="my-desc-top" style="color:#666;">¿En qué piensas?</small>
+                    <b id="my-name-top" style="color:var(--msn-blue);">...</b><br>
+                    <small id="my-desc-top" style="color:#666;">Conectado</small>
                 </div>
             </div>
             <button onclick="document.getElementById('m-edit').classList.remove('hidden')" style="background:none; border:1px solid #a0b5d0; padding:5px 15px; cursor:pointer; border-radius:4px; font-size:11px;">Editar Perfil</button>
@@ -110,10 +108,8 @@
                         <button class="tool-btn" onclick="sendBuzz()">🔔 Zumbido</button>
                         <button class="tool-btn" onclick="document.getElementById('up-img').click()">🖼️ Imagen</button>
                         <button class="tool-btn" onclick="document.getElementById('up-aud').click()">🎵 Audio</button>
-                        
                         <input type="file" id="up-img" class="hidden" accept="image/*" onchange="upFile(this, 'img')">
                         <input type="file" id="up-aud" class="hidden" accept="audio/*" onchange="upFile(this, 'aud')">
-
                         <button onclick="sendText()" style="margin-left:auto; background:var(--msn-blue); color:white; border:none; padding:8px 30px; border-radius:5px; font-weight:bold; cursor:pointer;">Enviar</button>
                     </div>
                 </div>
@@ -132,12 +128,12 @@
         </div>
     </div>
 
-    <div id="m-edit" class="hidden" style="position:fixed; top:20%; left:35%; background:white; padding:30px; border:2px solid var(--msn-blue); z-index:2000; box-shadow:0 0 100px rgba(0,0,0,0.5); border-radius:15px; width:360px;">
-        <h3 style="margin-bottom:20px;">Editar Perfil</h3>
-        <input id="new-desc" placeholder="¿En qué piensas?" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:5px;">
-        <input type="file" id="new-foto" accept="image/*" style="margin-bottom:15px;">
-        <button onclick="saveProfile()" style="width:100%; padding:12px; background:var(--msn-blue); color:white; border:none; cursor:pointer; font-weight:bold; border-radius:6px;">Guardar</button>
-        <button onclick="document.getElementById('m-edit').classList.add('hidden')" style="width:100%; margin-top:10px; background:none; border:none; color:gray; cursor:pointer;">Cancelar</button>
+    <div id="m-edit" class="hidden" style="position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; padding:30px; border:2px solid var(--msn-blue); z-index:2000; box-shadow:0 0 100px rgba(0,0,0,0.5); border-radius:15px; width:340px;">
+        <h3>Mi Perfil</h3><br>
+        <input id="new-desc" placeholder="¿En qué piensas?" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+        <input type="file" id="new-foto" style="margin-bottom:15px;"><br>
+        <button onclick="saveProfile()" style="width:100%; padding:12px; background:var(--msn-blue); color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">Guardar</button>
+        <button onclick="document.getElementById('m-edit').classList.add('hidden')" style="width:100%; margin-top:10px; border:none; background:none; color:gray; cursor:pointer;">Cancelar</button>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -155,7 +151,7 @@
             ':D': 'https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/32/emoji_u1f604.png'
         };
 
-        // Desbloquear audio con el primer clic
+        // Desbloqueo de audio
         document.addEventListener('click', () => { buzzSound.play().then(()=>buzzSound.pause()); }, {once: true});
 
         if(me) socket.emit('login', { user: me, pass: localStorage.getItem('msn_pass') });
@@ -194,8 +190,7 @@
                 const btn = document.createElement('button');
                 btn.className = "user-item";
                 const dot = u.online ? 'online' : 'offline';
-                const img = u.foto || "https://via.placeholder.com/40?text=U";
-                btn.innerHTML = `<img src="${img}" class="avatar-min"> <div><span class="status-dot ${dot}"></span><b>${u.user}</b></div>`;
+                btn.innerHTML = `<img src="${u.foto || 'https://via.placeholder.com/40'}" class="avatar-min"> <div><span class="status-dot ${dot}"></span><b>${u.user}</b></div>`;
                 btn.onclick = () => changeChat(u.user, u.user, u.foto, u.descripcion);
                 container.appendChild(btn);
             });
@@ -205,12 +200,15 @@
             curTarget = target;
             document.getElementById('side-name-target').innerText = name;
             
-            let finalImg = img || "https://via.placeholder.com/140?text=" + name;
-            if(target === 'conversando') finalImg = '/logo-conversando.png';
-            if(target === 'juegos') finalImg = '/logo-juegos.png';
-            if(target === 'solotodo') finalImg = '/logo-solotodo.png';
+            let fImg = img || "https://via.placeholder.com/140?text=" + name;
+            if(target === 'conversando') fImg = '/logo-conversando.png';
+            if(target === 'juegos') fImg = '/logo-juegos.png';
+            if(target === 'solotodo') fImg = '/logo-solotodo.png';
             
-            document.getElementById('side-avatar-target').src = finalImg;
+            const sideAvatar = document.getElementById('side-avatar-target');
+            sideAvatar.src = fImg;
+            sideAvatar.style.objectFit = (target === 'solotodo') ? 'contain' : 'cover';
+
             document.getElementById('msgs').innerHTML = "";
             socket.emit('get_private_history', target);
         }
@@ -233,17 +231,14 @@
         }
 
         socket.on('chat message', m => {
-            const m_para = m.to || 'conversando';
-            // Solo renderizar si el mensaje pertenece a la pestaña abierta
-            if(m_para === curTarget || (m.user === curTarget && m.to === me)) {
+            const dest = m.to || 'conversando';
+            if(dest === curTarget || (m.user === curTarget && m.to === me) || (m.user === me && dest === curTarget)) {
                 render(m);
             }
-            
-            if(m.isBuzz && (m_para === curTarget || m.to === me)) {
+            if(m.isBuzz && (dest === curTarget || m.to === me)) {
                 document.getElementById('app-container').classList.add('shake');
                 setTimeout(()=>document.getElementById('app-container').classList.remove('shake'), 600);
-                buzzSound.currentTime = 0;
-                buzzSound.play().catch(()=>{});
+                buzzSound.currentTime = 0; buzzSound.play().catch(()=>{});
             }
         });
 
@@ -257,14 +252,14 @@
         function render(m) {
             const container = document.getElementById('msgs');
             const d = document.createElement('div');
-            let content = m.text || "";
-            for(let c in emotes) content = content.split(c).join(`<img src="${emotes[c]}" class="emote-img">`);
+            let txt = m.text || "";
+            for(let c in emotes) txt = txt.split(c).join(`<img src="${emotes[c]}" class="emote-img">`);
             
-            if(m.tipo === 'img') content = `<img src="${m.archivo}" style="max-width:280px; border-radius:8px; display:block; margin-top:5px;">`;
-            if(m.tipo === 'aud') content = `<audio controls src="${m.archivo}" style="margin-top:5px; display:block;"></audio>`;
-            if(m.tipo === 'zumbido') content = `<span style="color:red; font-weight:bold;">¡Ha enviado un zumbido!</span>`;
+            if(m.tipo === 'img') txt = `<img src="${m.archivo}" style="max-width:280px; border-radius:8px; display:block; margin-top:5px;">`;
+            if(m.tipo === 'aud') txt = `<audio controls src="${m.archivo}" style="margin-top:5px; display:block;"></audio>`;
+            if(m.isBuzz) txt = `<span style="color:red; font-weight:bold;">¡Zumbido!</span>`;
 
-            d.innerHTML = `<b style="color:var(--msn-blue); font-size:12px;">${m.user} dice:</b><br><span style="font-size:13px;">${content}</span>`;
+            d.innerHTML = `<b style="color:var(--msn-blue); font-size:12px;">${m.user} dice:</b><br><span style="font-size:13px;">${txt}</span>`;
             container.appendChild(d);
             container.scrollTop = container.scrollHeight;
         }
