@@ -2,16 +2,16 @@ const express = require('express');
 const app = express();
 const http = require('http').Server(app);
 const path = require('path');
+// Aumentamos el límite de buffer para soportar fotos de perfil en Base64
 const io = require('socket.io')(http, { 
     cors: { origin: "*" }, 
-    maxHttpBufferSize: 1e8 
+    maxHttpBufferSize: 1e8 // 100MB por si suben fotos pesadas
 });
 const sqlite3 = require('sqlite3');
 const { open } = require('sqlite');
 
 let db;
 
-// Inicialización con manejo de errores para Render
 (async () => {
     try {
         db = await open({
@@ -21,35 +21,38 @@ let db;
 
         await db.exec(`
             CREATE TABLE IF NOT EXISTS usuarios (
-                user TEXT PRIMARY KEY, pass TEXT, foto TEXT DEFAULT 'https://i.imgur.com/89n7DNP.png', 
-                descripcion TEXT DEFAULT 'Sintiendo la nostalgia...', estado TEXT DEFAULT 'Disponible'
+                user TEXT PRIMARY KEY, 
+                pass TEXT, 
+                foto TEXT DEFAULT 'https://i.imgur.com/89n7DNP.png', 
+                descripcion TEXT DEFAULT '¿En qué piensas?', 
+                estado TEXT DEFAULT 'Disponible'
             );
-            CREATE TABLE IF NOT EXISTS mensajes_grupal (
-                id INTEGER PRIMARY KEY AUTOINCREMENT, sala TEXT, usuario TEXT, texto TEXT, archivo TEXT, tipo TEXT, fecha DATETIME DEFAULT CURRENT_TIMESTAMP
-            );
-            CREATE TABLE IF NOT EXISTS mensajes_privado (
-                id INTEGER PRIMARY KEY AUTOINCREMENT, de TEXT, para TEXT, texto TEXT, archivo TEXT, tipo TEXT, fecha DATETIME DEFAULT CURRENT_TIMESTAMP
+            CREATE TABLE IF NOT EXISTS mensajes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                de TEXT, 
+                para TEXT, 
+                texto TEXT, 
+                tipo TEXT, 
+                fecha DATETIME DEFAULT CURRENT_TIMESTAMP
             );
         `);
-        console.log("✅ Base de datos SQLite lista y conectada.");
+        console.log("✅ Base de datos lista para THE REALS.");
     } catch (err) {
-        console.error("❌ Error al iniciar la base de datos:", err);
+        console.error("❌ Error DB:", err);
     }
 })();
 
 app.use(express.static(__dirname));
 
-let socketIds = {}; 
+let usuariosOnline = {}; 
 
-async function enviarListaContactos() {
-    try {
-        const todos = await db.all('SELECT user, foto, descripcion, estado FROM usuarios');
-        const listaFinal = todos.map(u => ({
-            ...u,
-            online: !!socketIds[u.user]
-        }));
-        io.emit('lista_contactos', listaFinal);
-    } catch (e) { console.log("Error lista:", e); }
+async function actualizarListas() {
+    const todos = await db.all('SELECT user, foto, descripcion, estado FROM usuarios');
+    const listaFinal = todos.map(u => ({
+        ...u,
+        online: !!usuariosOnline[u.user]
+    }));
+    io.emit('lista_contactos', listaFinal);
 }
 
 io.on('connection', (socket) => {
@@ -63,55 +66,54 @@ io.on('connection', (socket) => {
             await db.run('INSERT INTO usuarios (user, pass) VALUES (?, ?)', [user, pass]);
             userDB = await db.get('SELECT * FROM usuarios WHERE user = ?', [user]);
         } else if (userDB.pass !== pass) {
-            return socket.emit('login_status', { success: false, msg: "Clave incorrecta." });
+            return socket.emit('login_status', { success: false, msg: "Contraseña incorrecta." });
         }
 
         socket.userName = user;
-        socketIds[user] = socket.id;
+        usuariosOnline[user] = socket.id;
         
-        const history = await db.all('SELECT usuario as user, texto as text, archivo as img, tipo FROM mensajes_grupal WHERE sala = "Conversando" ORDER BY id DESC LIMIT 30');
+        // Historial grupal (para todos los que entran)
+        const history = await db.all('SELECT de as user, texto as text, tipo FROM mensajes WHERE para IS NULL ORDER BY id DESC LIMIT 50');
         
-        socket.join("Conversando");
-        socket.currentRoom = "Conversando";
         socket.emit('login_status', { success: true, user, perfil: userDB, history: history.reverse() });
-        enviarListaContactos();
+        actualizarListas();
     });
 
     socket.on('update_profile', async (data) => {
         if(!socket.userName) return;
-        await db.run('UPDATE usuarios SET foto = ?, descripcion = ? WHERE user = ?', [data.foto, data.desc, socket.userName]);
-        enviarListaContactos();
+        // Solo actualizamos si mandan algo nuevo
+        if(data.foto) await db.run('UPDATE usuarios SET foto = ? WHERE user = ?', [data.foto, socket.userName]);
+        if(data.desc) await db.run('UPDATE usuarios SET descripcion = ? WHERE user = ?', [data.desc, socket.userName]);
+        actualizarListas();
     });
 
     socket.on('chat message', async (data) => {
         if(!socket.userName) return;
-        let tipo = data.isBuzz ? 'zumbido' : (data.img ? 'imagen' : 'texto');
-        const user = socket.userName;
+        const tipo = data.isBuzz ? 'zumbido' : 'texto';
+        const de = socket.userName;
 
-        if (data.to) {
-            await db.run('INSERT INTO mensajes_privado (de, para, texto, archivo, tipo) VALUES (?,?,?,?,?)', [user, data.to, data.text || null, data.img || null, tipo]);
-            if (socketIds[data.to]) io.to(socketIds[data.to]).emit('chat message', {...data, user});
-            socket.emit('chat message', {...data, user});
-        } else {
-            const room = socket.currentRoom || "Conversando";
-            await db.run('INSERT INTO mensajes_grupal (sala, usuario, texto, archivo, tipo) VALUES (?,?,?,?,?)', [room, user, data.text || null, data.img || null, tipo]);
-            io.to(room).emit('chat message', {...data, user});
+        if (data.to) { // Privado
+            await db.run('INSERT INTO mensajes (de, para, texto, tipo) VALUES (?,?,?,?)', [de, data.to, data.text || null, tipo]);
+            if (usuariosOnline[data.to]) io.to(usuariosOnline[data.to]).emit('chat message', {user: de, text: data.text, isBuzz: data.isBuzz, to: data.to});
+            socket.emit('chat message', {user: de, text: data.text, isBuzz: data.isBuzz, to: data.to});
+        } else { // Grupal
+            await db.run('INSERT INTO mensajes (de, para, texto, tipo) VALUES (?,NULL,?,?)', [de, data.text || null, tipo]);
+            io.emit('chat message', {user: de, text: data.text, isBuzz: data.isBuzz});
         }
     });
 
     socket.on('get_private_history', async (target) => {
-        const h = await db.all('SELECT de as user, texto as text, archivo as img, tipo FROM mensajes_privado WHERE (de = ? AND para = ?) OR (de = ? AND para = ?) ORDER BY id DESC LIMIT 50', [socket.userName, target, target, socket.userName]);
+        const h = await db.all('SELECT de as user, texto as text, tipo FROM mensajes WHERE (de = ? AND para = ?) OR (de = ? AND para = ?) ORDER BY id DESC LIMIT 50', [socket.userName, target, target, socket.userName]);
         socket.emit('actualizar_historial', h.reverse());
     });
 
     socket.on('disconnect', () => {
         if (socket.userName) {
-            delete socketIds[socket.userName];
-            enviarListaContactos();
+            delete usuariosOnline[socket.userName];
+            actualizarListas();
         }
     });
 });
 
-// PUERTO DINÁMICO PARA RENDER
 const PORT = process.env.PORT || 3000;
-http.listen(PORT, '0.0.0.0', () => console.log(`🚀 MSN THE REALS en puerto ${PORT}`));
+http.listen(PORT, '0.0.0.0', () => console.log(`🚀 Servidor en puerto ${PORT}`));
