@@ -5,225 +5,292 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>THE REALS - MSN Messenger</title>
     <style>
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body { 
             background: #0055e5; 
             background: radial-gradient(circle, #3b83ff 0%, #0055e5 100%);
             font-family: 'Tahoma', sans-serif; 
-            margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; 
+            height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden;
         }
 
-        /* Pantalla de Login */
-        #login-screen { background: white; padding: 30px; border-radius: 8px; border: 1px solid #003399; width: 320px; text-align: center; box-shadow: 5px 5px 15px rgba(0,0,0,0.3); }
-        .login-input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; }
+        /* LOGIN */
+        #login-screen { background: white; padding: 40px; border-radius: 10px; text-align: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); width: 320px; }
+        .login-input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; }
 
-        /* Contenedor Principal (Etapa 2) */
+        /* APP CONTAINER */
         #app-container { 
-            display: none; width: 95vw; max-width: 1000px; height: 85vh; 
-            background: #f1f1f1; border: 1px solid #003399; border-radius: 5px; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.5); overflow: hidden;
+            display: none; width: 95vw; max-width: 1100px; height: 90vh; 
+            background: #f0f0f0; border: 2px solid #003399; display: none; flex-direction: row; 
         }
 
-        /* BARRA LATERAL (SIDEBAR) */
-        #sidebar { 
-            width: 220px; background: linear-gradient(to right, #ffffff, #e5e5e5); 
-            border-right: 1px solid #999; display: flex; flex-direction: column; padding: 10px; 
-        }
-        .sidebar-title { font-size: 11px; font-weight: bold; color: #003399; margin: 15px 0 5px 5px; text-transform: uppercase; }
+        /* SIDEBAR */
+        #sidebar { width: 260px; min-width: 260px; background: #f0f0f0; border-right: 2px solid #0055e5; display: flex; flex-direction: column; padding: 15px; }
         
-        .room-btn { 
-            background: transparent; border: 1px solid transparent; padding: 10px; 
-            margin-bottom: 2px; cursor: pointer; border-radius: 4px; text-align: left; 
-            font-size: 12px; display: flex; align-items: center; gap: 8px; color: #333;
-        }
-        .room-btn:hover { background: #e1eefc; border: 1px solid #b5d4ef; }
-        .room-btn.active { background: #ffeb3b; border: 1px solid #e6ce00; font-weight: bold; color: #000; }
+        .profile-box { text-align: center; padding-bottom: 15px; border-bottom: 1px solid #ccc; margin-bottom: 15px; }
+        .my-avatar { width: 70px; height: 70px; border: 2px solid white; border-radius: 5px; cursor: pointer; object-fit: cover; box-shadow: 0 0 5px rgba(0,0,0,0.2); }
+        .status-select { width: 100%; padding: 3px; margin-top: 5px; font-size: 11px; }
 
-        /* VENTANA DE CHAT */
-        #chat-window { flex-grow: 1; display: flex; flex-direction: column; background: white; margin: 4px; border: 1px solid #999; border-radius: 3px; }
-        #title-bar { background: #fff; color: #003399; padding: 12px; font-weight: bold; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
+        .section-title { font-size: 11px; font-weight: bold; color: #003399; margin: 15px 0 5px 0; text-transform: uppercase; }
+        .btn-item { 
+            background: white; border: 1px solid #ccc; padding: 8px; margin-bottom: 4px; 
+            cursor: pointer; font-size: 12px; width: 100%; display: flex; align-items: center; gap: 10px; border-radius: 3px;
+        }
+        .btn-item:hover { background: #e1eefc; }
+        .btn-item.active { background: #ffff00; border-color: #ccaa00; font-weight: bold; }
         
-        #messages-container { flex-grow: 1; overflow-y: auto; padding: 15px; background: #fff; }
-        .msg-item { margin-bottom: 10px; font-size: 13px; line-height: 1.4; border-bottom: 1px solid #f9f9f9; padding-bottom: 5px; }
+        .contact-img { width: 30px; height: 30px; border-radius: 3px; object-fit: cover; }
+        .dot { width: 9px; height: 9px; border-radius: 50%; }
+        .Disponible { background: #00ff00; }
+        .Ocupado { background: #ff0000; }
+        .Ausente { background: #ffaa00; }
+
+        /* CHAT AREA */
+        #chat-area { flex-grow: 1; display: flex; flex-direction: column; background: white; margin: 4px; border: 1px solid #999; }
+        #title-bar { background: linear-gradient(to right, #0055e5, #3b83ff); color: white; padding: 12px; font-weight: bold; font-size: 14px; }
+        #messages-container { flex-grow: 1; overflow-y: auto; padding: 15px; }
+        
+        .msg-item { margin-bottom: 8px; font-size: 13px; border-bottom: 1px solid #f5f5f5; padding-bottom: 4px; }
         .msg-user { font-weight: bold; color: #0055e5; }
-        
-        /* Imágenes y Audio */
-        .chat-img-thumb { max-width: 200px; max-height: 200px; border-radius: 5px; cursor: pointer; border: 1px solid #ddd; margin-top: 5px; }
-        audio { height: 30px; margin-top: 5px; width: 220px; }
+        .chat-img-thumb { max-width: 200px; border: 1px solid #ccc; margin-top: 5px; cursor: pointer; border-radius: 4px; }
 
-        /* Controles Inferiores */
-        #input-area { padding: 12px; background: #f1f1f1; border-top: 1px solid #ccc; }
+        /* CONTROLES */
+        #input-area { padding: 10px; background: #f0f0f0; border-top: 1px solid #ccc; }
         .controls { display: flex; gap: 8px; align-items: center; }
-        #msg-input { flex-grow: 1; height: 38px; border: 1px solid #999; padding: 0 12px; outline: none; border-radius: 2px; }
-        
-        .btn-round { background: #e1e1e1; border: 1px solid #aaa; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
-        .btn-send { background: #0055e5; color: white; border: none; padding: 8px 18px; border-radius: 4px; font-weight: bold; cursor: pointer; height: 38px; }
+        #msg-input { flex-grow: 1; height: 35px; padding: 0 10px; border: 1px solid #999; outline: none; }
+        .btn-action { background: #e1e1e1; border: 1px solid #999; width: 35px; height: 35px; cursor: pointer; border-radius: 3px; }
 
-        /* Efectos */
-        #image-viewer { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; }
-        #full-image { max-width: 90%; max-height: 90%; border: 3px solid white; }
-        @keyframes shake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(6px,6px); } 50% { transform: translate(-6px,-6px); } }
+        /* MODAL PERFIL */
+        #modal-perfil { 
+            display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); 
+            background:white; padding:20px; border:2px solid #0055e5; z-index:2000; width: 300px; box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        /* EFECTO ZUMBIDO */
+        @keyframes shake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(8px,8px); } 50% { transform: translate(-8px,-8px); } }
         .shake-effect { animation: shake 0.1s 6; }
     </style>
 </head>
 <body>
 
-<div id="image-viewer" onclick="this.style.display='none'"><img id="full-image" src=""></div>
-
-<div id="login-screen">
-    <h2 style="color:#0055e5; margin-bottom:20px;">THE REALS</h2>
-    <input type="text" id="user" class="login-input" placeholder="Nombre de usuario">
-    <input type="password" id="pass" class="login-input" placeholder="Contraseña">
-    <button onclick="login()" style="background:#0055e5; color:white; width:100%; padding:12px; border:none; font-weight:bold; cursor:pointer; border-radius:4px; margin-top:10px;">Entrar</button>
-</div>
-
-<div id="app-container">
-    <div id="sidebar">
-        <div style="text-align:center; padding: 10px; border-bottom:1px solid #ccc;">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/d/df/MSN_Messenger_logo.png" width="45">
-            <div id="display-user" style="font-weight:bold; font-size:12px; color:#003399; margin-top:5px;">...</div>
-        </div>
-
-        <div class="sidebar-title">Salas Disponibles</div>
-        <button class="room-btn active" onclick="cambiarSala('Conversando', this)">👤 Conversando</button>
-        <button class="room-btn" onclick="cambiarSala('Juegos Online', this)">🎮 Juegos Online</button>
-        <button class="room-btn" onclick="cambiarSala('SoloTodo', this)">🛍️ SoloTodo</button>
-
-        <div class="sidebar-title" style="margin-top:20px;">Opciones</div>
-        <button class="room-btn" onclick="sendBuzz()" style="color:red; font-weight:bold;">🔔 Enviar Zumbido</button>
-        <button class="room-btn" onclick="location.reload()" style="margin-top:auto; color:#666;">Cerrar Sesión</button>
+    <div id="login-screen">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/d/df/MSN_Messenger_logo.png" width="50">
+        <h2 style="color:#0055e5; margin:10px 0;">THE REALS</h2>
+        <input type="text" id="user" class="login-input" placeholder="Usuario">
+        <input type="password" id="pass" class="login-input" placeholder="Contraseña">
+        <button onclick="login()" style="width:100%; padding:10px; background:#0055e5; color:white; border:none; font-weight:bold; cursor:pointer; margin-top:10px;">Iniciar Sesión</button>
     </div>
 
-    <div id="chat-window">
-        <div id="title-bar">
-            <span id="tema-title">Conversando</span>
+    <div id="app-container">
+        <div id="sidebar">
+            <div class="profile-box">
+                <img id="my-avatar" class="my-avatar" src="" onclick="abrirPerfil()" title="Click para editar perfil">
+                <div id="display-user" style="font-weight:bold; color:#003399; margin-top:5px;">...</div>
+                <div id="display-desc" style="font-size:11px; color:#666; font-style:italic; margin-bottom:5px;">Sintiendo la nostalgia...</div>
+                <select class="status-select" onchange="socket.emit('cambiar_estado', this.value)">
+                    <option value="Disponible">🟢 Disponible</option>
+                    <option value="Ocupado">🔴 Ocupado</option>
+                    <option value="Ausente">🟠 Ausente</option>
+                </select>
+            </div>
+
+            <div class="section-title">Salas Grupales</div>
+            <button class="btn-item active" id="btn-Conversando" onclick="entrarSala('Conversando', this)">💬 Conversando</button>
+            <button class="btn-item" id="btn-Juegos" onclick="entrarSala('Juegos Online', this)">🎮 Juegos Online</button>
+            <button class="btn-item" id="btn-SoloTodo" onclick="entrarSala('SoloTodo', this)">🛍️ SoloTodo</button>
+
+            <div class="section-title">Contactos Online</div>
+            <div id="lista-contactos"></div>
+
+            <button onclick="sendBuzz()" style="margin-top:auto; padding:10px; background:#ff4444; color:white; border:none; font-weight:bold; cursor:pointer; border-radius:3px;">¡ENVIAR ZUMBIDO!</button>
         </div>
-        <div id="messages-container"><div id="messages"></div></div>
-        
-        <div id="input-area">
-            <div class="controls">
-                <input type="file" id="file-input" style="display:none" accept="image/*" onchange="sendFile(this)">
-                <button class="btn-round" onclick="document.getElementById('file-input').click()">📎</button>
-                <input id="msg-input" placeholder="Escribe un mensaje..." onkeypress="if(event.key==='Enter')sendText()">
-                <button class="btn-round" id="mic-btn" onclick="handleMic()">🎤</button>
-                <button class="btn-send" onclick="sendText()">Enviar</button>
+
+        <div id="chat-area">
+            <div id="title-bar"><span id="chat-title">SALA: Conversando</span></div>
+            <div id="messages-container"><div id="messages"></div></div>
+            <div id="input-area">
+                <div class="controls">
+                    <button class="btn-action" onclick="document.getElementById('file-input').click()">📎</button>
+                    <input type="file" id="file-input" style="display:none" accept="image/*" onchange="sendFile(this)">
+                    <input id="msg-input" placeholder="Escribe un mensaje..." onkeypress="if(event.key==='Enter')sendText()">
+                    <button class="btn-action" id="mic-btn" onclick="handleMic()">🎤</button>
+                    <button onclick="sendText()" style="background:#0055e5; color:white; border:none; padding:0 20px; height:35px; font-weight:bold; cursor:pointer;">Enviar</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<script src="/socket.io/socket.io.js"></script>
-<script>
-    const socket = io();
-    let miUser = "", recorder, chunks = [];
+    <div id="modal-perfil">
+        <h4 style="margin-bottom:10px;">Mi Perfil MSN</h4>
+        <input type="text" id="new-desc" placeholder="Descripción / Frase" style="width:100%; padding:8px; margin-bottom:10px;">
+        <input type="text" id="new-foto" placeholder="URL de Foto (JPG/PNG)" style="width:100%; padding:8px; margin-bottom:15px;">
+        <button onclick="guardarPerfil()" style="background:#0055e5; color:white; border:none; padding:8px 15px; cursor:pointer; font-weight:bold;">Guardar</button>
+        <button onclick="document.getElementById('modal-perfil').style.display='none'" style="background:#ccc; border:none; padding:8px; margin-left:5px; cursor:pointer;">Cerrar</button>
+    </div>
 
-    function login() {
-        const u = document.getElementById('user').value.trim();
-        const p = document.getElementById('pass').value.trim();
-        if(u && p) socket.emit('login', { user: u, pass: p });
-    }
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let miUser = "", chatPrivadoCon = null, recorder, chunks = [];
 
-    socket.on('login_status', (res) => {
-        if(res.success) {
-            miUser = res.user;
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('app-container').style.display = 'flex';
-            document.getElementById('display-user').innerText = miUser;
-            document.getElementById('tema-title').innerText = res.tema;
-            if(res.history) res.history.forEach(m => render(m));
-        } else alert(res.msg);
-    });
+        function login() {
+            const u = document.getElementById('user').value.trim();
+            const p = document.getElementById('pass').value.trim();
+            if(u && p) socket.emit('login', { user: u, pass: p });
+        }
 
-    // --- LÓGICA DE SALAS ---
-    function cambiarSala(nombre, btn) {
-        document.getElementById('messages').innerHTML = ""; // Limpiar chat visualmente
-        socket.emit('join_room', nombre);
-        
-        // Estilo de botón activo
-        document.querySelectorAll('.room-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-    }
+        socket.on('login_status', (res) => {
+            if(res.success) {
+                miUser = res.user;
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-container').style.display = 'flex';
+                document.getElementById('display-user').innerText = miUser;
+                document.getElementById('my-avatar').src = res.perfil.foto;
+                document.getElementById('display-desc').innerText = res.perfil.descripcion;
+                if(res.history) res.history.forEach(m => render(m));
+            } else alert(res.msg);
+        });
 
-    socket.on('actualizar_historial', (historial) => {
-        document.getElementById('messages').innerHTML = "";
-        historial.forEach(m => render(m));
-    });
+        socket.on('lista_contactos', (conectados) => {
+            const lista = document.getElementById('lista-contactos');
+            lista.innerHTML = "";
+            for (let user in conectados) {
+                if (user === miUser) continue;
+                const c = conectados[user];
+                const btn = document.createElement('button');
+                btn.className = "btn-item";
+                btn.innerHTML = `
+                    <div style="position:relative">
+                        <img src="${c.foto}" class="contact-img">
+                        <div class="dot ${c.estado}" style="position:absolute; bottom:0; right:0; border:1px solid white;"></div>
+                    </div>
+                    <div style="text-align:left; overflow:hidden;">
+                        <b style="font-size:12px;">${user}</b><br>
+                        <small style="color:#777; white-space:nowrap;">${c.desc}</small>
+                    </div>`;
+                btn.onclick = () => {
+                    chatPrivadoCon = user;
+                    document.getElementById('messages').innerHTML = "";
+                    document.getElementById('chat-title').innerText = "CHAT PRIVADO: " + user;
+                    document.querySelectorAll('.btn-item').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    socket.emit('get_private_history', user);
+                };
+                lista.appendChild(btn);
+            }
+        });
 
-    socket.on('actualizar_tema', (t) => {
-        document.getElementById('tema-title').innerText = t;
-    });
+        function entrarSala(nombre, btn) {
+            chatPrivadoCon = null;
+            document.getElementById('messages').innerHTML = "";
+            document.getElementById('chat-title').innerText = "SALA: " + nombre;
+            document.querySelectorAll('.btn-item').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            socket.emit('join_room', nombre);
+        }
 
-    // --- FUNCIONES DE ENVÍO ---
-    function sendText() {
-        const inp = document.getElementById('msg-input');
-        if(inp.value.trim()) {
-            socket.emit('chat message', { user: miUser, text: inp.value, time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
+        function sendText() {
+            const inp = document.getElementById('msg-input');
+            if(!inp.value.trim()) return;
+            const data = { user: miUser, text: inp.value, time: new Date().toLocaleTimeString() };
+            if(chatPrivadoCon) data.to = chatPrivadoCon;
+            socket.emit('chat message', data);
             inp.value = '';
         }
-    }
 
-    function sendBuzz() {
-        socket.emit('chat message', { user: miUser, text: "¡HA ENVIADO UN ZUMBIDO!", isBuzz: true, time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
-    }
-
-    function sendFile(input) {
-        if(input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = e => socket.emit('chat message', { user: miUser, img: e.target.result, time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
-            reader.readAsDataURL(input.files[0]);
-            input.value = "";
+        function sendBuzz() {
+            const data = { user: miUser, isBuzz: true, time: new Date().toLocaleTimeString() };
+            if(chatPrivadoCon) data.to = chatPrivadoCon;
+            socket.emit('chat message', data);
         }
-    }
 
-    async function handleMic() {
-        const btn = document.getElementById('mic-btn');
-        if (!recorder || recorder.state === "inactive") {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            recorder = new MediaRecorder(stream);
-            chunks = [];
-            recorder.ondataavailable = e => chunks.push(e.data);
-            recorder.onstop = () => {
-                const blob = new Blob(chunks, { type: 'audio/webm' });
+        socket.on('chat message', (m) => {
+            render(m);
+            if(m.isBuzz || m.tipo === 'zumbido') {
+                const app = document.getElementById('app-container');
+                app.classList.add('shake-effect');
+                setTimeout(() => app.classList.remove('shake-effect'), 600);
+            }
+        });
+
+        socket.on('actualizar_historial', (h) => {
+            document.getElementById('messages').innerHTML = "";
+            h.forEach(m => render(m));
+        });
+
+        function render(m) {
+            const div = document.createElement('div');
+            div.className = "msg-item";
+            
+            // Compatibilidad: Base de datos usa 'usuario'/'texto'/'archivo', Socket usa 'user'/'text'/'img'
+            const user = m.user || m.usuario;
+            const text = m.text || m.texto;
+            const file = m.img || m.audio || m.archivo;
+            const esZumbido = m.isBuzz || m.tipo === 'zumbido';
+
+            let body = `<span class="msg-user">${user}:</span> `;
+            if(esZumbido) body += `<b style="color:red;">¡HA ENVIADO UN ZUMBIDO!</b>`;
+            else if(m.audio || m.tipo === 'audio') body += `<br><audio controls src="${file}"></audio>`;
+            else if(m.img || m.tipo === 'imagen') body += `<br><img src="${file}" class="chat-img-thumb" onclick="window.open(this.src)">`;
+            else body += text;
+            
+            div.innerHTML = body;
+            document.getElementById('messages').appendChild(div);
+            document.getElementById('messages-container').scrollTop = 999999;
+        }
+
+        function abrirPerfil() {
+            document.getElementById('modal-perfil').style.display = 'block';
+            document.getElementById('new-desc').value = document.getElementById('display-desc').innerText;
+            document.getElementById('new-foto').value = document.getElementById('my-avatar').src;
+        }
+
+        function guardarPerfil() {
+            const d = document.getElementById('new-desc').value;
+            const f = document.getElementById('new-foto').value;
+            socket.emit('update_profile', { desc: d, foto: f });
+            document.getElementById('display-desc').innerText = d;
+            document.getElementById('my-avatar').src = f;
+            document.getElementById('modal-perfil').style.display = 'none';
+        }
+
+        // --- FUNCIONES DE ARCHIVOS Y MICRO ---
+        function sendFile(input) {
+            if(input.files[0]) {
                 const reader = new FileReader();
-                reader.onloadend = () => socket.emit('chat message', { user: miUser, audio: reader.result, time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
-                reader.readAsDataURL(blob);
-                stream.getTracks().forEach(t => t.stop());
-            };
-            recorder.start();
-            btn.style.background = "#ff4444";
-        } else {
-            recorder.stop();
-            btn.style.background = "#e1e1e1";
+                reader.onload = e => {
+                    const data = { user: miUser, img: e.target.result, time: new Date().toLocaleTimeString() };
+                    if(chatPrivadoCon) data.to = chatPrivadoCon;
+                    socket.emit('chat message', data);
+                };
+                reader.readAsDataURL(input.files[0]);
+                input.value = "";
+            }
         }
-    }
 
-    // --- RENDER Y EFECTOS ---
-    socket.on('chat message', (m) => {
-        render(m);
-        if(m.isBuzz) {
-            new (window.AudioContext || window.webkitAudioContext)().createOscillator().connect(new AudioContext().destination); // Pitido rápido
-            const win = document.getElementById('app-container');
-            win.classList.add('shake-effect');
-            setTimeout(() => win.classList.remove('shake-effect'), 600);
+        async function handleMic() {
+            const btn = document.getElementById('mic-btn');
+            if (!recorder || recorder.state === "inactive") {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                recorder = new MediaRecorder(stream);
+                chunks = [];
+                recorder.ondataavailable = e => chunks.push(e.data);
+                recorder.onstop = () => {
+                    const blob = new Blob(chunks, { type: 'audio/webm' });
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        const data = { user: miUser, audio: reader.result, time: new Date().toLocaleTimeString() };
+                        if(chatPrivadoCon) data.to = chatPrivadoCon;
+                        socket.emit('chat message', data);
+                    };
+                    reader.readAsDataURL(blob);
+                };
+                recorder.start();
+                btn.style.color = "red";
+            } else {
+                recorder.stop();
+                btn.style.color = "black";
+            }
         }
-    });
-
-    function render(m) {
-        const div = document.createElement('div');
-        div.className = "msg-item";
-        let body = `<span class="msg-user">${m.user}:</span> `;
-        if(m.audio) body += `<br><audio controls src="${m.audio}"></audio>`;
-        else if(m.img) body += `<br><img src="${m.img}" class="chat-img-thumb" onclick="openBig('${m.img}')">`;
-        else body += m.text;
-        div.innerHTML = body;
-        document.getElementById('messages').appendChild(div);
-        document.getElementById('messages-container').scrollTop = 999999;
-    }
-
-    function openBig(src) {
-        document.getElementById('full-image').src = src;
-        document.getElementById('image-viewer').style.display = 'flex';
-    }
-</script>
+    </script>
 </body>
 </html>
