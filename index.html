@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MSN Messenger - Versión Pro Blindada</title>
+    <title>MSN Messenger - SINTONÍA RECUPERADA</title>
+    
     <style>
-        /* CONFIGURACIÓN DE COLORES Y VARIABLES */
+        /* ============================================================
+           SECCIÓN DE ESTILOS GLOBALES (CSS)
+           ============================================================ */
         :root {
             --msn-blue: #0055e5;
             --msn-bg: #71ADFF;
             --header-grad: linear-gradient(#f9fcff, #dcecfc);
             --border-color: #b4c7de;
+            --white: #ffffff;
         }
 
-        /* RESETEO DE ESTILOS GENERALES */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -22,29 +25,35 @@
         }
 
         body {
-            background: var(--msn-bg);
+            background-color: var(--msn-bg);
             height: 100vh;
+            width: 100vw;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            overflow: hidden; /* Evita scroll molesto en el móvil */
         }
 
-        /* CONTENEDOR PRINCIPAL MSN */
+        /* ------------------------------------------------------------
+           CONTENEDOR PRINCIPAL
+           ------------------------------------------------------------ */
         #app {
-            display: none; 
+            display: none; /* Se activa al hacer login */
             width: 1000px;
             max-width: 100vw;
             height: 750px;
             max-height: 100vh;
-            background: white;
+            background: var(--white);
             border: 1px solid #555;
+            display: none; 
             flex-direction: column;
             position: relative;
             box-shadow: 0 15px 50px rgba(0,0,0,0.4);
         }
 
-        /* CABECERA CON MI INFO */
+        /* ------------------------------------------------------------
+           HEADER / MI INFORMACIÓN
+           ------------------------------------------------------------ */
         header {
             background: var(--header-grad);
             padding: 12px 15px;
@@ -64,14 +73,14 @@
         }
 
         #my-img {
-            width: 50px;
-            height: 50px;
+            width: 52px;
+            height: 52px;
             border: 2px solid white;
             border-radius: 4px;
             object-fit: cover;
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
             cursor: pointer;
-            background: #eee;
+            background: #f0f0f0;
         }
 
         .my-text-data {
@@ -84,22 +93,22 @@
             color: var(--msn-blue);
             font-size: 14px;
             font-weight: bold;
-            display: block;
+            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            white-space: nowrap;
         }
 
         #my-desc {
             color: #666;
             font-size: 11px;
-            display: block;
+            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            white-space: nowrap;
         }
 
-        /* CUERPO DEL MESSENGER */
+        /* ------------------------------------------------------------
+           CUERPO PRINCIPAL (MAIN)
+           ------------------------------------------------------------ */
         main {
             display: flex;
             flex: 1;
@@ -107,26 +116,26 @@
             position: relative;
         }
 
-        /* BARRA LATERAL IZQUIERDA (CONTACTOS) */
+        /* LADO IZQUIERDO: CONTACTOS */
         #side-left {
             width: 260px;
             border-right: 1px solid #d0deee;
             display: flex;
             flex-direction: column;
-            background: #fff;
+            background: #ffffff;
             flex-shrink: 0;
         }
 
-        /* ÁREA CENTRAL DE CHAT */
+        /* CENTRO: ÁREA DE CHAT */
         #chat-main {
             flex: 1;
             display: flex;
             flex-direction: column;
-            background: white;
+            background: #ffffff;
             min-width: 0;
         }
 
-        /* BARRA LATERAL DERECHA (INFO CONTACTO) */
+        /* LADO DERECHO: INFO DEL OTRO */
         #side-right {
             width: 200px;
             background: #fdfdfd;
@@ -138,22 +147,24 @@
             flex-shrink: 0;
         }
 
-        /* RESPONSIVE ANDROID ADAPTATION */
+        /* ------------------------------------------------------------
+           ADAPTACIÓN ANDROID (RESPONSIVE REAL)
+           ------------------------------------------------------------ */
         @media (max-width: 768px) {
             #side-right {
                 position: absolute;
                 right: 0;
                 top: 0;
                 bottom: 0;
-                z-index: 100;
-                transform: translateX(100%);
+                z-index: 1000;
                 width: 220px;
-                transition: transform 0.3s ease;
                 background: white;
+                transform: translateX(100%);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
             #side-right.open {
                 transform: translateX(0);
-                box-shadow: -5px 0 15px rgba(0,0,0,0.2);
+                box-shadow: -10px 0 20px rgba(0,0,0,0.15);
             }
             #side-left {
                 width: 85px;
@@ -161,22 +172,26 @@
             #side-left .contact-info-text, #side-left .label {
                 display: none;
             }
-            #btn-info {
+            #btn-info-mobile {
                 display: block !important;
             }
         }
 
-        #btn-info {
+        #btn-info-mobile {
             display: none;
             padding: 6px 12px;
-            background: white;
+            background: #fff;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 11px;
+            font-weight: bold;
             cursor: pointer;
+            color: var(--msn-blue);
         }
 
-        /* ELEMENTOS DE LA LISTA */
+        /* ------------------------------------------------------------
+           LISTA DE CONTACTOS Y SALAS
+           ------------------------------------------------------------ */
         .label {
             background: #eff6ff;
             padding: 8px 12px;
@@ -185,6 +200,7 @@
             color: #5a708a;
             border-bottom: 1px solid #d0deee;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .item {
@@ -194,100 +210,121 @@
             padding: 12px;
             cursor: pointer;
             border: none;
-            background: none;
+            background: transparent;
             width: 100%;
             text-align: left;
             border-bottom: 1px solid #f2f6fb;
             position: relative;
-            transition: background 0.2s;
         }
 
         .item:hover {
-            background: #f0f7ff;
+            background-color: #f0f7ff;
         }
 
         .unread-count {
             position: absolute;
-            top: 5px;
-            right: 8px;
+            top: 6px;
+            right: 10px;
             background: #ff8c00;
             color: white;
             font-size: 10px;
             font-weight: bold;
-            padding: 2px 6px;
-            border-radius: 10px;
+            padding: 2px 7px;
+            border-radius: 12px;
             display: none;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
 
-        /* MENSAJES Y CHAT */
+        .contact-info-text {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .contact-status-text {
+            font-size: 11px;
+            color: #777;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* ------------------------------------------------------------
+           MENSAJES Y CHAT
+           ------------------------------------------------------------ */
         #messages {
             flex: 1;
             overflow-y: auto;
-            padding: 15px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            background: #fff;
+            gap: 15px;
+            background-color: #fff;
         }
 
-        .msg-container {
-            margin-bottom: 5px;
+        .msg-block {
+            display: flex;
+            flex-direction: column;
         }
 
-        .msg-header {
+        .msg-user-label {
             font-size: 12px;
             font-weight: bold;
             color: var(--msn-blue);
-            margin-bottom: 2px;
+            margin-bottom: 3px;
         }
 
-        .msg-time {
+        .msg-timestamp {
             font-weight: normal;
-            color: #999;
-            margin-left: 5px;
+            color: #aaa;
             font-size: 10px;
+            margin-left: 6px;
         }
 
-        .msg-body {
-            font-size: 13.5px;
+        .msg-text-content {
+            font-size: 14px;
             color: #333;
-            line-height: 1.4;
-            word-wrap: break-word;
+            line-height: 1.5;
+            word-break: break-word;
         }
 
-        /* BARRA DE HERRAMIENTAS Y ESCRITURA */
+        /* ------------------------------------------------------------
+           TOOLBAR Y ENTRADA DE TEXTO
+           ------------------------------------------------------------ */
         #toolbar {
-            padding: 8px 15px;
-            background: #f0f4f9;
+            padding: 10px 15px;
+            background: #f1f5f9;
             border-top: 1px solid #d0deee;
             display: flex;
-            gap: 12px;
-            flex-shrink: 0;
+            gap: 15px;
             align-items: center;
+            flex-shrink: 0;
         }
 
         .emo-btn {
+            font-size: 22px;
             cursor: pointer;
-            font-size: 20px;
-            transition: transform 0.1s;
+            user-select: none;
+            transition: transform 0.1s ease;
         }
 
-        .emo-btn:active {
+        .emo-btn:hover {
             transform: scale(1.2);
         }
 
         #writing-feedback {
             font-size: 11px;
-            color: #31a24c;
-            padding: 2px 15px;
+            color: #2b9348;
+            padding: 3px 15px;
             background: #f7faff;
-            height: 18px;
+            height: 20px;
             font-style: italic;
+            font-weight: 500;
         }
 
         #input-area {
-            padding: 10px;
+            padding: 12px;
             background: #f7faff;
             border-top: 1px solid #eee;
             flex-shrink: 0;
@@ -295,141 +332,141 @@
 
         #text-in {
             width: 100%;
-            height: 60px;
-            padding: 10px;
+            height: 65px;
+            padding: 12px;
             border: 1px solid #a0b5d0;
             border-radius: 4px;
             resize: none;
-            font-size: 16px;
+            font-size: 16px; /* Evita zoom automático en iPhone/Android */
             outline: none;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
         }
 
-        .btn-send {
+        .btn-enviar-main {
             width: 100%;
-            margin-top: 8px;
+            margin-top: 10px;
             background: var(--msn-blue);
             color: white;
             border: none;
-            padding: 10px;
-            border-radius: 4px;
+            padding: 12px;
+            border-radius: 5px;
             font-weight: bold;
             cursor: pointer;
+            font-size: 14px;
         }
 
-        /* IMÁGENES Y ESTADOS */
+        /* ------------------------------------------------------------
+           COMPONENTES VISUALES ADICIONALES
+           ------------------------------------------------------------ */
         .img-min {
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
             border-radius: 4px;
             object-fit: cover;
             border: 1px solid #ccc;
             flex-shrink: 0;
         }
 
-        .img-big {
-            width: 130px;
-            height: 130px;
+        .img-big-display {
+            width: 140px;
+            height: 140px;
             border: 5px solid white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             border-radius: 8px;
             object-fit: cover;
-            background: #eee;
+            background: #f9f9f9;
         }
 
-        .dot {
+        .status-dot {
             width: 10px;
             height: 10px;
             border-radius: 50%;
             display: inline-block;
-            margin-right: 5px;
+            margin-right: 6px;
+            border: 1px solid rgba(0,0,0,0.1);
         }
-        .on { background: #31a24c; }
-        .off { background: #bdc1c6; }
+        .online { background-color: #31a24c; }
+        .offline { background-color: #bdc1c6; }
 
-        /* ZUMBIDO ANIMATION */
-        .shake { animation: s 0.1s 10; }
-        @keyframes s { 
-            0%, 100% { transform: translate(0,0); } 
-            25% { transform: translate(4px,4px); } 
-            50% { transform: translate(-4px,-4px); } 
+        .shake-effect { animation: shake-anim 0.12s 8; }
+        @keyframes shake-anim {
+            0% { transform: translate(0,0); }
+            25% { transform: translate(6px,6px); }
+            50% { transform: translate(-6px,-6px); }
+            75% { transform: translate(6px,-6px); }
+            100% { transform: translate(0,0); }
         }
 
-        /* MODAL DE PERFIL */
+        /* MODALES */
         #modal-perfil {
             display: none;
             position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.65);
             align-items: center;
             justify-content: center;
-            z-index: 2000;
+            z-index: 5000;
         }
 
-        .modal-content {
+        .modal-box {
             background: white;
-            padding: 25px;
-            border-radius: 12px;
+            padding: 30px;
+            border-radius: 15px;
             width: 90%;
-            max-width: 350px;
+            max-width: 380px;
             text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         }
 
-        /* LOGIN BOX */
-        #login-box {
+        #login-screen {
             background: white;
-            padding: 40px;
-            border-radius: 12px;
+            padding: 45px;
+            border-radius: 15px;
             width: 90%;
-            max-width: 350px;
+            max-width: 380px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-
-        #login-box input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 12px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
         }
     </style>
 </head>
 <body onclick="desbloquearAudio()">
 
-    <div id="login-box">
-        <h2 style="color:var(--msn-blue); margin-bottom:20px; font-style: italic;">THE REALS MSN</h2>
-        <p style="font-size:12px; color:#666; margin-bottom:20px;">Inicia sesión con tu cuenta de Messenger</p>
-        <input id="li-user" type="text" placeholder="Correo electrónico / Usuario">
-        <input id="li-pass" type="password" placeholder="Contraseña">
-        <button onclick="intentarLogin()" style="width:100%; padding:12px; background:var(--msn-blue); color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">Iniciar Sesión</button>
+    <div id="login-screen">
+        <img src="https://cdn-icons-png.flaticon.com/512/732/732223.png" width="60" style="margin-bottom:20px;">
+        <h2 style="color:var(--msn-blue); margin-bottom:10px; font-style: italic;">MSN Messenger</h2>
+        <p style="font-size:13px; color:#777; margin-bottom:25px;">Ingresa tus credenciales para iniciar</p>
+        
+        <input id="li-user" type="text" placeholder="Nombre de usuario" style="width:100%; padding:14px; margin-bottom:12px; border:1px solid #ccc; border-radius:6px;">
+        <input id="li-pass" type="password" placeholder="Contraseña" style="width:100%; padding:14px; margin-bottom:15px; border:1px solid #ccc; border-radius:6px;">
+        
+        <button onclick="intentarLogin()" style="width:100%; padding:14px; background:var(--msn-blue); color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer; font-size:15px;">Iniciar Sesión</button>
     </div>
 
     <div id="app">
         <header>
             <div class="my-info">
-                <img id="my-img" onclick="toggleModal(true)" src="" title="Click para cambiar foto">
+                <img id="my-img" onclick="toggleModal(true)" src="" title="Cambiar mi foto">
                 <div class="my-text-data">
                     <b id="my-name">Cargando...</b>
-                    <small id="my-desc">Disponible</small>
+                    <small id="my-desc">Estableciendo conexión...</small>
                 </div>
             </div>
-            <button onclick="toggleSideRight()" id="btn-info">Ver Info</button>
+            <button onclick="toggleSideRightMobile()" id="btn-info-mobile">Ver Perfil</button>
         </header>
 
         <main>
             <div id="side-left">
-                <div class="label">Mis Salas</div>
-                <button class="item" onclick="cambiarSala('conversando', 'Conversando', '/logo-conversando.png', 'Sala de chat general')">
+                <div class="label">Salas de Chat</div>
+                <button class="item" onclick="cambiarSala('conversando', 'Conversando', '/logo-conversando.png', 'Sala pública para todos')">
                     <img src="/logo-conversando.png" class="img-min" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
                     <div class="contact-info-text">
                         <b>Conversando</b>
-                        <span style="font-size:11px; color:#777; display:block;">Chat Global</span>
+                        <span class="contact-status-text">Chat Global</span>
                     </div>
                     <span class="unread-count" id="badge-conversando">0</span>
                 </button>
 
-                <div class="label">Contactos en línea</div>
+                <div class="label">Contactos Directos</div>
                 <div id="lista-contactos" style="flex:1; overflow-y:auto;">
                     </div>
             </div>
@@ -441,309 +478,351 @@
                 <div id="writing-feedback"></div>
 
                 <div id="toolbar">
-                    <span class="emo-btn" onclick="addEmo('😊')">😊</span>
-                    <span class="emo-btn" onclick="addEmo('😂')">😂</span>
-                    <span class="emo-btn" onclick="addEmo('😛')">😛</span>
-                    <span class="emo-btn" onclick="addEmo('😮')">😮</span>
-                    <span class="emo-btn" onclick="addEmo('❤️')">❤️</span>
-                    <button onclick="enviarZumbido()" style="margin-left:auto; font-size:10px; padding:4px 8px; cursor:pointer; background:#eee; border:1px solid #ccc; border-radius:3px;">ZUMBIDO</button>
+                    <span class="emo-btn" onclick="insertEmoji('😊')">😊</span>
+                    <span class="emo-btn" onclick="insertEmoji('😂')">😂</span>
+                    <span class="emo-btn" onclick="insertEmoji('😛')">😛</span>
+                    <span class="emo-btn" onclick="insertEmoji('😮')">😮</span>
+                    <span class="emo-btn" onclick="insertEmoji('😢')">😢</span>
+                    <span class="emo-btn" onclick="insertEmoji('❤️')">❤️</span>
+                    <button onclick="enviarZumbido()" style="margin-left:auto; font-size:11px; padding:5px 10px; cursor:pointer; border-radius:4px; border:1px solid #ccc; background:#fff;">🔔 Zumbido</button>
                 </div>
 
                 <div id="input-area">
-                    <textarea id="text-in" placeholder="Escribe un mensaje aquí..." oninput="avisarEscribiendo()"></textarea>
-                    <button class="btn-send" onclick="enviarTexto()">Enviar (Enter)</button>
+                    <textarea id="text-in" placeholder="Escribe un mensaje aquí..." oninput="emitirEventoEscribiendo()"></textarea>
+                    <button class="btn-enviar-main" onclick="enviarMensaje()">Enviar Mensaje</button>
                 </div>
             </div>
 
             <div id="side-right">
-                <div style="text-align:center; width:100%;">
-                    <img id="target-img" class="img-big" src="https://via.placeholder.com/140">
-                    <div id="target-name" style="font-size:15px; font-weight:bold; color:var(--msn-blue); margin-top:15px;">...</div>
-                    <div id="target-desc-full" style="font-size:11px; color:#666; margin-top:8px; padding:0 10px; font-style:italic;">...</div>
+                <div style="text-align:center; width:100%; margin-top:10px;">
+                    <img id="target-img" class="img-big-display" src="https://via.placeholder.com/140">
+                    <div id="target-name" style="font-size:16px; font-weight:bold; color:var(--msn-blue); margin-top:15px;">...</div>
+                    <div id="target-desc-full" style="font-size:11px; color:#666; margin-top:8px; padding:0 15px; font-style:italic;">...</div>
                 </div>
 
-                <div style="text-align:center; margin-top:auto; border-top:1px solid #eee; padding-top:15px; width:100%;">
-                    <img id="side-my-img" class="img-big" style="width:90px; height:90px;">
-                    <div style="font-size:11px; color:#999; margin-top:5px;">Tú mismo</div>
+                <div style="text-align:center; margin-top:auto; border-top:1px solid #eee; padding-top:20px; width:100%; background:#fcfcfc; padding-bottom:10px;">
+                    <img id="side-my-img" class="img-big-display" style="width:90px; height:90px; border-width:3px;">
+                    <div style="font-size:11px; color:#999; margin-top:5px;">(Tú)</div>
                 </div>
             </div>
         </main>
     </div>
 
     <div id="modal-perfil">
-        <div class="modal-content">
-            <h3 style="color:var(--msn-blue); margin-bottom:15px;">Configuración de Perfil</h3>
+        <div class="modal-box">
+            <h3 style="color:var(--msn-blue); margin-bottom:20px;">Editar mi Información</h3>
             
-            <p style="text-align:left; font-size:12px; color:#444; margin-bottom:5px;">Tu frase o estado:</p>
-            <input id="up-desc" type="text" placeholder="¿Qué tienes en mente?" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:4px;">
+            <div style="text-align:left; margin-bottom:15px;">
+                <label style="font-size:12px; color:#555; font-weight:bold;">Mensaje Personal:</label>
+                <input id="up-desc" type="text" placeholder="¿Qué estás pensando?" style="width:100%; padding:12px; margin-top:5px; border:1px solid #ccc; border-radius:6px;">
+            </div>
             
-            <p style="text-align:left; font-size:12px; color:#444; margin-bottom:5px;">Imagen de perfil (Max 1MB):</p>
-            <input type="file" id="up-foto" accept="image/*" style="font-size:12px; width:100%; margin-bottom:20px;">
+            <div style="text-align:left; margin-bottom:25px;">
+                <label style="font-size:12px; color:#555; font-weight:bold;">Foto de Perfil:</label>
+                <input type="file" id="up-foto" accept="image/*" style="width:100%; margin-top:5px; font-size:12px;">
+            </div>
             
-            <div style="display:flex; gap:10px;">
-                <button onclick="guardarPerfil()" style="flex:1; padding:12px; background:var(--msn-blue); color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">Guardar cambios</button>
-                <button onclick="toggleModal(false)" style="flex:1; padding:12px; background:#eee; border:none; border-radius:5px; cursor:pointer;">Cancelar</button>
+            <div style="display:flex; gap:12px;">
+                <button onclick="guardarCambiosPerfil()" style="flex:1; padding:14px; background:var(--msn-blue); color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">Guardar</button>
+                <button onclick="toggleModal(false)" style="flex:1; padding:14px; background:#eee; border:none; border-radius:6px; cursor:pointer;">Cerrar</button>
             </div>
         </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        // --- VARIABLES GLOBALES Y SONIDOS ---
+        // --- 1. REFERENCIAS Y ESTADO GLOBAL ---
         const socket = io();
-        let yo = localStorage.getItem('msn_user') || "";
-        let salaActual = 'conversando';
-        let unreadData = {};
-        let typingTimeout;
+        let usuarioActual = localStorage.getItem('msn_user') || "";
+        let salaSeleccionada = 'conversando';
+        let mensajesNoLeidos = {};
+        let temporizadorEscribiendo;
 
-        const srvLogin = new Audio('https://raw.githubusercontent.com/pabluro/msn-assets/main/login.mp3');
-        const srvMsg = new Audio('https://www.myinstants.com/media/sounds/messenger-mensaje.mp3');
-        const srvBuzz = new Audio('https://www.myinstants.com/media/sounds/msn-messenger-buzz.mp3');
+        // --- 2. CONFIGURACIÓN DE AUDIO ---
+        const sonidoEntrada = new Audio('https://raw.githubusercontent.com/pabluro/msn-assets/main/login.mp3');
+        const sonidoMensaje = new Audio('https://www.myinstants.com/media/sounds/messenger-mensaje.mp3');
+        const sonidoZumbido = new Audio('https://www.myinstants.com/media/sounds/msn-messenger-buzz.mp3');
 
-        // --- INICIALIZACIÓN ---
+        // Función necesaria para navegadores modernos (desbloqueo de autoplay)
         function desbloquearAudio() {
-            [srvLogin, srvMsg, srvBuzz].forEach(audio => {
+            [sonidoEntrada, sonidoMensaje, sonidoZumbido].forEach(audio => {
                 audio.play().then(() => {
                     audio.pause();
                     audio.currentTime = 0;
-                }).catch(() => {});
+                }).catch(() => { /* Silencio si falla */ });
             });
         }
 
-        // --- NAVEGACIÓN Y UI ---
-        function toggleSideRight() {
-            document.getElementById('side-right').classList.toggle('open');
+        // --- 3. MANEJO DE INTERFAZ (UI) ---
+        function toggleSideRightMobile() {
+            const side = document.getElementById('side-right');
+            side.classList.toggle('open');
+            const btn = document.getElementById('btn-info-mobile');
+            btn.innerText = side.classList.contains('open') ? 'Cerrar Perfil' : 'Ver Perfil';
         }
 
-        function toggleModal(visible) {
-            document.getElementById('modal-perfil').style.display = visible ? 'flex' : 'none';
+        function toggleModal(estaAbierto) {
+            document.getElementById('modal-perfil').style.display = estaAbierto ? 'flex' : 'none';
         }
 
-        function addEmo(emoji) {
-            const input = document.getElementById('text-in');
-            input.value += emoji;
-            input.focus();
+        function insertEmoji(emoji) {
+            const campo = document.getElementById('text-in');
+            campo.value += emoji;
+            campo.focus();
         }
 
-        // --- SISTEMA DE LOGIN ---
-        if(yo) {
-            const pass = localStorage.getItem('msn_pass');
-            socket.emit('login', { user: yo, pass: pass });
+        // --- 4. AUTENTICACIÓN Y LOGIN ---
+        if (usuarioActual) {
+            const passwordGuardada = localStorage.getItem('msn_pass');
+            socket.emit('login', { user: usuarioActual, pass: passwordGuardada });
         }
 
         function intentarLogin() {
             const u = document.getElementById('li-user').value;
             const p = document.getElementById('li-pass').value;
-            if(u && p) {
-                localStorage.setItem('msn_user', u);
-                localStorage.setItem('msn_pass', p);
-                socket.emit('login', { user: u, pass: p });
-            } else {
-                alert("Por favor rellena ambos campos");
+            
+            if (u.trim() === "" || p.trim() === "") {
+                alert("Debes completar todos los campos.");
+                return;
             }
+
+            localStorage.setItem('msn_user', u);
+            localStorage.setItem('msn_pass', p);
+            socket.emit('login', { user: u, pass: p });
         }
 
-        socket.on('login_status', res => {
-            if(res.success) {
-                yo = res.user;
-                document.getElementById('login-box').style.display = 'none';
+        socket.on('login_status', respuesta => {
+            if (respuesta.success) {
+                usuarioActual = respuesta.user;
+                document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('app').style.display = 'flex';
-                syncOwnProfile(res.perfil);
-                cambiarSala('conversando', 'Conversando', '/logo-conversando.png', 'Sala de chat global');
-                srvLogin.play().catch(() => {});
+                
+                // Sincronizar UI propia
+                actualizarMiPerfilUI(respuesta.perfil);
+                
+                // Entrar a sala inicial
+                cambiarSala('conversando', 'Conversando', '/logo-conversando.png', 'Sala de chat global para todos');
+                
+                // Play sonido login
+                sonidoEntrada.play().catch(() => {});
             } else {
-                alert("Error: " + res.msg);
+                alert("Fallo en el inicio: " + respuesta.msg);
+                localStorage.removeItem('msn_user');
             }
         });
 
-        function syncOwnProfile(p) {
-            const fotoUrl = p.foto || "https://via.placeholder.com/140";
-            document.getElementById('my-img').src = fotoUrl;
-            document.getElementById('side-my-img').src = fotoUrl;
-            document.getElementById('my-name').innerText = yo;
-            document.getElementById('my-desc').innerText = p.descripcion || "Disponible";
+        function actualizarMiPerfilUI(datos) {
+            const foto = datos.foto || "https://via.placeholder.com/140";
+            document.getElementById('my-img').src = foto;
+            document.getElementById('side-my-img').src = foto;
+            document.getElementById('my-name').innerText = usuarioActual;
+            document.getElementById('my-desc').innerText = datos.descripcion || "Disponible";
         }
 
-        // --- CONTACTOS Y ESTADOS ---
+        // --- 5. CONTACTOS Y SINCRONIZACIÓN DE ESTADOS ---
         socket.on('lista_contactos', lista => {
-            const container = document.getElementById('lista-contactos');
-            container.innerHTML = "";
+            const listaDiv = document.getElementById('lista-contactos');
+            listaDiv.innerHTML = "";
             
-            lista.forEach(u => {
-                if(u.user === yo) {
-                    syncOwnProfile(u);
+            lista.forEach(user => {
+                // Si soy yo, solo actualizo mi cabecera por si cambió algo
+                if (user.user === usuarioActual) {
+                    actualizarMiPerfilUI(user);
                     return;
                 }
 
-                const btn = document.createElement('button');
-                btn.className = "item";
-                const dotColor = u.online ? 'on' : 'off';
+                const boton = document.createElement('button');
+                boton.className = "item";
+                const colorPunto = user.online ? 'online' : 'offline';
                 
-                btn.innerHTML = `
-                    <img src="${u.foto || 'https://via.placeholder.com/40'}" class="img-min">
+                boton.innerHTML = `
+                    <img src="${user.foto || 'https://via.placeholder.com/40'}" class="img-min">
                     <div class="contact-info-text">
-                        <b><span class="dot ${dotColor}"></span>${u.user}</b>
-                        <span style="font-size:11px; color:#777; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                            ${u.descripcion || 'Disponible'}
-                        </span>
+                        <b><span class="status-dot ${colorPunto}"></span>${user.user}</b>
+                        <span class="contact-status-text">${user.descripcion || 'Disponible'}</span>
                     </div>
-                    <span class="unread-count" id="badge-${u.user}">0</span>
+                    <span class="unread-count" id="badge-${user.user}">0</span>
                 `;
 
-                btn.onclick = () => {
-                    cambiarSala(u.user, u.user, u.foto, u.descripcion);
-                    if(window.innerWidth < 768) toggleSideRight();
+                boton.onclick = () => {
+                    cambiarSala(user.user, user.user, user.foto, user.descripcion);
+                    // Si estamos en móvil y abrimos un chat, cerramos el panel derecho si estaba abierto
+                    if (window.innerWidth < 768) {
+                        document.getElementById('side-right').classList.remove('open');
+                        document.getElementById('btn-info-mobile').innerText = 'Ver Perfil';
+                    }
                 };
 
-                container.appendChild(btn);
+                listaDiv.appendChild(boton);
                 
-                if(unreadData[u.user]) {
-                    updateBadge(u.user, unreadData[u.user]);
+                // Si había mensajes pendientes, refrescar el badge
+                if (mensajesNoLeidos[user.user]) {
+                    actualizarContadorBadge(user.user, mensajesNoLeidos[user.user]);
                 }
             });
         });
 
-        // --- SALAS Y CHAT ---
-        function cambiarSala(id, nombre, img, desc) {
-            salaActual = id;
-            unreadData[id] = 0;
-            updateBadge(id, 0);
-
-            document.getElementById('target-name').innerText = nombre;
-            document.getElementById('target-desc-full').innerText = desc || "Disponible";
-            document.getElementById('target-img').src = img || "https://via.placeholder.com/140?text=" + nombre;
+        // --- 6. GESTIÓN DEL CHAT Y MENSAJERÍA ---
+        function cambiarSala(id, nombre, imagen, descripcion) {
+            salaSeleccionada = id;
             
+            // Limpiar notificaciones de esta sala
+            mensajesNoLeidos[id] = 0;
+            actualizarContadorBadge(id, 0);
+
+            // Actualizar panel derecho (Receptor)
+            document.getElementById('target-name').innerText = nombre;
+            document.getElementById('target-desc-full').innerText = descripcion || "Disponible";
+            document.getElementById('target-img').src = imagen || "https://via.placeholder.com/140?text=" + nombre;
+            
+            // Limpiar área de mensajes y pedir historial
             document.getElementById('messages').innerHTML = "";
             document.getElementById('writing-feedback').innerText = "";
             
             socket.emit('get_private_history', id);
         }
 
-        function updateBadge(id, count) {
+        function actualizarContadorBadge(id, cantidad) {
             const badge = document.getElementById('badge-' + id);
-            if(badge) {
-                badge.innerText = count;
-                badge.style.display = count > 0 ? 'block' : 'none';
+            if (badge) {
+                badge.innerText = cantidad;
+                badge.style.display = cantidad > 0 ? 'block' : 'none';
             }
         }
 
-        function avisarEscribiendo() {
-            socket.emit('typing', { to: salaActual, user: yo });
+        function emitirEventoEscribiendo() {
+            socket.emit('typing', { to: salaSeleccionada, user: usuarioActual });
         }
 
         socket.on('typing_status', data => {
-            if (data.to === yo && data.user === salaActual) {
+            // Solo mostrar si es el usuario con el que estoy hablando actualmente
+            if (data.to === usuarioActual && data.user === salaSeleccionada) {
                 const feedback = document.getElementById('writing-feedback');
                 feedback.innerText = `${data.user} está escribiendo un mensaje...`;
                 
-                clearTimeout(typingTimeout);
-                typingTimeout = setTimeout(() => {
+                clearTimeout(temporizadorEscribiendo);
+                temporizadorEscribiendo = setTimeout(() => {
                     feedback.innerText = "";
                 }, 3000);
             }
         });
 
-        function enviarTexto() {
+        function enviarMensaje() {
             const input = document.getElementById('text-in');
-            const mensaje = input.value;
-            if(mensaje.trim() !== "") {
-                socket.emit('chat message', { to: salaActual, text: mensaje });
+            const texto = input.value;
+            if (texto.trim() !== "") {
+                socket.emit('chat message', { to: salaSeleccionada, text: texto });
                 input.value = "";
+                input.focus();
             }
         }
 
         function enviarZumbido() {
-            socket.emit('chat message', { to: salaActual, isBuzz: true });
+            socket.emit('chat message', { to: salaSeleccionada, isBuzz: true });
         }
 
-        socket.on('chat message', m => {
-            const destino = m.to || 'conversando';
-            const esSalaGlobal = ['conversando', 'juegos', 'solotodo'].includes(destino);
+        socket.on('chat message', msg => {
+            const destino = msg.to || 'conversando';
+            const esSalaPublica = ['conversando', 'juegos', 'solotodo'].includes(destino);
             
-            const paraMi = (esSalaGlobal && destino === salaActual) || 
-                           (m.user === salaActual && m.to === yo) || 
-                           (m.user === yo && m.to === salaActual);
+            // ¿El mensaje es para la ventana que tengo abierta?
+            const esParaVistaActual = (esSalaPublica && destino === salaSeleccionada) || 
+                                      (msg.user === salaSeleccionada && msg.to === usuarioActual) || 
+                                      (msg.user === usuarioActual && msg.to === salaSeleccionada);
 
-            if (paraMi) {
-                renderizarMensaje(m);
-                if(m.user !== yo) srvMsg.play().catch(() => {});
+            if (esParaVistaActual) {
+                dibujarMensajeEnPantalla(msg);
+                if (msg.user !== usuarioActual) sonidoMensaje.play().catch(() => {});
             } else {
-                const origen = esSalaGlobal ? destino : m.user;
-                unreadData[origen] = (unreadData[origen] || 0) + 1;
-                updateBadge(origen, unreadData[origen]);
-                srvMsg.play().catch(() => {});
+                // Notificar en la barra lateral
+                const idNotificacion = esSalaPublica ? destino : msg.user;
+                mensajesNoLeidos[idNotificacion] = (mensajesNoLeidos[idNotificacion] || 0) + 1;
+                actualizarContadorBadge(idNotificacion, mensajesNoLeidos[idNotificacion]);
+                sonidoMensaje.play().catch(() => {});
             }
 
-            if(m.isBuzz && paraMi) {
-                document.getElementById('app').classList.add('shake');
-                srvBuzz.play().catch(() => {});
+            // Lógica especial de ZUMBIDO
+            if (msg.isBuzz && esParaVistaActual) {
+                const appElement = document.getElementById('app');
+                appElement.classList.add('shake-effect');
+                sonidoZumbido.play().catch(() => {});
                 setTimeout(() => {
-                    document.getElementById('app').classList.remove('shake');
+                    appElement.classList.remove('shake-effect');
                 }, 600);
             }
         });
 
-        socket.on('actualizar_historial', res => {
-            if(res.target === salaActual) {
-                const div = document.getElementById('messages');
-                div.innerHTML = "";
-                res.history.forEach(m => renderizarMensaje(m));
+        socket.on('actualizar_historial', datos => {
+            if (datos.target === salaSeleccionada) {
+                const contenedor = document.getElementById('messages');
+                contenedor.innerHTML = "";
+                datos.history.forEach(m => dibujarMensajeEnPantalla(m));
             }
         });
 
-        function renderizarMensaje(m) {
-            const div = document.getElementById('messages');
-            const msgCont = document.createElement('div');
-            msgCont.className = "msg-container";
+        function dibujarMensajeEnPantalla(m) {
+            const contenedor = document.getElementById('messages');
+            const bloque = document.createElement('div');
+            bloque.className = "msg-block";
             
-            const hora = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            let contenido = m.texto || m.text || "";
+            const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            let cuerpo = m.texto || m.text || "";
 
-            if(m.isBuzz) {
-                contenido = `<span style="color:red; font-weight:bold;">¡HIZO CLIC EN ENVIAR UN ZUMBIDO!</span>`;
+            if (m.isBuzz) {
+                cuerpo = `<span style="color:red; font-weight:bold; font-style:italic;">¡Has recibido un zumbido!</span>`;
             } else {
-                // Parseo de links y emoticones básicos
-                const urlRegex = /(https?:\/\/[^\s]+)/g;
-                contenido = contenido.replace(urlRegex, url => `<a href="${url}" target="_blank" style="color:var(--msn-blue);">${url}</a>`);
-                contenido = contenido.replace(/:\)/g, '😊').replace(/\(L\)/g, '❤️');
+                // Detectar URLs para hacerlas clicables
+                const regexUrl = /(https?:\/\/[^\s]+)/g;
+                cuerpo = cuerpo.replace(regexUrl, url => `<a href="${url}" target="_blank" style="color:var(--msn-blue); text-decoration:underline;">${url}</a>`);
+                
+                // Reemplazo básico de emoticones de texto a Emoji
+                cuerpo = cuerpo.replace(/:\)/g, '😊').replace(/\(L\)/g, '❤️').replace(/:P/g, '😛').replace(/:O/g, '😮');
             }
 
-            msgCont.innerHTML = `
-                <div class="msg-header">${m.user} dice: <span class="msg-time">[${hora}]</span></div>
-                <div class="msg-body">${contenido}</div>
+            bloque.innerHTML = `
+                <div class="msg-user-label">${m.user} dice: <span class="msg-timestamp">[${timestamp}]</span></div>
+                <div class="msg-text-content">${cuerpo}</div>
             `;
             
-            div.appendChild(msgCont);
-            div.scrollTop = div.scrollHeight;
+            contenedor.appendChild(bloque);
+            contenedor.scrollTop = contenedor.scrollHeight; // Auto-scroll al final
         }
 
-        // --- ACTUALIZAR PERFIL ---
-        function guardarPerfil() {
-            const fileInput = document.getElementById('up-foto');
-            const descInput = document.getElementById('up-desc');
-            const nuevaDesc = descInput.value;
-            const file = fileInput.files[0];
+        // --- 7. CONFIGURACIÓN DE PERFIL (UPLOAD) ---
+        function guardarCambiosPerfil() {
+            const inputFoto = document.getElementById('up-foto');
+            const inputDesc = document.getElementById('up-desc');
+            const descripcionNueva = inputDesc.value;
+            const archivo = inputFoto.files[0];
 
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = function() {
-                    socket.emit('update_profile', { desc: nuevaDesc, foto: reader.result });
+            if (archivo) {
+                // Validar tamaño máximo 1MB aproximadamente
+                if (archivo.size > 1100000) {
+                    alert("La imagen es muy pesada. Intenta con una de menos de 1MB.");
+                    return;
+                }
+                const lector = new FileReader();
+                lector.onload = function() {
+                    socket.emit('update_profile', { desc: descripcionNueva, foto: lector.result });
                     toggleModal(false);
                 };
-                reader.readAsDataURL(file);
+                lector.readAsDataURL(archivo);
             } else {
-                socket.emit('update_profile', { desc: nuevaDesc, foto: null });
+                // Solo actualizar descripción si no hay foto nueva
+                socket.emit('update_profile', { desc: descripcionNueva, foto: null });
                 toggleModal(false);
             }
         }
 
-        // Soporte para tecla Enter
-        document.getElementById('text-in').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                enviarTexto();
+        // Soporte para enviar con la tecla Enter
+        document.getElementById('text-in').addEventListener('keydown', function(evento) {
+            if (evento.key === 'Enter' && !evento.shiftKey) {
+                evento.preventDefault();
+                enviarMensaje();
             }
         });
+
+        console.log("MSN Messenger cargado correctamente. Modo Sintonía Activo.");
     </script>
 </body>
 </html>
