@@ -29,10 +29,9 @@
             box-shadow: 0px 0px 30px rgba(0,0,0,1);
         }
 
-        /* TITULO EN AMARILLO */
         #title-bar { 
             background: #222; 
-            color: #ffff00; /* Amarillo Puro */
+            color: #ffff00; 
             padding: 15px; 
             font-weight: 900; 
             font-size: 20px;
@@ -63,43 +62,66 @@
             font-size: 15px; 
             border-bottom: 1px solid #222; 
             padding-bottom: 8px;
-            animation: fadeIn 0.3s ease;
         }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
         #messages li strong { color: #ffff00; margin-right: 8px; }
 
-        /* INPUT AREA */
+        /* AREA DE ENTRADA Y BOTONES REORGANIZADOS */
         #input-area { padding: 20px; background: #1a1a1a; border-top: 1px solid #333; }
         
-        .controls { display: flex; gap: 10px; margin-top: 10px; }
+        .controls { 
+            display: flex; 
+            gap: 12px; /* Espacio entre botones */
+            margin-top: 15px; 
+        }
         
         input { 
             width: 100%; 
-            padding: 15px; 
+            padding: 18px; /* Más alto para comodidad */
             background: #252525; 
             border: 1px solid #444; 
             color: white; 
-            border-radius: 8px; 
+            border-radius: 10px; 
             font-size: 16px;
+            box-sizing: border-box;
         }
         input:focus { outline: none; border-color: #ffff00; }
 
         button { 
-            padding: 12px 20px; 
+            padding: 18px 25px; /* Botones mucho más grandes y cómodos */
             border: none; 
-            border-radius: 8px; 
+            border-radius: 10px; 
             cursor: pointer; 
-            font-weight: bold; 
-            transition: 0.2s;
+            font-weight: 900; 
+            font-size: 14px;
+            transition: transform 0.1s, background 0.2s;
+            text-transform: uppercase;
         }
-        .btn-send { background: #ffff00; color: #000; flex-grow: 1; }
-        .btn-send:hover { background: #e6e600; }
-        .btn-buzz { background: #ff4444; color: #fff; }
 
-        /* ZUMBIDO */
+        button:active { transform: scale(0.95); } /* Efecto de click */
+
+        /* ZUMBIDO A LA IZQUIERDA */
+        .btn-buzz { 
+            background: #ff4444; 
+            color: #fff; 
+            min-width: 120px;
+        }
+        .btn-buzz:hover { background: #cc0000; }
+
+        /* ENVIAR A LA DERECHA */
+        .btn-send { 
+            background: #ffff00; 
+            color: #000; 
+            flex-grow: 1; /* El botón de enviar ocupa el resto del ancho */
+        }
+        .btn-send:hover { background: #e6e600; }
+
+        /* ANIMACIÓN SHAKE */
         @keyframes shake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(6px,6px); } 50% { transform: translate(-6px,-6px); } 75% { transform: translate(6px,-6px); } }
         .shake-effect { animation: shake 0.1s 6; }
+
+        /* Scrollbar rústico */
+        #messages-container::-webkit-scrollbar { width: 6px; }
+        #messages-container::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -113,10 +135,10 @@
     </div>
 
     <div id="input-area">
-        <input id="input" autocomplete="off" placeholder="Escribe algo en THE REALS..." onkeypress="if(event.key==='Enter')sendMessage()" />
+        <input id="input" autocomplete="off" placeholder="Escribe en THE REALS..." onkeypress="if(event.key==='Enter')sendMessage()" />
         <div class="controls">
-            <button class="btn-send" onclick="sendMessage()">ENVIAR</button>
             <button class="btn-buzz" onclick="sendBuzz()">ZUMBIDO</button>
+            <button class="btn-send" onclick="sendMessage()">ENVIAR MENSAJE</button>
         </div>
     </div>
 </div>
@@ -149,14 +171,14 @@
 
     function sendMessage() {
         var input = document.getElementById('input');
-        if(input.value) {
+        if(input.value.trim()) {
             socket.emit('chat message', { user: nick, text: input.value });
             input.value = '';
         }
     }
 
     function sendBuzz() {
-        socket.emit('chat message', { user: nick, text: "¡ZUMBIDO!", isBuzz: true });
+        socket.emit('chat message', { user: nick, text: "¡HA ENVIADO UN ZUMBIDO!", isBuzz: true });
     }
 
     socket.on('chat message', function(data) {
