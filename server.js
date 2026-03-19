@@ -3,47 +3,93 @@ const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
 const db = new sqlite3.Database('./msn_database.db');
 
-// Crear tablas si no existen
+// 1. Configuración de carpetas (Para que no de "Cannot GET /")
+app.use(express.static(__dirname)); 
+// Si usas una carpeta llamada 'public', cambia la línea anterior por: app.use(express.static('public'));
+
+// 2. Base de Datos: Crear tablas si no existen
 db.serialize(() => {
-    db.run("CREATE TABLE IF NOT EXISTS usuarios (user TEXT PRIMARY KEY, pass TEXT, foto TEXT, descripcion TEXT, online INTEGER)");
-    db.run("CREATE TABLE IF NOT EXISTS mensajes (user TEXT, destino TEXT, texto TEXT, tipo TEXT, archivo TEXT, isBuzz INTEGER, fecha DATETIME DEFAULT CURRENT_TIMESTAMP)");
+    db.run(`CREATE TABLE IF NOT EXISTS usuarios (
+        user TEXT PRIMARY KEY, 
+        pass TEXT, 
+        foto TEXT, 
+        descripcion TEXT, 
+        online INTEGER DEFAULT 0
+    )`);
+    db.run(`CREATE TABLE IF NOT EXISTS mensajes (
+        user TEXT, 
+        destino TEXT, 
+        texto TEXT, 
+        tipo TEXT, 
+        archivo TEXT, 
+        isBuzz INTEGER, 
+        fecha DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
 });
 
-app.use(express.static(__dirname));
-
+// 3. Lógica de Sockets
 io.on('connection', (socket) => {
-    
-    // LOGIN
+    console.log('Alguien se ha conectado');
+
+    // --- LOGIN CON AUTO-REGISTRO ---
     socket.on('login', (data) => {
+        if (!data.user || !data.pass) return;
+
         db.get("SELECT * FROM usuarios WHERE user = ?", [data.user], (err, row) => {
-            if (row && row.pass === data.pass) {
-                socket.user = data.user;
-                db.run("UPDATE usuarios SET online = 1 WHERE user = ?", [data.user]);
-                enviarListaContactos();
-                socket.emit('login_status', { success: true, user: row.user, perfil: row });
+            if (row) {
+                // Si el usuario existe, validar contraseña
+                if (row.pass === data.pass) {
+                    finalizarLogin(socket, row);
+                } else {
+                    socket.emit('login_status', { success: false, message: "Contraseña incorrecta" });
+                }
             } else {
-                socket.emit('login_status', { success: false });
+                // Si NO existe, lo creamos automáticamente (MSN Style)
+                const nuevoPerfil = {
+                    user: data.user,
+                    pass: data.pass,
+                    descripcion: '¡Hola! Estoy usando MSN',
+                    foto: ''
+                };
+                db.run("INSERT INTO usuarios (user, pass, descripcion, foto, online) VALUES (?, ?, ?, ?, 1)",
+                    [nuevoPerfil.user, nuevoPerfil.pass, nuevoPerfil.descripcion, nuevoPerfil.foto], 
+                    (err) => {
+                        finalizarLogin(socket, nuevoPerfil);
+                    }
+                );
             }
         });
     });
 
-    // GUARDAR PERFIL (Esto era lo que faltaba y hacía que fallara el modal)
+    function finalizarLogin(socket, perfil) {
+        socket.user = perfil.user;
+        db.run("UPDATE usuarios SET online = 1 WHERE user = ?", [perfil.user], () => {
+            enviarListaContactos();
+            socket.emit('login_status', { 
+                success: true, 
+                user: perfil.user, 
+                perfil: { user: perfil.user, descripcion: perfil.descripcion, foto: perfil.foto } 
+            });
+        });
+    }
+
+    // --- ACTUALIZAR PERFIL ---
     socket.on('update_profile', (data) => {
         if (!socket.user) return;
+        
         if (data.foto) {
-            db.run("UPDATE usuarios SET descripcion = ?, foto = ? WHERE user = ?", [data.desc, data.foto, socket.user], () => {
-                enviarListaContactos();
-            });
+            db.run("UPDATE usuarios SET descripcion = ?, foto = ? WHERE user = ?", 
+                [data.desc, data.foto, socket.user], () => enviarListaContactos());
         } else {
-            db.run("UPDATE usuarios SET descripcion = ? WHERE user = ?", [data.desc, socket.user], () => {
-                enviarListaContactos();
-            });
+            db.run("UPDATE usuarios SET descripcion = ? WHERE user = ?", 
+                [data.desc, socket.user], () => enviarListaContactos());
         }
     });
 
-    // MENSAJES (SALA Y PRIVADOS)
+    // --- MENSAJES (SALA Y PRIVADOS) ---
     socket.on('chat message', (msg) => {
         if (!socket.user) return;
         const destino = msg.to || 'conversando';
@@ -51,7 +97,7 @@ io.on('connection', (socket) => {
         db.run("INSERT INTO mensajes (user, destino, texto, tipo, archivo, isBuzz) VALUES (?, ?, ?, ?, ?, ?)",
             [socket.user, destino, msg.text, msg.tipo, msg.archivo, msg.isBuzz ? 1 : 0], 
             function(err) {
-                // Enviamos a todos (io.emit) y el cliente filtrará si le corresponde verlo
+                // Emitimos a todos. El cliente decidirá si lo muestra según la sala activa.
                 io.emit('chat message', { 
                     user: socket.user, 
                     to: destino, 
@@ -64,19 +110,19 @@ io.on('connection', (socket) => {
         );
     });
 
-    // HISTORIAL (Arreglado para salas globales)
+    // --- HISTORIAL INTELIGENTE ---
     socket.on('get_private_history', (target) => {
         if (!socket.user) return;
         
         let query;
         let params;
 
-        // Si el destino es una sala global
+        // Si es una sala global (Conversando, Juegos, SoloTodo)
         if (['conversando', 'juegos', 'solotodo'].includes(target)) {
             query = "SELECT * FROM mensajes WHERE destino = ? ORDER BY fecha ASC LIMIT 50";
             params = [target];
         } else {
-            // Si es un chat privado entre dos personas
+            // Si es un chat privado entre dos usuarios
             query = `
                 SELECT * FROM mensajes 
                 WHERE (user = ? AND destino = ?) 
@@ -105,4 +151,10 @@ io.on('connection', (socket) => {
     });
 });
 
-http.listen(3000, () => { console.log('MSN corriendo en puerto 3000'); });
+// 4. Iniciar Servidor
+const PORT = 3000;
+http.listen(PORT, () => { 
+    console.log(`-------------------------------------------`);
+    console.log(` MSN Messenger corriendo en: http://localhost:${PORT}`);
+    console.log(`-------------------------------------------`);
+});
