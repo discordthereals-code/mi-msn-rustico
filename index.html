@@ -1,60 +1,77 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>MSN Rústico</title>
     <style>
-        body { background-color: #008080; font-family: "Tahoma", sans-serif; display: flex; justify-content: center; padding-top: 50px; }
-        #msn-window { width: 400px; background: #d4d0c8; border: 2px solid #fff; border-right-color: #404040; border-bottom-color: #404040; padding: 2px; }
-        #title-bar { background: linear-gradient(90deg, #000080, #1084d0); color: white; padding: 3px 5px; font-weight: bold; font-size: 12px; }
-        #chat-box { height: 250px; background: white; border: 2px inset #d4d0c8; margin: 10px; overflow-y: scroll; padding: 5px; font-size: 13px; }
-        #input-area { margin: 10px; display: flex; gap: 5px; }
-        input { border: 2px inset #d4d0c8; padding: 3px; flex-grow: 1; }
-        button { background: #d4d0c8; border: 2px outset #fff; cursor: pointer; }
-        .msg { margin-bottom: 5px; }
-        .user { color: blue; font-weight: bold; }
-        .peer { color: red; font-weight: bold; }
+        body { background-color: #008080; font-family: sans-serif; display: flex; justify-content: center; padding-top: 50px; }
+        #msn-window { width: 400px; background: #ece9d8; border: 2px solid #7a7a7a; padding: 10px; box-shadow: 5px 5px 15px rgba(0,0,0,0.5); }
+        #messages { height: 300px; background: white; border: 1px inset gray; overflow-y: scroll; margin-bottom: 10px; padding: 5px; list-style: none; }
+        input { width: 70%; padding: 5px; }
+        button { padding: 5px; cursor: pointer; background: #e1e1e1; border: 1px solid #7a7a7a; }
+        
+        /* Animación del Zumbido */
+        @keyframes shake {
+            0% { transform: translate(2px, 2px); }
+            20% { transform: translate(-4px, -4px); }
+            40% { transform: translate(4px, 4px); }
+            60% { transform: translate(-4px, 4px); }
+            100% { transform: translate(0, 0); }
+        }
+        .shake-effect { animation: shake 0.2s; animation-iteration-count: 3; }
     </style>
 </head>
 <body>
 
 <div id="msn-window">
-    <div id="title-bar">Conversación - MSN Messenger</div>
-    <div id="chat-box" id="history"></div>
-    <div id="input-area">
-        <input type="text" id="message" placeholder="Escribe aquí..." onkeypress="checkEnter(event)">
-        <button onclick="send()">Enviar</button>
+    <div style="background: linear-gradient(to right, #0055e4, #3bb2ff); color: white; padding: 5px; font-weight: bold; margin-bottom: 10px;">
+        MSN Messenger - Chat Rústico
     </div>
+    <ul id="messages"></ul>
+    <input id="input" autocomplete="off" placeholder="Escribe un mensaje..." />
+    <button onclick="sendMessage()">Enviar</button>
+    <button onclick="sendBuzz()" style="color: red; font-weight: bold;">!</button>
 </div>
 
+<script src="/socket.io/socket.io.js"></script>
 <script>
-    const chatBox = document.getElementById('chat-box');
-    const input = document.getElementById('message');
-
-    function send() {
-        if (input.value.trim() === "") return;
-        
-        // Agregar tu mensaje
-        appendMessage("Tú", input.value, "user");
-        
-        // Simular respuesta del otro (para que no estés solo)
-        setTimeout(() => {
-            appendMessage("Amigo", "¡Qué rústico está esto!", "peer");
-        }, 1000);
-
-        input.value = "";
+    var socket = io();
+    
+    // --- ARREGLO DEL NICK ---
+    // Esto se ejecuta apenas carga la página
+    var nombre = prompt("¡Bienvenido! Escribe tu Nick para el MSN:");
+    if (!nombre || nombre.trim() === "") {
+        nombre = "Invitado_" + Math.floor(Math.random() * 1000);
     }
 
-    function appendMessage(sender, text, className) {
-        const div = document.createElement('div');
-        div.className = 'msg';
-        div.innerHTML = `<span class="${className}">${sender} dice:</span> ${text}`;
-        chatBox.appendChild(div);
-        chatBox.scrollTop = chatBox.scrollHeight;
+    function sendMessage() {
+        var input = document.getElementById('input');
+        if (input.value) {
+            socket.emit('chat message', { user: nombre, text: input.value });
+            input.value = '';
+        }
     }
 
-    function checkEnter(e) { if (e.key === 'Enter') send(); }
+    function sendBuzz() {
+        socket.emit('chat message', { user: "SISTEMA", text: "ha enviado un ZUMBIDO", isBuzz: true });
+    }
+
+    socket.on('chat message', function(data) {
+        var item = document.createElement('li');
+        item.innerHTML = `<strong>${data.user}:</strong> ${data.text}`;
+        document.getElementById('messages').appendChild(item);
+        
+        // Si es un zumbido, hacemos vibrar la ventana
+        if (data.isBuzz) {
+            document.getElementById('msn-window').classList.add('shake-effect');
+            setTimeout(() => {
+                document.getElementById('msn-window').classList.remove('shake-effect');
+            }, 600);
+        }
+        
+        // Auto-scroll al final
+        var objDiv = document.getElementById("messages");
+        objDiv.scrollTop = objDiv.scrollHeight;
+    });
 </script>
-
 </body>
 </html>
