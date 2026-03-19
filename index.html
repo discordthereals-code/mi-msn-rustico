@@ -3,95 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE REALS - MSN</title>
+    <title>THE REALS</title>
     <style>
         body { background: #0d0d0d; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; justify-content: center; height: 100vh; color: #eee; overflow: hidden; }
         
         /* LOGIN */
         #login-screen { align-self: center; background: #1a1a1a; padding: 30px; border-radius: 15px; border: 2px solid #ffff00; text-align: center; width: 300px; }
-        .login-input { width: 100%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #444; color: white; border-radius: 8px; box-sizing: border-box; outline: none; }
-        .btn-yellow { background: #ffff00; color: black; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
-
-        /* CHAT WINDOW */
+        .login-input { width: 100%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #444; color: white; border-radius: 8px; outline: none; }
+        
+        /* CHAT */
         #chat-window { display: none; width: 100%; max-width: 800px; height: 100vh; background: #141414; flex-direction: column; border-left: 1px solid #333; border-right: 1px solid #333; }
-        #title-bar { background: #222; color: #ffff00; padding: 15px; border-bottom: 2px solid #ffff00; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
-        #messages-container { flex-grow: 1; overflow-y: auto; padding: 20px; background: #0f0f0f; }
+        #title-bar { background: #222; color: #ffff00; padding: 15px; border-bottom: 2px solid #ffff00; font-weight: bold; display: flex; justify-content: space-between; }
+        #messages-container { flex-grow: 1; overflow-y: auto; padding: 20px; }
         
-        /* MENSAJES */
-        #messages { list-style: none; padding: 0; margin: 0; }
-        .msg-item { margin-bottom: 12px; padding: 10px; border-radius: 8px; background: #1f1f1f; border-left: 4px solid #ffff00; }
-        .msg-time { font-size: 11px; color: #666; margin-right: 10px; }
+        /* BURBUJAS */
+        .msg-item { margin-bottom: 15px; padding: 10px; border-radius: 8px; background: #1f1f1f; border-left: 4px solid #ffff00; }
         .msg-user { color: #ffff00; font-weight: bold; margin-right: 8px; }
-        .chat-img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid #333; }
-        audio { height: 35px; margin-top: 10px; filter: invert(1); width: 100%; max-width: 250px; }
-
-        /* VISTA PREVIA AUDIO */
-        #voice-preview { display: none; background: #222; padding: 15px; border-top: 2px solid #ff4444; align-items: center; justify-content: space-between; gap: 10px; }
         
-        /* INPUT AREA */
+        /* IMÁGENES (Miniaturas) */
+        .chat-img-thumb { max-width: 250px; max-height: 250px; border-radius: 8px; margin-top: 10px; cursor: pointer; border: 2px solid #333; transition: 0.2s; }
+        .chat-img-thumb:hover { border-color: #ffff00; transform: scale(1.02); }
+
+        /* VISOR MODAL */
+        #image-viewer { display: none; position: fixed; z-index: 9999; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); align-items: center; justify-content: center; cursor: pointer; }
+        #full-image { max-width: 90%; max-height: 90%; border: 2px solid #ffff00; border-radius: 5px; }
+
+        /* AUDIO Y CONTROLES */
+        audio { height: 35px; margin-top: 10px; filter: invert(1); width: 100%; max-width: 280px; }
         #input-area { padding: 15px; background: #1a1a1a; border-top: 1px solid #333; }
         .controls { display: flex; gap: 10px; align-items: center; }
-        #msg-input { flex-grow: 1; padding: 12px 18px; background: #252525; border: 1px solid #444; color: white; border-radius: 25px; outline: none; }
+        #msg-input { flex-grow: 1; padding: 12px; background: #252525; border: 1px solid #444; color: white; border-radius: 25px; outline: none; }
         
-        /* BOTONES REDONDOS (Clip y Mic) */
+        /* BOTONES REDONDOS */
         .btn-round { background: #333; border: none; border-radius: 50%; width: 45px; height: 45px; cursor: pointer; color: white; font-size: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .btn-round:active { transform: scale(0.9); }
-        .btn-mic.recording { background: #ff4444; animation: pulse 1s infinite; }
-        .btn-send { background: #ffff00; color: black; border-radius: 12px; padding: 0 20px; font-weight: bold; height: 45px; border: none; cursor: pointer; }
+        .btn-send { background: #ffff00; border: none; padding: 12px 20px; font-weight: bold; cursor: pointer; border-radius: 10px; height: 45px; }
 
-        @keyframes pulse { 50% { opacity: 0.4; } }
-        /* SACUDIDA ORIGINAL QUE TE GUSTÓ */
         @keyframes shake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(8px,8px); } 50% { transform: translate(-8px,-8px); } }
         .shake-effect { animation: shake 0.1s 6; }
     </style>
 </head>
 <body>
 
+<div id="image-viewer" onclick="this.style.display='none'">
+    <img id="full-image" src="">
+</div>
+
 <div id="login-screen">
-    <h1 style="color:#ffff00; margin-bottom:20px;">THE REALS</h1>
-    <input type="text" id="user" class="login-input" placeholder="Nombre">
-    <input type="password" id="pass" class="login-input" placeholder="Contraseña">
-    <button class="btn-yellow" onclick="login()">ENTRAR</button>
+    <h1 style="color:#ffff00">THE REALS</h1>
+    <input type="text" id="user" class="login-input" placeholder="Usuario">
+    <input type="password" id="pass" class="login-input" placeholder="Clave">
+    <button onclick="login()" style="background:#ffff00; width:100%; padding:15px; border:none; font-weight:bold; cursor:pointer; border-radius:8px;">ENTRAR</button>
 </div>
 
 <div id="chat-window">
     <div id="title-bar">
         <span id="tema-title">CARGANDO...</span>
-        <span style="font-size: 11px; color: #777; cursor: pointer" onclick="location.reload()">Cerrar</span>
+        <span style="font-size: 11px; color: #777; cursor: pointer" onclick="location.reload()">Salir</span>
     </div>
-    <div id="messages-container"><ul id="messages"></ul></div>
-    
-    <div id="voice-preview">
-        <audio id="audio-playback" controls></audio>
-        <div style="display:flex; gap:5px;">
-            <button onclick="cancelAudio()" style="background:#444; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer;">Borrar</button>
-            <button onclick="sendAudio()" style="background:#ffff00; color:black; border:none; padding:8px 12px; border-radius:5px; font-weight:bold; cursor:pointer;">Enviar</button>
-        </div>
-    </div>
-
+    <div id="messages-container"><div id="messages"></div></div>
     <div id="input-area">
         <div class="controls">
             <input type="file" id="file-input" style="display:none" accept="image/*" onchange="sendFile(this)">
-            <button class="btn-round" onclick="document.getElementById('file-input').click()">📎</button>
+            <button class="btn-round" onclick="document.getElementById('file-input').click()" title="Enviar Imagen">📎</button>
             
-            <input id="msg-input" placeholder="Escribe un mensaje..." onkeypress="if(event.key==='Enter')sendText()">
+            <input id="msg-input" placeholder="Escribe..." onkeypress="if(event.key==='Enter')sendText()">
             
-            <button class="btn-round btn-mic" id="mic-btn" onclick="handleMic()">🎤</button>
-            <button class="btn-round" onclick="sendBuzz()" style="background:#ff4444; font-weight:bold; font-size:16px;">Z!</button>
+            <button class="btn-round" id="mic-btn" onclick="handleMic()">🎤</button>
+            <button class="btn-round" onclick="sendBuzz()" style="background:#ff4444; font-weight:bold;">Z!</button>
             <button class="btn-send" onclick="sendText()">ENVIAR</button>
         </div>
     </div>
 </div>
 
-<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
 <script>
     const socket = io();
-    let miUser = "", recorder, chunks = [], currentAudioBase64 = null;
+    let miUser = "", recorder, chunks = [];
 
     function login() {
-        const user = document.getElementById('user').value.trim();
-        const pass = document.getElementById('pass').value.trim();
-        if(user && pass) socket.emit('login', { user, pass });
+        const u = document.getElementById('user').value.trim();
+        const p = document.getElementById('pass').value.trim();
+        if(u && p) socket.emit('login', { user: u, pass: p });
     }
 
     socket.on('login_status', (res) => {
@@ -101,92 +93,70 @@
             document.getElementById('chat-window').style.display = 'flex';
             document.getElementById('tema-title').innerText = res.tema;
             if(res.history) res.history.forEach(m => render(m));
-        } else if(res.msg) alert(res.msg);
+        } else alert(res.msg);
     });
 
-    // --- MEJORA: ACTUALIZACIÓN DE TEMA EN TIEMPO REAL ---
     socket.on('actualizar_tema', (t) => {
         document.getElementById('tema-title').innerText = t;
     });
 
-    const getH = () => new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
     function sendText() {
         const inp = document.getElementById('msg-input');
         if(inp.value.trim()) {
-            socket.emit('chat message', { user: miUser, text: inp.value, time: getH() });
+            socket.emit('chat message', { user: miUser, text: inp.value, time: new Date().toLocaleTimeString() });
             inp.value = '';
         }
     }
 
     function sendBuzz() {
-        socket.emit('chat message', { user: miUser, text: "¡HA ENVIADO UN ZUMBIDO!", isBuzz: true, time: getH() });
+        socket.emit('chat message', { user: miUser, text: "¡ZUMBIDO!", isBuzz: true, time: new Date().toLocaleTimeString() });
     }
 
     function sendFile(input) {
-        if(input.files && input.files[0]) {
+        const file = input.files[0];
+        if (file) {
             const reader = new FileReader();
-            reader.onload = e => socket.emit('chat message', { user: miUser, img: e.target.result, time: getH() });
-            reader.readAsDataURL(input.files[0]);
-            input.value = "";
+            reader.onload = e => socket.emit('chat message', { user: miUser, img: e.target.result, time: new Date().toLocaleTimeString() });
+            reader.readAsDataURL(file);
+            input.value = ""; 
         }
     }
 
-    // --- AUDIO CON CANCELACIÓN DE RUIDO ---
+    // --- AUDIO MEJORADO (FILTROS) ---
     async function handleMic() {
         const btn = document.getElementById('mic-btn');
         if (!recorder || recorder.state === "inactive") {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } 
-                });
-                recorder = new MediaRecorder(stream);
-                chunks = [];
-                recorder.ondataavailable = e => chunks.push(e.data);
-                recorder.onstop = () => {
-                    const blob = new Blob(chunks, { type: 'audio/webm' });
-                    const reader = new FileReader();
-                    reader.readAsDataURL(blob);
-                    reader.onloadend = () => {
-                        currentAudioBase64 = reader.result;
-                        document.getElementById('audio-playback').src = currentAudioBase64;
-                        document.getElementById('voice-preview').style.display = 'flex';
-                    };
-                    stream.getTracks().forEach(t => t.stop());
-                };
-                recorder.start();
-                btn.classList.add('recording');
-            } catch(e) { alert("Error de micro"); }
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+            recorder = new MediaRecorder(stream);
+            chunks = [];
+            recorder.ondataavailable = e => chunks.push(e.data);
+            recorder.onstop = () => {
+                const blob = new Blob(chunks, { type: 'audio/webm' });
+                const reader = new FileReader();
+                reader.onloadend = () => socket.emit('chat message', { user: miUser, audio: reader.result, time: new Date().toLocaleTimeString() });
+                reader.readAsDataURL(blob);
+                stream.getTracks().forEach(t => t.stop());
+            };
+            recorder.start();
+            btn.style.background = "#ff4444";
         } else {
             recorder.stop();
-            btn.classList.remove('recording');
+            btn.style.background = "#333";
         }
     }
 
-    function cancelAudio() {
-        document.getElementById('voice-preview').style.display = 'none';
-        currentAudioBase64 = null;
-    }
-
-    function sendAudio() {
-        if(currentAudioBase64) {
-            socket.emit('chat message', { user: miUser, audio: currentAudioBase64, time: getH() });
-            cancelAudio();
-        }
-    }
-
-    // --- EL ZUMBIDO ELECTRÓNICO QUE TE GUSTÓ (SAWTOOTH 440Hz) ---
+    // --- EL ZUMBIDO ELECTRÓNICO QUE TE GUSTÓ ---
     function playBuzzSound() {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(440, ctx.currentTime);
-        gain.gain.setValueAtTime(0.2, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.start(); 
-        osc.stop(ctx.currentTime + 0.5);
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(440, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.start(); osc.stop(ctx.currentTime + 0.5);
+        } catch(e) { console.log("Interacción requerida para sonido"); }
     }
 
     socket.on('chat message', (m) => {
@@ -200,20 +170,25 @@
     });
 
     function render(m) {
-        const messagesUl = document.getElementById('messages');
-        const li = document.createElement('li');
-        li.className = "msg-item";
+        const messages = document.getElementById('messages');
+        const div = document.createElement('div');
+        div.className = "msg-item";
         
-        let header = `<span class="msg-time">${m.time}</span> <span class="msg-user">${m.user}:</span> `;
+        let header = `<span class="msg-user">${m.user}:</span> `;
         let body = "";
         
         if(m.audio) body = `<br><audio controls src="${m.audio}"></audio>`;
-        else if(m.img) body = `<br><img src="${m.img}" class="chat-img">`;
+        else if(m.img) body = `<br><img src="${m.img}" class="chat-img-thumb" onclick="openBig('${m.img}')">`;
         else body = m.text;
 
-        li.innerHTML = header + body;
-        messagesUl.appendChild(li);
+        div.innerHTML = header + body;
+        messages.appendChild(div);
         document.getElementById('messages-container').scrollTop = 999999;
+    }
+
+    function openBig(src) {
+        document.getElementById('full-image').src = src;
+        document.getElementById('image-viewer').style.display = 'flex';
     }
 </script>
 </body>
