@@ -7,127 +7,145 @@
     <style>
         body { 
             background-color: #0d0d0d; 
-            font-family: 'Segoe UI', Tahoma, sans-serif; 
-            margin: 0;
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
             display: flex; 
             justify-content: center; 
-            align-items: center;
-            min-height: 100vh;
-            color: #e0e0e0;
+            align-items: center; 
+            height: 100vh; 
+            color: #eee;
         }
 
-        #msn-window { 
-            width: 95%; 
-            max-width: 700px; 
-            height: 90vh; 
-            background: #1a1a1a; 
-            border: 2px solid #333; 
-            border-radius: 15px; 
-            display: flex;
+        /* --- PANTALLA DE LOGIN --- */
+        #login-screen {
+            background: #1a1a1a;
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px solid #ffff00;
+            text-align: center;
+            width: 320px;
+            box-shadow: 0 0 30px rgba(255, 255, 0, 0.2);
+        }
+
+        #login-screen h1 { color: #ffff00; margin-bottom: 20px; letter-spacing: 3px; }
+        
+        .login-input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: #222;
+            border: 1px solid #444;
+            color: white;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 15px;
+            background: #ffff00;
+            color: black;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        /* --- VENTANA DE CHAT --- */
+        #chat-window {
+            display: none; /* Se activa al loguear */
+            width: 95%;
+            max-width: 800px;
+            height: 90vh;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 15px;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0px 0px 30px rgba(0,0,0,1);
+            box-shadow: 0px 10px 50px rgba(0,0,0,0.8);
         }
 
-        #title-bar { 
-            background: #222; 
-            color: #ffff00; 
-            padding: 15px; 
-            font-weight: 900; 
-            font-size: 20px;
-            letter-spacing: 2px;
-            text-align: center;
+        #title-bar {
+            background: #222;
+            color: #ffff00;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             border-bottom: 2px solid #ffff00;
-            text-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
         }
 
-        #topic-bar {
-            background: #111;
-            padding: 8px 15px;
-            font-size: 13px;
-            color: #888;
-            border-bottom: 1px solid #222;
-        }
+        #title-bar h2 { margin: 0; font-size: 20px; letter-spacing: 2px; }
+
+        #logout-btn { background: none; border: 1px solid #444; color: #888; padding: 5px 10px; cursor: pointer; border-radius: 5px; font-size: 12px; }
+
+        #topic-bar { background: #111; padding: 10px 20px; font-size: 13px; color: #8ab4f8; font-style: italic; }
 
         #messages-container {
-            flex-grow: 1; 
-            overflow-y: auto; 
+            flex-grow: 1;
+            overflow-y: auto;
             padding: 20px;
             background: #141414;
         }
 
         #messages { list-style: none; padding: 0; margin: 0; }
+        
         #messages li { 
             margin-bottom: 12px; 
             font-size: 15px; 
+            line-height: 1.5;
             border-bottom: 1px solid #222; 
             padding-bottom: 8px;
         }
+
         #messages li strong { color: #ffff00; margin-right: 8px; }
 
-        /* AREA DE ENTRADA Y BOTONES REORGANIZADOS */
+        /* Estilo para los links automáticos */
+        .chat-link { color: #00e5ff; text-decoration: underline; font-weight: bold; }
+
+        /* --- INPUT AREA --- */
         #input-area { padding: 20px; background: #1a1a1a; border-top: 1px solid #333; }
-        
-        .controls { 
-            display: flex; 
-            gap: 12px; /* Espacio entre botones */
-            margin-top: 15px; 
-        }
-        
-        input { 
-            width: 100%; 
-            padding: 18px; /* Más alto para comodidad */
-            background: #252525; 
-            border: 1px solid #444; 
-            color: white; 
-            border-radius: 10px; 
+
+        #msg-input {
+            width: 100%;
+            padding: 15px;
+            background: #252525;
+            border: 1px solid #444;
+            color: white;
+            border-radius: 10px;
             font-size: 16px;
             box-sizing: border-box;
         }
-        input:focus { outline: none; border-color: #ffff00; }
 
-        button { 
-            padding: 18px 25px; /* Botones mucho más grandes y cómodos */
-            border: none; 
-            border-radius: 10px; 
-            cursor: pointer; 
-            font-weight: 900; 
-            font-size: 14px;
-            transition: transform 0.1s, background 0.2s;
-            text-transform: uppercase;
-        }
+        .controls { display: flex; gap: 10px; margin-top: 15px; }
 
-        button:active { transform: scale(0.95); } /* Efecto de click */
+        .btn { border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-buzz { background: #ff4444; color: white; padding: 15px 25px; }
+        .btn-send { background: #ffff00; color: black; flex-grow: 1; padding: 15px; font-size: 16px; }
+        .btn:active { transform: scale(0.95); }
 
-        /* ZUMBIDO A LA IZQUIERDA */
-        .btn-buzz { 
-            background: #ff4444; 
-            color: #fff; 
-            min-width: 120px;
-        }
-        .btn-buzz:hover { background: #cc0000; }
-
-        /* ENVIAR A LA DERECHA */
-        .btn-send { 
-            background: #ffff00; 
-            color: #000; 
-            flex-grow: 1; /* El botón de enviar ocupa el resto del ancho */
-        }
-        .btn-send:hover { background: #e6e600; }
-
-        /* ANIMACIÓN SHAKE */
-        @keyframes shake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(6px,6px); } 50% { transform: translate(-6px,-6px); } 75% { transform: translate(6px,-6px); } }
+        /* Animación Zumbido */
+        @keyframes shake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(8px,8px); } 50% { transform: translate(-8px,-8px); } 75% { transform: translate(8px,-8px); } }
         .shake-effect { animation: shake 0.1s 6; }
-
-        /* Scrollbar rústico */
-        #messages-container::-webkit-scrollbar { width: 6px; }
-        #messages-container::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-<div id="msn-window">
-    <div id="title-bar">THE REALS</div>
+<div id="login-screen">
+    <h1>THE REALS</h1>
+    <input type="text" id="user" class="login-input" placeholder="Tu Usuario">
+    <input type="password" id="pass" class="login-input" placeholder="Tu Contraseña">
+    <button class="btn-login" onclick="intentarLogin()">ENTRAR / REGISTRAR</button>
+    <p id="error-msg" style="color: #ff4444; font-size: 13px; margin-top: 15px;"></p>
+</div>
+
+<div id="chat-window">
+    <div id="title-bar">
+        <h2>THE REALS</h2>
+        <button id="logout-btn" onclick="logout()">Cerrar Sesión</button>
+    </div>
     <div id="topic-bar">Canal: <span id="current-topic">Cargando...</span></div>
     
     <div id="messages-container">
@@ -135,66 +153,116 @@
     </div>
 
     <div id="input-area">
-        <input id="input" autocomplete="off" placeholder="Escribe en THE REALS..." onkeypress="if(event.key==='Enter')sendMessage()" />
+        <input id="msg-input" autocomplete="off" placeholder="Escribe un mensaje..." onkeypress="if(event.key==='Enter')send()">
         <div class="controls">
-            <button class="btn-buzz" onclick="sendBuzz()">ZUMBIDO</button>
-            <button class="btn-send" onclick="sendMessage()">ENVIAR MENSAJE</button>
+            <button class="btn btn-buzz" onclick="buzz()">ZUMBIDO</button>
+            <button class="btn btn-send" onclick="send()">ENVIAR MENSAJE</button>
         </div>
     </div>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-    var socket = io();
-    var nick = prompt("Bienvenido a THE REALS. Ingresa tu nombre:") || "Anon";
+    const socket = io();
+    let miUsuario = "";
 
-    function playBuzzSound() {
-        var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function note(freq, start, duration) {
-            var osc = audioCtx.createOscillator();
-            var gain = audioCtx.createGain();
-            osc.frequency.value = freq;
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            gain.gain.setValueAtTime(0.1, start);
-            osc.start(start); osc.stop(start + duration);
+    // Recordar datos al cargar
+    window.onload = () => {
+        const savedUser = localStorage.getItem('reals_user');
+        const savedPass = localStorage.getItem('reals_pass');
+        if(savedUser && savedPass) {
+            document.getElementById('user').value = savedUser;
+            document.getElementById('pass').value = savedPass;
         }
-        note(880, audioCtx.currentTime, 0.1);      
-        note(1046, audioCtx.currentTime + 0.15, 0.2); 
+    };
+
+    function intentarLogin() {
+        const user = document.getElementById('user').value.trim();
+        const pass = document.getElementById('pass').value.trim();
+        if(!user || !pass) return alert("Escribe usuario y clave.");
+        socket.emit('login', { user, pass });
     }
 
-    socket.on('cargar historia', function(data) {
-        document.getElementById('current-topic').innerText = data.tema;
-        data.history.forEach(msg => appendMsg(msg));
+    socket.on('login_status', (res) => {
+        if(res.success) {
+            miUsuario = res.user;
+            // Guardar en el dispositivo
+            localStorage.setItem('reals_user', document.getElementById('user').value);
+            localStorage.setItem('reals_pass', document.getElementById('pass').value);
+            
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('chat-window').style.display = 'flex';
+            document.getElementById('current-topic').innerText = res.tema;
+            
+            // Cargar historial
+            res.history.forEach(m => appendMessage(m));
+        } else {
+            document.getElementById('error-msg').innerText = res.msg;
+        }
     });
 
-    socket.on('cambiar tema', (nuevo) => document.getElementById('current-topic').innerText = nuevo);
+    function logout() {
+        localStorage.clear();
+        location.reload();
+    }
 
-    function sendMessage() {
-        var input = document.getElementById('input');
+    // --- FUNCIÓN DE LINKS CLICABLES ---
+    function linkify(text) {
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        return text.replace(urlRegex, function(url) {
+            return '<a href="' + url + '" target="_blank" class="chat-link">' + url + '</a>';
+        });
+    }
+
+    function send() {
+        const input = document.getElementById('msg-input');
         if(input.value.trim()) {
-            socket.emit('chat message', { user: nick, text: input.value });
+            socket.emit('chat message', { user: miUsuario, text: input.value });
             input.value = '';
         }
     }
 
-    function sendBuzz() {
-        socket.emit('chat message', { user: nick, text: "¡HA ENVIADO UN ZUMBIDO!", isBuzz: true });
+    function buzz() {
+        socket.emit('chat message', { user: miUsuario, text: "¡ZUMBIDO!", isBuzz: true });
     }
 
-    socket.on('chat message', function(data) {
-        appendMsg(data);
+    function playSound() {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function n(f, s, d) {
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.frequency.value = f; o.connect(g); g.connect(audioCtx.destination);
+            g.gain.setValueAtTime(0.1, s); o.start(s); o.stop(s + d);
+        }
+        n(880, audioCtx.currentTime, 0.1); n(1046, audioCtx.currentTime + 0.15, 0.2);
+    }
+
+    socket.on('cambiar tema', (nuevo) => {
+        document.getElementById('current-topic').innerText = nuevo;
+    });
+
+    socket.on('chat message', (data) => {
+        appendMessage(data);
         if(data.isBuzz) {
-            playBuzzSound();
-            document.getElementById('msn-window').classList.add('shake-effect');
-            setTimeout(() => document.getElementById('msn-window').classList.remove('shake-effect'), 600);
+            playSound();
+            document.getElementById('chat-window').classList.add('shake-effect');
+            setTimeout(() => document.getElementById('chat-window').classList.remove('shake-effect'), 600);
         }
     });
 
-    function appendMsg(data) {
-        var li = document.createElement('li');
-        li.innerHTML = `<strong>${data.user}:</strong> ${data.text}`;
+    function appendMessage(data) {
+        const li = document.createElement('li');
+        // Usamos linkify para convertir links antes de mostrar
+        const textoConLinks = linkify(data.text);
+        
+        if(data.isSystem) {
+            li.innerHTML = `<span style="color:#888">${textoConLinks}</span>`;
+        } else {
+            li.innerHTML = `<strong>${data.user}:</strong> ${textoConLinks}`;
+        }
+        
         document.getElementById('messages').appendChild(li);
-        var container = document.getElementById('messages-container');
+        const container = document.getElementById('messages-container');
         container.scrollTop = container.scrollHeight;
     }
 </script>
