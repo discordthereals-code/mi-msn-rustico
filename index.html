@@ -3,168 +3,493 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MSN Messenger - Sintonía Total</title>
+    <title>MSN Messenger - Versión Pro Blindada</title>
     <style>
-        :root { --msn-blue: #0055e5; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
-        
-        body { background: #71ADFF; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        /* CONFIGURACIÓN DE COLORES Y VARIABLES */
+        :root {
+            --msn-blue: #0055e5;
+            --msn-bg: #71ADFF;
+            --header-grad: linear-gradient(#f9fcff, #dcecfc);
+            --border-color: #b4c7de;
+        }
 
-        /* Contenedor principal con soporte para PC y Móvil */
-        #app { 
+        /* RESETEO DE ESTILOS GENERALES */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: var(--msn-bg);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* CONTENEDOR PRINCIPAL MSN */
+        #app {
             display: none; 
-            width: 1000px; 
-            max-width: 100vw; 
-            height: 750px; 
-            max-height: 100vh; 
-            background: white; 
-            border: 1px solid #555; 
-            flex-direction: column; 
-            box-shadow: 0 15px 50px rgba(0,0,0,0.4); 
+            width: 1000px;
+            max-width: 100vw;
+            height: 750px;
+            max-height: 100vh;
+            background: white;
+            border: 1px solid #555;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.4);
+        }
+
+        /* CABECERA CON MI INFO */
+        header {
+            background: var(--header-grad);
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .my-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        #my-img {
+            width: 50px;
+            height: 50px;
+            border: 2px solid white;
+            border-radius: 4px;
+            object-fit: cover;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            cursor: pointer;
+            background: #eee;
+        }
+
+        .my-text-data {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #my-name {
+            color: var(--msn-blue);
+            font-size: 14px;
+            font-weight: bold;
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        #my-desc {
+            color: #666;
+            font-size: 11px;
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* CUERPO DEL MESSENGER */
+        main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
             position: relative;
         }
 
-        header { background: linear-gradient(#f9fcff, #dcecfc); padding: 12px 15px; border-bottom: 1px solid #b4c7de; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-        .my-info { display: flex; align-items: center; gap: 12px; overflow: hidden; }
-        #my-img { width: 50px; height: 50px; border: 2px solid white; border-radius: 4px; object-fit: cover; background: #eee; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-
-        main { display: flex; flex: 1; overflow: hidden; }
-
-        /* Ajustes de columnas para que no se rompan en Android */
-        #side-left { width: 260px; border-right: 1px solid #d0deee; display: flex; flex-direction: column; background: #fff; flex-shrink: 0; }
-        #chat-main { flex: 1; display: flex; flex-direction: column; background: white; min-width: 0; }
-        #side-right { width: 200px; background: #fdfdfd; display: flex; flex-direction: column; align-items: center; padding: 20px 10px; border-left: 1px solid #d0deee; flex-shrink: 0; }
-
-        /* MEDIA QUERY: Lo que hace que en Android no se vea "raro" */
-        @media (max-width: 700px) {
-            #side-right { display: none; } /* En móvil sacrificamos la foto derecha por espacio */
-            #side-left { width: 75px; } /* Solo iconos a la izquierda */
-            #side-left b, #side-left .label, #side-left div b { display: none; }
-            .item { justify-content: center; }
+        /* BARRA LATERAL IZQUIERDA (CONTACTOS) */
+        #side-left {
+            width: 260px;
+            border-right: 1px solid #d0deee;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            flex-shrink: 0;
         }
 
-        .label { background: #eff6ff; padding: 8px 12px; font-size: 11px; font-weight: bold; color: #5a708a; border-bottom: 1px solid #d0deee; }
-        .item { display: flex; align-items: center; gap: 10px; padding: 12px; cursor: pointer; border: none; background: none; width: 100%; text-align: left; font-size: 13px; border-bottom: 1px solid #f2f6fb; position: relative; }
-        
-        #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
-        .msg-time { font-size: 10px; color: #999; margin-left: 8px; }
+        /* ÁREA CENTRAL DE CHAT */
+        #chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            min-width: 0;
+        }
 
-        #toolbar { padding: 8px 15px; background: #f0f4f9; border-top: 1px solid #d0deee; display: flex; gap: 12px; flex-wrap: wrap; flex-shrink: 0; }
-        .emo-btn { cursor: pointer; font-size: 20px; }
+        /* BARRA LATERAL DERECHA (INFO CONTACTO) */
+        #side-right {
+            width: 200px;
+            background: #fdfdfd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 10px;
+            border-left: 1px solid #d0deee;
+            flex-shrink: 0;
+        }
 
-        #writing-feedback { font-size: 11px; color: #666; padding: 2px 15px; background: #f7faff; height: 18px; font-style: italic; }
+        /* RESPONSIVE ANDROID ADAPTATION */
+        @media (max-width: 768px) {
+            #side-right {
+                position: absolute;
+                right: 0;
+                top: 0;
+                bottom: 0;
+                z-index: 100;
+                transform: translateX(100%);
+                width: 220px;
+                transition: transform 0.3s ease;
+                background: white;
+            }
+            #side-right.open {
+                transform: translateX(0);
+                box-shadow: -5px 0 15px rgba(0,0,0,0.2);
+            }
+            #side-left {
+                width: 85px;
+            }
+            #side-left .contact-info-text, #side-left .label {
+                display: none;
+            }
+            #btn-info {
+                display: block !important;
+            }
+        }
 
-        #input-area { padding: 10px; background: #f7faff; border-top: 1px solid #eee; flex-shrink: 0; }
-        #text-in { width: 100%; height: 60px; padding: 10px; border: 1px solid #a0b5d0; border-radius: 4px; resize: none; font-size: 16px; outline: none; }
+        #btn-info {
+            display: none;
+            padding: 6px 12px;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+        }
 
-        .img-min { width: 34px; height: 34px; border-radius: 4px; object-fit: cover; border: 1px solid #ccc; flex-shrink: 0; }
-        .img-big { width: 130px; height: 130px; border: 5px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-radius: 8px; object-fit: cover; }
-        
-        .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
-        .on { background: #31a24c; } .off { background: #bdc1c6; }
-        
-        .unread-count { position: absolute; right: 10px; background: #ff8c00; color: white; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 10px; display: none; }
+        /* ELEMENTOS DE LA LISTA */
+        .label {
+            background: #eff6ff;
+            padding: 8px 12px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #5a708a;
+            border-bottom: 1px solid #d0deee;
+            text-transform: uppercase;
+        }
 
-        #login-box { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        #login-box input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
+        .item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            border-bottom: 1px solid #f2f6fb;
+            position: relative;
+            transition: background 0.2s;
+        }
 
-        .chat-link { color: #0055e5; text-decoration: underline; }
+        .item:hover {
+            background: #f0f7ff;
+        }
+
+        .unread-count {
+            position: absolute;
+            top: 5px;
+            right: 8px;
+            background: #ff8c00;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 10px;
+            display: none;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        /* MENSAJES Y CHAT */
+        #messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #fff;
+        }
+
+        .msg-container {
+            margin-bottom: 5px;
+        }
+
+        .msg-header {
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--msn-blue);
+            margin-bottom: 2px;
+        }
+
+        .msg-time {
+            font-weight: normal;
+            color: #999;
+            margin-left: 5px;
+            font-size: 10px;
+        }
+
+        .msg-body {
+            font-size: 13.5px;
+            color: #333;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        /* BARRA DE HERRAMIENTAS Y ESCRITURA */
+        #toolbar {
+            padding: 8px 15px;
+            background: #f0f4f9;
+            border-top: 1px solid #d0deee;
+            display: flex;
+            gap: 12px;
+            flex-shrink: 0;
+            align-items: center;
+        }
+
+        .emo-btn {
+            cursor: pointer;
+            font-size: 20px;
+            transition: transform 0.1s;
+        }
+
+        .emo-btn:active {
+            transform: scale(1.2);
+        }
+
+        #writing-feedback {
+            font-size: 11px;
+            color: #31a24c;
+            padding: 2px 15px;
+            background: #f7faff;
+            height: 18px;
+            font-style: italic;
+        }
+
+        #input-area {
+            padding: 10px;
+            background: #f7faff;
+            border-top: 1px solid #eee;
+            flex-shrink: 0;
+        }
+
+        #text-in {
+            width: 100%;
+            height: 60px;
+            padding: 10px;
+            border: 1px solid #a0b5d0;
+            border-radius: 4px;
+            resize: none;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .btn-send {
+            width: 100%;
+            margin-top: 8px;
+            background: var(--msn-blue);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* IMÁGENES Y ESTADOS */
+        .img-min {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            object-fit: cover;
+            border: 1px solid #ccc;
+            flex-shrink: 0;
+        }
+
+        .img-big {
+            width: 130px;
+            height: 130px;
+            border: 5px solid white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            object-fit: cover;
+            background: #eee;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .on { background: #31a24c; }
+        .off { background: #bdc1c6; }
+
+        /* ZUMBIDO ANIMATION */
         .shake { animation: s 0.1s 10; }
-        @keyframes s { 0%, 100% {transform:translate(0,0)} 25% {transform:translate(4px,4px)} 50% {transform:translate(-4px,-4px)} }
+        @keyframes s { 
+            0%, 100% { transform: translate(0,0); } 
+            25% { transform: translate(4px,4px); } 
+            50% { transform: translate(-4px,-4px); } 
+        }
 
-        #modal-perfil { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 2000; }
-        .modal-box { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 320px; text-align: center; }
+        /* MODAL DE PERFIL */
+        #modal-perfil {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 350px;
+            text-align: center;
+        }
+
+        /* LOGIN BOX */
+        #login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 350px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        #login-box input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body onclick="desbloquearAudio()">
 
     <div id="login-box">
-        <h2 style="color:var(--msn-blue); margin-bottom:20px;">THE REALS MSN</h2>
-        <input id="li-user" placeholder="Usuario">
+        <h2 style="color:var(--msn-blue); margin-bottom:20px; font-style: italic;">THE REALS MSN</h2>
+        <p style="font-size:12px; color:#666; margin-bottom:20px;">Inicia sesión con tu cuenta de Messenger</p>
+        <input id="li-user" type="text" placeholder="Correo electrónico / Usuario">
         <input id="li-pass" type="password" placeholder="Contraseña">
-        <button onclick="intentarLogin()" style="width:100%; padding:12px; background:var(--msn-blue); color:white; border:none; border-radius:4px; font-weight:bold;">Iniciar Sesión</button>
+        <button onclick="intentarLogin()" style="width:100%; padding:12px; background:var(--msn-blue); color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">Iniciar Sesión</button>
     </div>
 
     <div id="app">
         <header>
             <div class="my-info">
-                <img id="my-img" src="">
-                <div style="min-width: 0;"><b id="my-name" style="color:var(--msn-blue); font-size:14px; display: block;">...</b><small id="my-desc" style="color:#666; font-size:11px; display: block;">Disponible</small></div>
+                <img id="my-img" onclick="toggleModal(true)" src="" title="Click para cambiar foto">
+                <div class="my-text-data">
+                    <b id="my-name">Cargando...</b>
+                    <small id="my-desc">Disponible</small>
+                </div>
             </div>
-            <button onclick="toggleModal(true)" style="font-size:10px; padding:5px 10px; cursor:pointer;">Perfil</button>
+            <button onclick="toggleSideRight()" id="btn-info">Ver Info</button>
         </header>
 
         <main>
             <div id="side-left">
-                <div class="label">SALAS</div>
-                <button class="item" onclick="cambiarSala('conversando', 'Conversando', '/logo-conversando.png')">
+                <div class="label">Mis Salas</div>
+                <button class="item" onclick="cambiarSala('conversando', 'Conversando', '/logo-conversando.png', 'Sala de chat general')">
                     <img src="/logo-conversando.png" class="img-min" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
-                    <b>Conversando</b>
+                    <div class="contact-info-text">
+                        <b>Conversando</b>
+                        <span style="font-size:11px; color:#777; display:block;">Chat Global</span>
+                    </div>
                     <span class="unread-count" id="badge-conversando">0</span>
                 </button>
-                <button class="item" onclick="cambiarSala('juegos', 'Juegos', '/logo-juegos.png')">
-                    <img src="/logo-juegos.png" class="img-min" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686431.png'">
-                    <b>Juegos</b>
-                    <span class="unread-count" id="badge-juegos">0</span>
-                </button>
-                <button class="item" onclick="cambiarSala('solotodo', 'SoloTodo', '/logo-solotodo.png')">
-                    <img src="/logo-solotodo.png" class="img-min" style="object-fit:contain" onerror="this.src='https://www.solotodo.cl/static/logo.png'">
-                    <b>SoloTodo</b>
-                    <span class="unread-count" id="badge-solotodo">0</span>
-                </button>
-                <div class="label">CONTACTOS</div>
-                <div id="lista-contactos" style="flex:1; overflow-y:auto;"></div>
+
+                <div class="label">Contactos en línea</div>
+                <div id="lista-contactos" style="flex:1; overflow-y:auto;">
+                    </div>
             </div>
 
             <div id="chat-main">
-                <div id="messages"></div>
+                <div id="messages">
+                    </div>
+                
                 <div id="writing-feedback"></div>
+
                 <div id="toolbar">
                     <span class="emo-btn" onclick="addEmo('😊')">😊</span>
                     <span class="emo-btn" onclick="addEmo('😂')">😂</span>
                     <span class="emo-btn" onclick="addEmo('😛')">😛</span>
                     <span class="emo-btn" onclick="addEmo('😮')">😮</span>
-                    <span class="emo-btn" onclick="addEmo('😢')">😢</span>
-                    <span class="emo-btn" onclick="addEmo('😡')">😡</span>
-                    <span class="emo-btn" onclick="addEmo('🙄')">🙄</span>
                     <span class="emo-btn" onclick="addEmo('❤️')">❤️</span>
-                    <span class="emo-btn" onclick="addEmo('👍')">👍</span>
-                    <span class="emo-btn" onclick="addEmo('🤔')">🤔</span>
-                    <span class="emo-btn" onclick="addEmo('🔥')">🔥</span>
-                    <span class="emo-btn" onclick="addEmo('🎉')">🎉</span>
-                    <button onclick="enviarZumbido()" style="margin-left:auto; font-size:10px; cursor:pointer; padding:2px 6px;">🔔 Zumbido</button>
+                    <button onclick="enviarZumbido()" style="margin-left:auto; font-size:10px; padding:4px 8px; cursor:pointer; background:#eee; border:1px solid #ccc; border-radius:3px;">ZUMBIDO</button>
                 </div>
+
                 <div id="input-area">
-                    <textarea id="text-in" placeholder="Escribe un mensaje..." oninput="avisarEscribiendo()"></textarea>
-                    <div style="display:flex; justify-content: flex-end; margin-top:5px;">
-                        <button onclick="enviarTexto()" style="background:var(--msn-blue); color:white; border:none; padding:8px 25px; border-radius:5px; font-weight:bold;">Enviar</button>
-                    </div>
+                    <textarea id="text-in" placeholder="Escribe un mensaje aquí..." oninput="avisarEscribiendo()"></textarea>
+                    <button class="btn-send" onclick="enviarTexto()">Enviar (Enter)</button>
                 </div>
             </div>
 
             <div id="side-right">
-                <div style="text-align:center;"><img id="target-img" class="img-big" src=""><div id="target-name" style="font-size:14px; font-weight:bold; color:var(--msn-blue); margin-top:12px;">...</div></div>
-                <div style="text-align:center; margin-top:auto;"><img id="side-my-img" class="img-big" src=""><div style="font-size:12px; color:#666; margin-top:8px;">(Tú)</div></div>
+                <div style="text-align:center; width:100%;">
+                    <img id="target-img" class="img-big" src="https://via.placeholder.com/140">
+                    <div id="target-name" style="font-size:15px; font-weight:bold; color:var(--msn-blue); margin-top:15px;">...</div>
+                    <div id="target-desc-full" style="font-size:11px; color:#666; margin-top:8px; padding:0 10px; font-style:italic;">...</div>
+                </div>
+
+                <div style="text-align:center; margin-top:auto; border-top:1px solid #eee; padding-top:15px; width:100%;">
+                    <img id="side-my-img" class="img-big" style="width:90px; height:90px;">
+                    <div style="font-size:11px; color:#999; margin-top:5px;">Tú mismo</div>
+                </div>
             </div>
         </main>
     </div>
 
-    <div id="toast-container" style="position:fixed; bottom:10px; right:10px; z-index:5000;"></div>
-
     <div id="modal-perfil">
-        <div class="modal-box">
-            <h3>Editar Mi Perfil</h3>
-            <input id="up-desc" placeholder="Estado...">
-            <input type="file" id="up-foto" accept="image/*">
-            <div style="display:flex; gap:10px; margin-top:15px;">
-                <button onclick="guardarPerfil()" style="flex:1; padding:10px; background:var(--msn-blue); color:white; border:none; border-radius:5px;">Guardar</button>
-                <button onclick="toggleModal(false)" style="flex:1; padding:10px; background:#eee; border:none; border-radius:5px;">Cerrar</button>
+        <div class="modal-content">
+            <h3 style="color:var(--msn-blue); margin-bottom:15px;">Configuración de Perfil</h3>
+            
+            <p style="text-align:left; font-size:12px; color:#444; margin-bottom:5px;">Tu frase o estado:</p>
+            <input id="up-desc" type="text" placeholder="¿Qué tienes en mente?" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:4px;">
+            
+            <p style="text-align:left; font-size:12px; color:#444; margin-bottom:5px;">Imagen de perfil (Max 1MB):</p>
+            <input type="file" id="up-foto" accept="image/*" style="font-size:12px; width:100%; margin-bottom:20px;">
+            
+            <div style="display:flex; gap:10px;">
+                <button onclick="guardarPerfil()" style="flex:1; padding:12px; background:var(--msn-blue); color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">Guardar cambios</button>
+                <button onclick="toggleModal(false)" style="flex:1; padding:12px; background:#eee; border:none; border-radius:5px; cursor:pointer;">Cancelar</button>
             </div>
         </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
+        // --- VARIABLES GLOBALES Y SONIDOS ---
         const socket = io();
         let yo = localStorage.getItem('msn_user') || "";
         let salaActual = 'conversando';
@@ -175,33 +500,46 @@
         const srvMsg = new Audio('https://www.myinstants.com/media/sounds/messenger-mensaje.mp3');
         const srvBuzz = new Audio('https://www.myinstants.com/media/sounds/msn-messenger-buzz.mp3');
 
-        function desbloquearAudio() { [srvLogin, srvMsg, srvBuzz].forEach(a => { a.play().then(()=> { a.pause(); a.currentTime=0; }).catch(()=>{}) }); }
+        // --- INICIALIZACIÓN ---
+        function desbloquearAudio() {
+            [srvLogin, srvMsg, srvBuzz].forEach(audio => {
+                audio.play().then(() => {
+                    audio.pause();
+                    audio.currentTime = 0;
+                }).catch(() => {});
+            });
+        }
 
-        document.getElementById('text-in').addEventListener('keydown', e => {
-            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviarTexto(); }
-        });
+        // --- NAVEGACIÓN Y UI ---
+        function toggleSideRight() {
+            document.getElementById('side-right').classList.toggle('open');
+        }
 
-        function avisarEscribiendo() { socket.emit('typing', { to: salaActual, user: yo }); }
+        function toggleModal(visible) {
+            document.getElementById('modal-perfil').style.display = visible ? 'flex' : 'none';
+        }
 
-        socket.on('typing_status', data => {
-            if (data.to === yo && data.user === salaActual) {
-                const fb = document.getElementById('writing-feedback');
-                fb.innerText = `${data.user} está escribiendo un mensaje...`;
-                clearTimeout(typingTimeout);
-                typingTimeout = setTimeout(() => { fb.innerText = ""; }, 3000);
-            }
-        });
+        function addEmo(emoji) {
+            const input = document.getElementById('text-in');
+            input.value += emoji;
+            input.focus();
+        }
 
-        function toggleModal(v) { document.getElementById('modal-perfil').style.display = v ? 'flex' : 'none'; }
-        function addEmo(e) { document.getElementById('text-in').value += e; document.getElementById('text-in').focus(); }
-
-        if(yo) socket.emit('login', { user: yo, pass: localStorage.getItem('msn_pass') });
+        // --- SISTEMA DE LOGIN ---
+        if(yo) {
+            const pass = localStorage.getItem('msn_pass');
+            socket.emit('login', { user: yo, pass: pass });
+        }
 
         function intentarLogin() {
-            const u = document.getElementById('li-user').value, p = document.getElementById('li-pass').value;
+            const u = document.getElementById('li-user').value;
+            const p = document.getElementById('li-pass').value;
             if(u && p) {
-                localStorage.setItem('msn_user', u); localStorage.setItem('msn_pass', p);
+                localStorage.setItem('msn_user', u);
+                localStorage.setItem('msn_pass', p);
                 socket.emit('login', { user: u, pass: p });
+            } else {
+                alert("Por favor rellena ambos campos");
             }
         }
 
@@ -211,130 +549,201 @@
                 document.getElementById('login-box').style.display = 'none';
                 document.getElementById('app').style.display = 'flex';
                 syncOwnProfile(res.perfil);
-                cambiarSala('conversando', 'Conversando', '/logo-conversando.png');
-                srvLogin.play().catch(()=>{});
+                cambiarSala('conversando', 'Conversando', '/logo-conversando.png', 'Sala de chat global');
+                srvLogin.play().catch(() => {});
+            } else {
+                alert("Error: " + res.msg);
             }
         });
 
         function syncOwnProfile(p) {
-            const f = p.foto || "https://via.placeholder.com/140";
-            document.getElementById('my-img').src = f;
-            document.getElementById('side-my-img').src = f;
+            const fotoUrl = p.foto || "https://via.placeholder.com/140";
+            document.getElementById('my-img').src = fotoUrl;
+            document.getElementById('side-my-img').src = fotoUrl;
             document.getElementById('my-name').innerText = yo;
             document.getElementById('my-desc').innerText = p.descripcion || "Disponible";
         }
 
+        // --- CONTACTOS Y ESTADOS ---
         socket.on('lista_contactos', lista => {
-            const div = document.getElementById('lista-contactos');
-            div.innerHTML = "";
+            const container = document.getElementById('lista-contactos');
+            container.innerHTML = "";
+            
             lista.forEach(u => {
-                if(u.user === yo) { syncOwnProfile(u); return; }
-                const b = document.createElement('button');
-                b.className = "item"; b.id = "btn-" + u.user;
-                const dotClass = u.online ? 'on' : 'off';
-                b.innerHTML = `<img src="${u.foto || 'https://via.placeholder.com/34'}" class="img-min"> 
-                               <div><span class="dot ${dotClass}"></span><b>${u.user}</b></div>
-                               <span class="unread-count" id="badge-${u.user}">0</span>`;
-                b.onclick = () => cambiarSala(u.user, u.user, u.foto);
-                div.appendChild(b);
-                if(unreadData[u.user]) updateBadge(u.user, unreadData[u.user]);
+                if(u.user === yo) {
+                    syncOwnProfile(u);
+                    return;
+                }
+
+                const btn = document.createElement('button');
+                btn.className = "item";
+                const dotColor = u.online ? 'on' : 'off';
+                
+                btn.innerHTML = `
+                    <img src="${u.foto || 'https://via.placeholder.com/40'}" class="img-min">
+                    <div class="contact-info-text">
+                        <b><span class="dot ${dotColor}"></span>${u.user}</b>
+                        <span style="font-size:11px; color:#777; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                            ${u.descripcion || 'Disponible'}
+                        </span>
+                    </div>
+                    <span class="unread-count" id="badge-${u.user}">0</span>
+                `;
+
+                btn.onclick = () => {
+                    cambiarSala(u.user, u.user, u.foto, u.descripcion);
+                    if(window.innerWidth < 768) toggleSideRight();
+                };
+
+                container.appendChild(btn);
+                
+                if(unreadData[u.user]) {
+                    updateBadge(u.user, unreadData[u.user]);
+                }
             });
         });
 
-        function cambiarSala(id, nombre, img) {
+        // --- SALAS Y CHAT ---
+        function cambiarSala(id, nombre, img, desc) {
             salaActual = id;
             unreadData[id] = 0;
             updateBadge(id, 0);
-            document.getElementById('writing-feedback').innerText = "";
+
             document.getElementById('target-name').innerText = nombre;
-            let finalImg = img || "https://via.placeholder.com/140?text=" + nombre;
-            if(id === 'conversando') finalImg = '/logo-conversando.png';
-            if(id === 'juegos') finalImg = '/logo-juegos.png';
-            if(id === 'solotodo') finalImg = '/logo-solotodo.png';
-            document.getElementById('target-img').src = finalImg;
+            document.getElementById('target-desc-full').innerText = desc || "Disponible";
+            document.getElementById('target-img').src = img || "https://via.placeholder.com/140?text=" + nombre;
+            
             document.getElementById('messages').innerHTML = "";
+            document.getElementById('writing-feedback').innerText = "";
+            
             socket.emit('get_private_history', id);
         }
 
         function updateBadge(id, count) {
             const badge = document.getElementById('badge-' + id);
-            if(badge) { badge.innerText = count; badge.style.display = count > 0 ? 'block' : 'none'; }
-        }
-
-        function enviarTexto() {
-            const t = document.getElementById('text-in').value;
-            if(t.trim()) socket.emit('chat message', { to: salaActual, text: t });
-            document.getElementById('text-in').value = "";
-        }
-
-        function enviarZumbido() { socket.emit('chat message', { to: salaActual, isBuzz: true }); }
-
-        socket.on('chat message', m => {
-            const dest = m.to || 'conversando';
-            const esGlobal = ['conversando', 'juegos', 'solotodo'].includes(dest);
-            const esParaMi = (esGlobal && dest === salaActual) || (m.user === salaActual && m.to === yo) || (m.user === yo && m.to === salaActual);
-
-            if (esParaMi) {
-                renderMsg(m);
-                document.getElementById('writing-feedback').innerText = "";
-                if(m.user !== yo) srvMsg.play().catch(()=>{});
-            } else {
-                const origin = esGlobal ? dest : m.user;
-                unreadData[origin] = (unreadData[origin] || 0) + 1;
-                updateBadge(origin, unreadData[origin]);
-                showToast(m.user, m.isBuzz ? "Te envió un zumbido" : m.text);
-                srvMsg.play().catch(()=>{});
+            if(badge) {
+                badge.innerText = count;
+                badge.style.display = count > 0 ? 'block' : 'none';
             }
+        }
 
-            if(m.isBuzz && esParaMi) {
-                document.getElementById('app').classList.add('shake');
-                setTimeout(()=>document.getElementById('app').classList.remove('shake'), 600);
-                srvBuzz.play().catch(()=>{});
+        function avisarEscribiendo() {
+            socket.emit('typing', { to: salaActual, user: yo });
+        }
+
+        socket.on('typing_status', data => {
+            if (data.to === yo && data.user === salaActual) {
+                const feedback = document.getElementById('writing-feedback');
+                feedback.innerText = `${data.user} está escribiendo un mensaje...`;
+                
+                clearTimeout(typingTimeout);
+                typingTimeout = setTimeout(() => {
+                    feedback.innerText = "";
+                }, 3000);
             }
         });
 
-        function showToast(user, msg) {
-            const c = document.getElementById('toast-container');
-            const t = document.createElement('div');
-            t.style = "background:linear-gradient(#f0f7ff, #bcd7ff); border:1px solid var(--msn-blue); padding:10px; border-radius:8px; width:220px; box-shadow:0 4px 12px rgba(0,0,0,0.3); margin-top:5px;";
-            t.innerHTML = `<b>${user} dice:</b><br><small>${msg.substring(0,30)}...</small>`;
-            c.appendChild(t);
-            setTimeout(() => t.remove(), 4000);
+        function enviarTexto() {
+            const input = document.getElementById('text-in');
+            const mensaje = input.value;
+            if(mensaje.trim() !== "") {
+                socket.emit('chat message', { to: salaActual, text: mensaje });
+                input.value = "";
+            }
         }
+
+        function enviarZumbido() {
+            socket.emit('chat message', { to: salaActual, isBuzz: true });
+        }
+
+        socket.on('chat message', m => {
+            const destino = m.to || 'conversando';
+            const esSalaGlobal = ['conversando', 'juegos', 'solotodo'].includes(destino);
+            
+            const paraMi = (esSalaGlobal && destino === salaActual) || 
+                           (m.user === salaActual && m.to === yo) || 
+                           (m.user === yo && m.to === salaActual);
+
+            if (paraMi) {
+                renderizarMensaje(m);
+                if(m.user !== yo) srvMsg.play().catch(() => {});
+            } else {
+                const origen = esSalaGlobal ? destino : m.user;
+                unreadData[origen] = (unreadData[origen] || 0) + 1;
+                updateBadge(origen, unreadData[origen]);
+                srvMsg.play().catch(() => {});
+            }
+
+            if(m.isBuzz && paraMi) {
+                document.getElementById('app').classList.add('shake');
+                srvBuzz.play().catch(() => {});
+                setTimeout(() => {
+                    document.getElementById('app').classList.remove('shake');
+                }, 600);
+            }
+        });
 
         socket.on('actualizar_historial', res => {
             if(res.target === salaActual) {
-                document.getElementById('messages').innerHTML = "";
-                res.history.forEach(m => renderMsg(m));
+                const div = document.getElementById('messages');
+                div.innerHTML = "";
+                res.history.forEach(m => renderizarMensaje(m));
             }
         });
 
-        function renderMsg(m) {
+        function renderizarMensaje(m) {
             const div = document.getElementById('messages');
-            const d = document.createElement('div');
+            const msgCont = document.createElement('div');
+            msgCont.className = "msg-container";
+            
             const hora = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            let txt = m.texto || m.text || "";
-            if(m.isBuzz) txt = `<span style="color:red; font-weight:bold;">¡Zumbido!</span>`;
-            else {
+            let contenido = m.texto || m.text || "";
+
+            if(m.isBuzz) {
+                contenido = `<span style="color:red; font-weight:bold;">¡HIZO CLIC EN ENVIAR UN ZUMBIDO!</span>`;
+            } else {
+                // Parseo de links y emoticones básicos
                 const urlRegex = /(https?:\/\/[^\s]+)/g;
-                txt = txt.replace(urlRegex, url => `<a href="${url}" target="_blank" class="chat-link">${url}</a>`);
-                txt = txt.replace(/:\)/g, '<img src="https://raw.githubusercontent.com/pabluro/msn-assets/main/smile.gif" width="20">');
-                txt = txt.replace(/\(L\)/g, '<img src="https://raw.githubusercontent.com/pabluro/msn-assets/main/heart.gif" width="20">');
+                contenido = contenido.replace(urlRegex, url => `<a href="${url}" target="_blank" style="color:var(--msn-blue);">${url}</a>`);
+                contenido = contenido.replace(/:\)/g, '😊').replace(/\(L\)/g, '❤️');
             }
-            d.innerHTML = `<b style="color:var(--msn-blue); font-size:12px;">${m.user} dice: <span class="msg-time">[${hora}]</span></b><br><span style="font-size:13.5px;">${txt}</span>`;
-            div.appendChild(d);
+
+            msgCont.innerHTML = `
+                <div class="msg-header">${m.user} dice: <span class="msg-time">[${hora}]</span></div>
+                <div class="msg-body">${contenido}</div>
+            `;
+            
+            div.appendChild(msgCont);
             div.scrollTop = div.scrollHeight;
         }
 
+        // --- ACTUALIZAR PERFIL ---
         function guardarPerfil() {
-            const f = document.getElementById('up-foto').files[0];
-            const d = document.getElementById('up-desc').value;
-            if(f) {
-                const r = new FileReader();
-                r.onload = () => { socket.emit('update_profile', { desc: d, foto: r.result }); syncOwnProfile({foto: r.result, descripcion: d}); toggleModal(false); };
-                r.readAsDataURL(f);
-            } else { socket.emit('update_profile', { desc: d, foto: null }); toggleModal(false); }
+            const fileInput = document.getElementById('up-foto');
+            const descInput = document.getElementById('up-desc');
+            const nuevaDesc = descInput.value;
+            const file = fileInput.files[0];
+
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function() {
+                    socket.emit('update_profile', { desc: nuevaDesc, foto: reader.result });
+                    toggleModal(false);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                socket.emit('update_profile', { desc: nuevaDesc, foto: null });
+                toggleModal(false);
+            }
         }
+
+        // Soporte para tecla Enter
+        document.getElementById('text-in').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                enviarTexto();
+            }
+        });
     </script>
 </body>
 </html>
