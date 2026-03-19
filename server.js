@@ -3,68 +3,103 @@ const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http, { 
     cors: { origin: "*" }, 
-    maxHttpBufferSize: 5e7 // Soporte para archivos de 50MB
+    maxHttpBufferSize: 1e8 
 });
+const sqlite3 = require('sqlite3');
+const { open } = require('sqlite');
+
+let db;
+
+(async () => {
+    db = await open({ filename: './database.sqlite', driver: sqlite3.Database });
+    await db.exec(`
+        CREATE TABLE IF NOT EXISTS usuarios (
+            user TEXT PRIMARY KEY, pass TEXT, foto TEXT DEFAULT 'https://i.imgur.com/89n7DNP.png', 
+            descripcion TEXT DEFAULT 'Sintiendo la nostalgia...', estado TEXT DEFAULT 'Disponible'
+        );
+        CREATE TABLE IF NOT EXISTS mensajes_grupal (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, sala TEXT, usuario TEXT, texto TEXT, archivo TEXT, tipo TEXT, fecha DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS mensajes_privado (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, de TEXT, para TEXT, texto TEXT, archivo TEXT, tipo TEXT, fecha DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+    `);
+    console.log("Base de datos THE REALS conectada.");
+})();
 
 app.use(express.static(__dirname));
+let socketIds = {}; // Para saber quién está online por nombre
 
-let usuarios = {}; 
-// Historiales separados por sala
-let roomHistories = {
-    "Conversando": [],
-    "Juegos Online": [],
-    "SoloTodo": []
-};
+async function enviarListaContactos() {
+    const todos = await db.all('SELECT user, foto, descripcion, estado FROM usuarios');
+    const listaFinal = todos.map(u => ({
+        ...u,
+        online: socketIds[u.user] ? true : false
+    }));
+    io.emit('lista_contactos', listaFinal);
+}
 
 io.on('connection', (socket) => {
-    
-    socket.on('login', (data) => {
+    socket.on('login', async (data) => {
         const { user, pass } = data;
-        if (!usuarios[user]) usuarios[user] = pass;
-        if (usuarios[user] === pass) {
-            socket.userName = user;
-            // Entrar a la sala inicial por defecto
-            socket.join("Conversando");
-            socket.currentRoom = "Conversando";
-            
-            socket.emit('login_status', { 
-                success: true, 
-                user, 
-                history: roomHistories["Conversando"], 
-                tema: "SALA: Conversando" 
-            });
+        let userDB = await db.get('SELECT * FROM usuarios WHERE user = ?', [user]);
+
+        if (!userDB) {
+            await db.run('INSERT INTO usuarios (user, pass) VALUES (?, ?)', [user, pass]);
+            userDB = await db.get('SELECT * FROM usuarios WHERE user = ?', [user]);
+        } else if (userDB.pass !== pass) {
+            return socket.emit('login_status', { success: false, msg: "❌ Clave incorrecta." });
+        }
+
+        socket.userName = user;
+        socketIds[user] = socket.id;
+        
+        const history = await db.all('SELECT usuario as user, texto as text, archivo as img, tipo FROM mensajes_grupal WHERE sala = "Conversando" ORDER BY id DESC LIMIT 30');
+        
+        socket.join("Conversando");
+        socket.currentRoom = "Conversando";
+        socket.emit('login_status', { success: true, user, perfil: userDB, history: history.reverse() });
+        enviarListaContactos();
+    });
+
+    socket.on('update_profile', async (data) => {
+        if(!socket.userName) return;
+        await db.run('UPDATE usuarios SET foto = ?, descripcion = ? WHERE user = ?', [data.foto, data.desc, socket.userName]);
+        enviarListaContactos();
+    });
+
+    socket.on('cambiar_estado', async (nuevo) => {
+        if(!socket.userName) return;
+        await db.run('UPDATE usuarios SET estado = ? WHERE user = ?', [nuevo, socket.userName]);
+        enviarListaContactos();
+    });
+
+    socket.on('chat message', async (data) => {
+        let tipo = data.isBuzz ? 'zumbido' : (data.img ? 'imagen' : 'texto');
+        const user = socket.userName;
+
+        if (data.to) {
+            await db.run('INSERT INTO mensajes_privado (de, para, texto, archivo, tipo) VALUES (?,?,?,?,?)', [user, data.to, data.text, data.img, tipo]);
+            if (socketIds[data.to]) io.to(socketIds[data.to]).emit('chat message', {...data, user});
+            socket.emit('chat message', {...data, user});
         } else {
-            socket.emit('login_status', { success: false, msg: "❌ Clave incorrecta." });
+            const room = socket.currentRoom || "Conversando";
+            await db.run('INSERT INTO mensajes_grupal (sala, usuario, texto, archivo, tipo) VALUES (?,?,?,?,?)', [room, user, data.text, data.img, tipo]);
+            io.to(room).emit('chat message', {...data, user});
         }
     });
 
-    // --- CAMBIO DE SALA SEGURO ---
-    socket.on('join_room', (newRoom) => {
-        if (socket.currentRoom) {
-            socket.leave(socket.currentRoom);
-        }
-        socket.join(newRoom);
-        socket.currentRoom = newRoom;
-        
-        console.log(`${socket.userName} se movió a ${newRoom}`);
-        
-        // Enviar historial de la nueva sala y actualizar el título
-        socket.emit('actualizar_historial', roomHistories[newRoom] || []);
-        socket.emit('actualizar_tema', "SALA: " + newRoom);
+    socket.on('get_private_history', async (target) => {
+        const h = await db.all('SELECT de as user, texto as text, archivo as img, tipo FROM mensajes_privado WHERE (de = ? AND para = ?) OR (de = ? AND para = ?) ORDER BY id DESC LIMIT 50', [socket.userName, target, target, socket.userName]);
+        socket.emit('actualizar_historial', h.reverse());
     });
 
-    socket.on('chat message', (data) => {
-        const room = socket.currentRoom || "Conversando";
-        
-        // Guardar mensaje en el historial de la sala activa
-        if (!roomHistories[room]) roomHistories[room] = [];
-        roomHistories[room].push(data);
-        if (roomHistories[room].length > 50) roomHistories[room].shift();
-
-        // Enviar SOLO a los usuarios que estén en esa misma sala
-        io.to(room).emit('chat message', data);
+    socket.on('disconnect', () => {
+        if (socket.userName) {
+            delete socketIds[socket.userName];
+            enviarListaContactos();
+        }
     });
 });
 
-const PORT = process.env.PORT || 3000;
-http.listen(PORT, '0.0.0.0', () => console.log("Servidor THE REALS Etapa 2 listo"));
+http.listen(process.env.PORT || 3000, '0.0.0.0', () => console.log("MSN ONLINE"));
