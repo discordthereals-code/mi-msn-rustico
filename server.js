@@ -1,70 +1,64 @@
 const express = require('express');
 const app = express();
 const http = require('http').Server(app);
-const io = require('socket.io')(http);
+const io = require('socket.io')(http, {
+    cors: { origin: "*" }
+});
 const path = require('path');
-const fs = require('fs');
 
-const DATA_FILE = './mensajes.json';
-
-let chatHistory = [];
-let canalTema = "Bienvenidos a THE REALS";
-
-// Cargar datos antiguos si existen
-if (fs.existsSync(DATA_FILE)) {
-    try {
-        const data = fs.readFileSync(DATA_FILE);
-        const parsed = JSON.parse(data);
-        chatHistory = parsed.history || [];
-        canalTema = parsed.tema || "Bienvenidos a THE REALS";
-    } catch (e) {
-        console.log("Error leyendo archivo de mensajes.");
-    }
-}
-
+// Servir el archivo index.html
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-io.on('connection', (socket) => {
-    // Enviamos lo que tenemos guardado al que entra
-    socket.emit('cargar historia', { history: chatHistory, tema: canalTema });
+// Variables en memoria (se borran si reinicias Render, pero es para que funcione YA)
+let chatHistory = [];
+let usuarios = {}; 
+let canalTema = "BIENVENIDOS A THE REALS";
 
-    socket.on('chat message', (data) => {
-        // --- AQUÍ ESTÁ EL TRUCO DEL TEMA ---
-        // Si el texto empieza con /tema (sin importar mayúsculas)
-        if (data.text.toLowerCase().startsWith('/tema ')) {
-            canalTema = data.text.substring(6); // Corta "/tema " y se queda con el resto
-            
-            // Avisamos a TODOS que el tema cambió
-            io.emit('cambiar tema', canalTema);
-            
-            // Opcional: Mandar un mensaje de sistema avisando del cambio
-            const aviso = { user: "SISTEMA", text: `📢 El tema ha sido cambiado a: ${canalTema}` };
-            chatHistory.push(aviso);
-            io.emit('chat message', aviso);
-            
-            guardarTodo();
-            return; // Detiene el código aquí para que no se envíe como mensaje normal
+io.on('connection', (socket) => {
+    console.log("🟢 Usuario conectado");
+
+    // ESCUCHAR EL LOGIN
+    socket.on('login', (data) => {
+        console.log("📥 Intento de login de:", data.user);
+        const { user, pass } = data;
+
+        // Si el usuario no existe, lo creamos
+        if (!usuarios[user]) {
+            usuarios[user] = pass;
+            console.log("✨ Usuario nuevo creado:", user);
         }
 
-        // Si no es un comando, es un mensaje normal
+        // Verificar clave
+        if (usuarios[user] === pass) {
+            console.log("✅ Login exitoso para:", user);
+            socket.emit('login_status', { 
+                success: true, 
+                user: user, 
+                history: chatHistory, 
+                tema: canalTema 
+            });
+        } else {
+            console.log("❌ Clave errónea para:", user);
+            socket.emit('login_status', { success: false, msg: "Clave incorrecta o usuario ocupado." });
+        }
+    });
+
+    // ESCUCHAR MENSAJES
+    socket.on('chat message', (data) => {
+        if (data.text.startsWith('/tema ')) {
+            canalTema = data.text.substring(6);
+            io.emit('cambiar tema', canalTema);
+            return;
+        }
         chatHistory.push(data);
-        if (chatHistory.length > 100) chatHistory.shift(); 
+        if (chatHistory.length > 50) chatHistory.shift();
         io.emit('chat message', data);
-        guardarTodo();
     });
 });
 
-function guardarTodo() {
-    try {
-        fs.writeFileSync(DATA_FILE, JSON.stringify({ history: chatHistory, tema: canalTema }));
-    } catch (e) {
-        console.log("Error guardando datos.");
-    }
-}
-
 const PORT = process.env.PORT || 3000;
 http.listen(PORT, '0.0.0.0', () => {
-    console.log(`THE REALS ONLINE en puerto ${PORT}`);
+    console.log(`🚀 Servidor THE REALS activo en puerto ${PORT}`);
 });
