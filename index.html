@@ -2,180 +2,224 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>THE REALS - FIX VERSION</title>
+    <title>THE REALS - Messenger</title>
     <style>
-        /* ESTILO FORZADO PARA NAVEGADOR */
+        :root {
+            --msn-blue: #0055e5;
+            --msn-light-blue: #71ADFF;
+            --msn-bg: #eef3f9;
+        }
+
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 0; }
         
         body { 
-            background-color: #2b5797 !important; /* AZUL OSCURO PARA SABER QUE CAMBIÓ */
-            height: 100vh; display: flex; align-items: center; justify-content: center;
+            background: var(--msn-light-blue); 
+            height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden;
         }
 
+        #login-screen {
+            background: white; padding: 40px; border-radius: 15px; text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 320px;
+        }
+
+        #login-screen h2 { color: var(--msn-blue); margin-bottom: 20px; }
+
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; }
+
+        .btn-main { 
+            background: var(--msn-blue); color: white; border: none; 
+            padding: 12px; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold;
+        }
+
+        /* INTERFAZ PRINCIPAL */
         #app-container { 
-            display: none; width: 850px; height: 600px; 
-            background: white; border-radius: 10px; flex-direction: column;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5); overflow: hidden;
+            display: none; width: 900px; height: 650px; background: #fff;
+            border: 2px solid var(--msn-blue); border-radius: 10px;
+            flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.4);
         }
 
-        /* CABECERA */
-        #window-header {
-            padding: 10px 15px; display: flex; justify-content: space-between; align-items: center;
-            background: #e8f1fc; border-bottom: 1px solid #a0b5d0;
+        #header {
+            background: linear-gradient(to bottom, #0055e5, #003399);
+            color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center;
         }
-        .user-info { display: flex; align-items: center; gap: 10px; }
-        #my-avatar { width: 50px; height: 50px; border: 2px solid #3a8df5; border-radius: 4px; object-fit: cover; cursor: pointer; }
 
-        /* CUERPO */
-        #main-body { flex-grow: 1; display: flex; padding: 10px; gap: 10px; height: 480px; }
+        #main-layout { display: flex; flex: 1; overflow: hidden; background: var(--msn-bg); }
+
+        /* BARRA LATERAL */
+        #sidebar { width: 260px; background: #fff; border-right: 1px solid #ccc; display: flex; flex-direction: column; }
         
-        /* LATERAL */
-        #sidebar { width: 250px; display: flex; flex-direction: column; border-right: 1px solid #ddd; padding-right: 10px; }
-        .section-title { font-weight: bold; font-size: 11px; color: #4c607a; margin: 10px 0 5px; }
-        .contact-item { width: 100%; border: none; background: #f9f9f9; padding: 8px; display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 2px; border-radius: 4px; }
-        .contact-item:hover { background: #eef6ff; }
-        .contact-item img { width: 30px; height: 30px; border-radius: 3px; }
+        .profile-area { padding: 15px; border-bottom: 1px solid #eee; text-align: center; background: #f9f9f9; }
+        #my-avatar { 
+            width: 60px; height: 60px; border: 3px solid white; border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); object-fit: cover; cursor: pointer; background: #ccc;
+        }
 
-        /* CHAT */
-        #chat-window { flex-grow: 1; display: flex; flex-direction: column; border: 1px solid #a0b5d0; border-radius: 5px; }
-        #messages-view { flex-grow: 1; overflow-y: auto; padding: 15px; background: #fff; }
-        #input-area { padding: 10px; background: #f5f9ff; border-top: 1px solid #a0b5d0; }
-        #msg-input { width: 100%; height: 50px; padding: 8px; border: 1px solid #ccc; resize: none; margin-bottom: 5px; }
+        .contact-list { flex: 1; overflow-y: auto; padding: 10px; }
+        .contact-item { 
+            display: flex; align-items: center; gap: 10px; padding: 8px; 
+            cursor: pointer; border-radius: 5px; transition: 0.2s; border: none; width: 100%; background: none;
+        }
+        .contact-item:hover { background: #e0edff; }
+        .contact-item img { width: 35px; height: 35px; border-radius: 4px; background: #ddd; }
 
-        /* LOGIN */
-        #login-screen { background: white; padding: 40px; border-radius: 10px; text-align: center; }
-        #login-screen input { display: block; width: 240px; margin: 10px auto; padding: 10px; border: 1px solid #ccc; }
-        .btn-blue { background: #3a8df5; color: white; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        /* ÁREA DE CHAT */
+        #chat-area { flex: 1; display: flex; flex-direction: column; background: white; margin: 10px; border-radius: 8px; border: 1px solid #ccc; }
+        
+        #messages-view { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        
+        .msg { padding: 8px 12px; border-radius: 10px; max-width: 80%; font-size: 14px; }
+        .msg-name { font-weight: bold; color: var(--msn-blue); margin-bottom: 2px; }
+
+        #input-panel { padding: 15px; background: #f0f4f9; border-top: 1px solid #ccc; border-radius: 0 0 8px 8px; }
+        #msg-input { width: 100%; height: 60px; padding: 10px; border: 1px solid #bbb; border-radius: 5px; resize: none; margin-bottom: 10px; }
+        
+        .chat-tools { display: flex; justify-content: space-between; align-items: center; }
 
         /* MODAL */
-        #modal-perfil { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background: white; border: 2px solid #3a8df5; padding: 20px; z-index: 2000; border-radius: 10px; width: 300px; }
+        #profile-modal {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: white; padding: 25px; border-radius: 10px; box-shadow: 0 0 50px rgba(0,0,0,0.5); z-index: 100;
+        }
+
+        .shake { animation: shake 0.1s 10; }
+        @keyframes shake { 0%, 100% {transform: translate(0,0)} 25% {transform: translate(5px,5px)} 50% {transform: translate(-5px,-5px)} }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
-        <h2 style="color:#2b5797">THE REALS</h2>
-        <input type="text" id="u-in" placeholder="Usuario">
-        <input type="password" id="p-in" placeholder="Clave">
-        <button class="btn-blue" onclick="doLogin()">Entrar</button>
+        <h2>THE REALS</h2>
+        <input type="text" id="user-in" placeholder="Nombre de usuario">
+        <input type="password" id="pass-in" placeholder="Contraseña">
+        <button class="btn-main" onclick="login()">Iniciar Sesión</button>
     </div>
 
     <div id="app-container">
-        <div id="window-header">
-            <div class="user-info">
-                <img id="my-avatar" src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png" onclick="openProfile()">
-                <div><b id="display-name">...</b><br><small id="display-status">¿En qué piensas?</small></div>
-            </div>
-            <b>_ ⬜ ✕</b>
+        <div id="header">
+            <div style="font-weight: bold;">THE REALS - Messenger</div>
+            <div style="letter-spacing: 5px; cursor: pointer;">_ ⬜ ✕</div>
         </div>
-        <div id="main-body">
+
+        <div id="main-layout">
             <div id="sidebar">
-                <div class="section-title">MIS SALAS</div>
-                <button class="contact-item" onclick="location.reload()">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/d/df/MSN_Messenger_logo.png">
-                    <b>Chat Grupal (Todos)</b>
-                </button>
-                <div class="section-title">CONTACTOS ONLINE</div>
-                <div id="contactos-lista"></div>
+                <div class="profile-area">
+                    <img id="my-avatar" src="" onclick="openModal()">
+                    <div id="my-name" style="font-weight: bold; margin-top: 5px;">Cargando...</div>
+                    <div id="my-status" style="font-size: 11px; color: #666;">¿En qué piensas?</div>
+                </div>
+                <div class="contact-list">
+                    <div style="font-size: 11px; font-weight: bold; color: #666; margin-bottom: 10px;">CONTACTOS</div>
+                    <div id="list-container"></div>
+                </div>
             </div>
-            <div id="chat-window">
-                <div id="messages-view"><div id="messages"></div></div>
-                <div id="input-area">
-                    <textarea id="msg-input" placeholder="Escribe aquí..."></textarea>
-                    <div style="display:flex; justify-content: space-between;">
-                        <button onclick="sendBuzz()" style="padding:4px">🔔 Zumbido</button>
-                        <button class="btn-blue" onclick="sendMsg()">Enviar</button>
+
+            <div id="chat-area">
+                <div id="messages-view"></div>
+                <div id="input-panel">
+                    <textarea id="msg-input" placeholder="Escribe un mensaje aquí..."></textarea>
+                    <div class="chat-tools">
+                        <button onclick="sendBuzz()" style="padding: 5px 10px; cursor: pointer;">🔔 Zumbido</button>
+                        <button class="btn-main" style="width: 100px;" onclick="send()">Enviar</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="modal-perfil">
-        <b>Editar Perfil</b><br><br>
-        Frase:<br><input type="text" id="new-desc" style="width:100%"><br>
-        Foto:<br><input type="file" id="file-foto"><br><br>
-        <button class="btn-blue" onclick="saveProfile()">Guardar</button>
-        <button onclick="document.getElementById('modal-perfil').style.display='none'">Cerrar</button>
+    <div id="profile-modal">
+        <h3 style="margin-bottom: 15px;">Editar Perfil</h3>
+        Estado:<br><input type="text" id="new-status"><br>
+        Foto:<br><input type="file" id="file-in" accept="image/*"><br><br>
+        <button class="btn-main" onclick="saveProfile()">Guardar Cambios</button>
+        <button onclick="closeModal()" style="margin-top: 10px; width: 100%; border: none; background: none; cursor: pointer;">Cancelar</button>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        let myUser = "", currentChat = null, tempFoto = "";
+        let me = "", currentTarget = null, base64Foto = "";
 
-        function doLogin() {
-            const u = document.getElementById('u-in').value.trim();
-            const p = document.getElementById('p-in').value.trim();
+        function login() {
+            const u = document.getElementById('user-in').value;
+            const p = document.getElementById('pass-in').value;
             if(u && p) socket.emit('login', { user: u, pass: p });
         }
 
         socket.on('login_status', res => {
             if(res.success) {
-                myUser = res.user;
+                me = res.user;
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('app-container').style.display = 'flex';
-                document.getElementById('display-name').innerText = myUser;
+                document.getElementById('my-name').innerText = me;
                 document.getElementById('my-avatar').src = res.perfil.foto;
-                document.getElementById('display-status').innerText = res.perfil.descripcion;
-                res.history.forEach(m => render(m));
+                document.getElementById('my-status').innerText = res.perfil.descripcion;
+                res.history.forEach(m => renderMsg(m));
             } else alert(res.msg);
         });
 
         socket.on('lista_contactos', lista => {
-            const c = document.getElementById('contactos-lista');
-            c.innerHTML = "";
+            const container = document.getElementById('list-container');
+            container.innerHTML = "";
             lista.forEach(u => {
-                if(u.user === myUser) return;
-                const b = document.createElement('button');
-                b.className = "contact-item";
-                b.innerHTML = `<img src="${u.foto}"> <div><b>${u.user}</b><br><small>${u.descripcion}</small></div>`;
-                b.onclick = () => { 
-                    currentChat = u.user; 
-                    document.getElementById('messages').innerHTML = ""; 
+                if(u.user === me) return;
+                const btn = document.createElement('button');
+                btn.className = "contact-item";
+                btn.innerHTML = `<img src="${u.foto}"> <div><b>${u.user}</b><br><small>${u.descripcion}</small></div>`;
+                btn.onclick = () => { 
+                    currentTarget = u.user; 
+                    document.getElementById('messages-view').innerHTML = "";
                     socket.emit('get_private_history', u.user); 
                 };
-                c.appendChild(b);
+                container.appendChild(btn);
             });
         });
 
-        function sendMsg() {
-            const t = document.getElementById('msg-input').value;
-            if(!t.trim()) return;
-            socket.emit('chat message', { to: currentChat, text: t });
+        function send() {
+            const txt = document.getElementById('msg-input').value;
+            if(!txt.trim()) return;
+            socket.emit('chat message', { to: currentTarget, text: txt });
             document.getElementById('msg-input').value = "";
         }
 
-        function sendBuzz() { socket.emit('chat message', { to: currentChat, isBuzz: true }); }
+        function sendBuzz() { socket.emit('chat message', { to: currentTarget, isBuzz: true }); }
 
         socket.on('chat message', m => {
-            render(m);
-            if(m.isBuzz) new Audio('https://www.myinstants.com/media/sounds/msn-messenger-buzz.mp3').play().catch(()=>{});
+            renderMsg(m);
+            if(m.isBuzz) {
+                document.getElementById('app-container').classList.add('shake');
+                setTimeout(() => document.getElementById('app-container').classList.remove('shake'), 600);
+                new Audio('https://www.myinstants.com/media/sounds/msn-messenger-buzz.mp3').play().catch(()=>{});
+            }
         });
 
-        socket.on('actualizar_historial', h => h.forEach(m => render(m)));
+        socket.on('actualizar_historial', h => h.forEach(m => renderMsg(m)));
 
-        function render(m) {
-            const d = document.createElement('div');
+        function renderMsg(m) {
+            const view = document.getElementById('messages-view');
+            const div = document.createElement('div');
             const u = m.user || m.usuario;
             const t = m.text || m.texto;
-            d.innerHTML = `<b style="color:#2b5797">${u}:</b> ${m.isBuzz ? '<span style="color:red">¡ZUMBIDO!</span>' : t}`;
-            document.getElementById('messages').appendChild(d);
-            document.getElementById('messages-view').scrollTop = 999999;
+            div.innerHTML = `<div class="msg-name">${u} dice:</div><div>${m.isBuzz ? '<b style="color:red">¡HA ENVIADO UN ZUMBIDO!</b>' : t}</div>`;
+            view.appendChild(div);
+            view.scrollTop = view.scrollHeight;
         }
 
-        function openProfile() { document.getElementById('modal-perfil').style.display='block'; }
-        document.getElementById('file-foto').onchange = e => {
-            const r = new FileReader();
-            r.onload = () => { tempFoto = r.result; };
-            r.readAsDataURL(e.target.files[0]);
+        // MODAL LOGIC
+        function openModal() { document.getElementById('profile-modal').style.display = 'block'; }
+        function closeModal() { document.getElementById('profile-modal').style.display = 'none'; }
+        
+        document.getElementById('file-in').onchange = e => {
+            const reader = new FileReader();
+            reader.onload = () => { base64Foto = reader.result; };
+            reader.readAsDataURL(e.target.files[0]);
         };
+
         function saveProfile() {
-            const d = document.getElementById('new-desc').value;
-            socket.emit('update_profile', { desc: d, foto: tempFoto });
-            document.getElementById('modal-perfil').style.display='none';
-            if(tempFoto) document.getElementById('my-avatar').src = tempFoto;
-            document.getElementById('display-status').innerText = d;
+            const s = document.getElementById('new-status').value;
+            socket.emit('update_profile', { desc: s, foto: base64Foto });
+            if(base64Foto) document.getElementById('my-avatar').src = base64Foto;
+            document.getElementById('my-status').innerText = s;
+            closeModal();
         }
     </script>
 </body>
