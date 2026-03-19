@@ -2,7 +2,10 @@ const express = require('express');
 const app = express();
 const http = require('http').Server(app);
 const path = require('path');
-const io = require('socket.io')(http, { cors: { origin: "*" }, maxHttpBufferSize: 1e8 });
+const io = require('socket.io')(http, { 
+    cors: { origin: "*" }, 
+    maxHttpBufferSize: 1e8 
+});
 const sqlite3 = require('sqlite3');
 const { open } = require('sqlite');
 
@@ -11,7 +14,7 @@ let db;
     db = await open({ filename: path.join(__dirname, 'database.sqlite'), driver: sqlite3.Database });
     await db.exec(`
         CREATE TABLE IF NOT EXISTS usuarios (user TEXT PRIMARY KEY, pass TEXT, foto TEXT DEFAULT 'https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png', descripcion TEXT DEFAULT '¿En qué piensas?');
-        CREATE TABLE IF NOT EXISTS mensajes (id INTEGER PRIMARY KEY AUTOINCREMENT, de TEXT, para TEXT, texto TEXT, tipo TEXT, fecha DATETIME DEFAULT CURRENT_TIMESTAMP);
+        CREATE TABLE IF NOT EXISTS mensajes (id INTEGER PRIMARY KEY AUTOINCREMENT, de TEXT, para TEXT, texto TEXT, tipo TEXT, archivo TEXT, fecha DATETIME DEFAULT CURRENT_TIMESTAMP);
     `);
 })();
 
@@ -28,7 +31,7 @@ io.on('connection', (socket) => {
         socket.userName = data.user;
         online[data.user] = socket.id;
         
-        const history = await db.all('SELECT de as user, texto as text, tipo FROM mensajes WHERE para IS NULL ORDER BY id ASC LIMIT 50');
+        const history = await db.all('SELECT de as user, texto as text, tipo, archivo FROM mensajes WHERE para IS NULL OR para = "conversando" ORDER BY id ASC LIMIT 50');
         socket.emit('login_status', { success: true, user: data.user, perfil: userDB, history });
         updateList();
     });
@@ -40,25 +43,31 @@ io.on('connection', (socket) => {
     }
 
     socket.on('chat message', async (m) => {
-        const tipo = m.isBuzz ? 'zumbido' : 'texto';
-        // Si 'to' es null, juegos o solotodo, es grupal/sala
-        const esSala = !m.to || m.to === 'juegos' || m.to === 'solotodo';
-        await db.run('INSERT INTO mensajes (de, para, texto, tipo) VALUES (?,?,?,?)', [socket.userName, esSala ? m.to : m.to, m.text, tipo]);
+        const tipo = m.isBuzz ? 'zumbido' : (m.tipo || 'texto');
+        const esSala = !m.to || ['juegos', 'solotodo', 'conversando'].includes(m.to);
+        await db.run('INSERT INTO mensajes (de, para, texto, tipo, archivo) VALUES (?,?,?,?,?)', 
+            [socket.userName, m.to || 'conversando', m.text, tipo, m.archivo]);
         
-        if (esSala) {
-            io.emit('chat message', { ...m, user: socket.userName });
-        } else {
-            if (online[m.to]) io.to(online[m.to]).emit('chat message', { ...m, user: socket.userName });
-            socket.emit('chat message', { ...m, user: socket.userName });
+        const payload = { ...m, user: socket.userName, tipo, archivo: m.archivo };
+        if (esSala) io.emit('chat message', payload);
+        else {
+            if (online[m.to]) io.to(online[m.to]).emit('chat message', payload);
+            socket.emit('chat message', payload);
         }
     });
 
     socket.on('get_private_history', async (target) => {
-        const h = await db.all('SELECT de as user, texto as text, tipo FROM mensajes WHERE (de=? AND para=?) OR (de=? AND para=?) ORDER BY id ASC', [socket.userName, target, target, socket.userName]);
+        const h = await db.all('SELECT de as user, texto as text, tipo, archivo FROM mensajes WHERE (de=? AND para=?) OR (de=? AND para=?) ORDER BY id ASC', [socket.userName, target, target, socket.userName]);
         socket.emit('actualizar_historial', h);
+    });
+
+    socket.on('update_profile', async (data) => {
+        if(data.foto) await db.run('UPDATE usuarios SET foto = ? WHERE user = ?', [data.foto, socket.userName]);
+        if(data.desc) await db.run('UPDATE usuarios SET descripcion = ? WHERE user = ?', [data.desc, socket.userName]);
+        updateList();
     });
 
     socket.on('disconnect', () => { delete online[socket.userName]; updateList(); });
 });
 
-http.listen(process.env.PORT || 3000, () => console.log("MSN Live!"));
+http.listen(process.env.PORT || 3000, '0.0.0.0');
