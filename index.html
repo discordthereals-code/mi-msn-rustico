@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>MSN Messenger 2009 - The Reals</title>
+    <title>The Reals</title>
     <style>
         :root { --msn-blue: #0055e5; --bg-gradient: linear-gradient(180deg, #71ADFF 0%, #E2EFFF 100%); }
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; margin:0; padding:0; }
@@ -73,19 +73,22 @@
         <div id="main-layout">
             <div id="sidebar-left">
                 <div class="cat-title">SALAS DEL GRUPO</div>
-                <button class="user-item" onclick="changeChat('conversando', 'Conversando', '', 'Sala General de Chat')">
-                    <div class="avatar-min" style="background:#0055e5;"></div> <div><b>Conversando</b><br><span class="user-status-text">Pública</span></div>
-                </button>
-                <button class="user-item" onclick="changeChat('juegos', 'Juegos', '', 'Comunidad Gamer')">
-                    <div class="avatar-min" style="background:#ff8800;"></div> <div><b>Juegos</b><br><span class="user-status-text">Pública</span></div>
-                </button>
-                <button class="user-item" onclick="changeChat('solotodo', 'Solotodo', '', 'Ofertas Hardware')">
-                    <div class="avatar-min" style="background:#00aa00;"></div> <div><b>Solotodo</b><br><span class="user-status-text">Pública</span></div>
-                </button>
-                
-                <div class="cat-title">CONTACTOS ONLINE</div>
-                <div id="contact-list" style="flex:1; overflow-y:auto;"></div>
-            </div>
+<div id="group-list">
+    <button class="user-item" onclick="changeChat('conversando', 'Conversando', '/logo-conversando.jpg', 'Sala General de Chat')">
+        <img src="/logo-conversando.png" class="avatar-min" onerror="this.src='https://via.placeholder.com/40'">
+        <div class="user-info"><b>Conversando</b><br><span class="user-status-text">Pública</span></div>
+    </button>
+    
+    <button class="user-item" onclick="changeChat('juegos', 'Juegos', '/logo-juegos.png', 'Comunidad Gamer')">
+        <img src="/logo-juegos.png" class="avatar-min" onerror="this.src='https://via.placeholder.com/40'">
+        <div class="user-info"><b>Juegos</b><br><span class="user-status-text">Espacio Gaming</span></div>
+    </button>
+    
+    <button class="user-item" onclick="changeChat('solotodo', 'SoloTodo', '/logo-solotodo.png', 'Hardware y Ofertas')">
+        <img src="/logo-solotodo.png" class="avatar-min" style="object-fit: contain; background: #fff;" onerror="this.src='https://via.placeholder.com/40'">
+        <div class="user-info"><b>SoloTodo</b><br><span class="user-status-text">Hardware Chat</span></div>
+    </button>
+</div>
 
             <div id="chat-main">
                 <div id="msgs"></div>
