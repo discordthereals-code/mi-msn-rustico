@@ -1,15 +1,18 @@
 {
-  "name": "the-reals-chat",
+  "name": "msn-the-reals",
   "version": "1.0.0",
-  "description": "Chat rústico THE REALS",
+  "description": "MSN Messenger Retro con SQLite y Estados",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
+  },
+  "engines": {
+    "node": "20.x"
   },
   "dependencies": {
     "express": "^4.18.2",
     "socket.io": "^4.7.2",
     "sqlite": "^5.1.1",
-    "sqlite3": "^6.0.1"
+    "sqlite3": "5.1.6"
   }
 }
