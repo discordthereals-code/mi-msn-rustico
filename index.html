@@ -2,114 +2,127 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>MSN THE REALS - Edición Final</title>
+    <title>MSN Messenger 2009 - The Reals</title>
     <style>
-        :root { --msn-blue: #0055e5; --bg: #71ADFF; }
+        :root { --msn-blue: #0055e5; --bg-gradient: linear-gradient(180deg, #71ADFF 0%, #E2EFFF 100%); }
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; margin:0; padding:0; }
-        body { background: var(--bg); height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        body { background: var(--bg-gradient); height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         
-        #app-container { display: none; width: 1000px; height: 700px; background: white; border-radius: 8px; flex-direction: column; box-shadow: 0 10px 50px rgba(0,0,0,0.5); border: 1px solid #003399; }
+        #app-container { display: none; width: 1080px; height: 750px; background: #fff; border-radius: 10px; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.4); border: 1px solid #555; }
         
-        #window-header { background: linear-gradient(#f0f7ff, #d9e8fb); padding: 10px 15px; border-bottom: 1px solid #a0b5d0; display: flex; justify-content: space-between; align-items: center; }
-        #main-layout { display: flex; flex: 1; overflow: hidden; }
+        /* HEADER ESTILO MSN 2009 */
+        #window-header { background: linear-gradient(#f9fcff, #dcecfc); padding: 15px 20px; border-bottom: 1px solid #b4c7de; display: flex; justify-content: space-between; align-items: center; }
+        .my-info { display: flex; align-items: center; gap: 12px; }
+        #my-avatar-top { width: 45px; height: 45px; border-radius: 5px; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); object-fit: cover; background: #eee; }
 
-        /* SIDEBAR IZQUIERDO */
-        #sidebar-left { width: 260px; border-right: 1px solid #ccc; background: #fff; display: flex; flex-direction: column; }
-        .cat { background: #e8f1fc; padding: 6px 12px; font-weight: bold; font-size: 11px; color: #4c607a; border-bottom: 1px solid #d0deee; text-transform: uppercase; }
-        .user-item { display: flex; align-items: center; gap: 10px; padding: 10px; cursor: pointer; border: none; width: 100%; background: none; text-align: left; border-bottom: 1px solid #f2f6fb; }
-        .user-item:hover { background: #f0f7ff; }
-        .avatar-min { width: 34px; height: 34px; background: #eee; border: 1px solid #ccc; border-radius: 3px; object-fit: cover; flex-shrink: 0; }
-        .user-info b { display: block; font-size: 13px; color: #333; }
-        .user-info span { font-size: 11px; color: #777; }
+        #main-layout { display: flex; flex: 1; overflow: hidden; background: white; }
 
-        /* CHAT CENTRAL */
-        #chat-main { flex: 1; display: flex; flex-direction: column; background: #fff; position: relative; }
-        #msgs { flex: 1; overflow-y: auto; padding: 20px; background-image: linear-gradient(to bottom, #ffffff, #f9fbff); }
-        #input-panel { padding: 12px; background: #f5f9ff; border-top: 1px solid #d0deee; }
-        textarea { width: 100%; height: 60px; resize: none; padding: 10px; border: 1px solid #a0b5d0; border-radius: 4px; font-size: 13px; }
+        /* LISTA DE CONTACTOS */
+        #sidebar-left { width: 280px; border-right: 1px solid #d0deee; display: flex; flex-direction: column; }
+        .cat-title { background: #eff6ff; padding: 8px 15px; font-weight: bold; font-size: 11px; color: #5a708a; border-bottom: 1px solid #d0deee; }
+        .user-item { display: flex; align-items: center; gap: 12px; padding: 12px; cursor: pointer; border: none; width: 100%; background: none; text-align: left; }
+        .user-item:hover { background: #f1f7ff; }
+        .avatar-min { width: 36px; height: 36px; border-radius: 4px; border: 1px solid #ccc; object-fit: cover; flex-shrink: 0; }
+        .user-status-text { font-size: 11px; color: #888; }
 
-        /* SIDEBAR DERECHO */
-        #sidebar-right { width: 200px; border-left: 1px solid #ccc; padding: 20px; display: flex; flex-direction: column; align-items: center; background: #fdfdfd; }
-        .avatar-big { width: 130px; height: 130px; border: 4px solid white; box-shadow: 0 3px 10px rgba(0,0,0,0.15); background: #eee; object-fit: cover; border-radius: 4px; }
-        #side-name { margin-top: 15px; font-size: 15px; color: var(--msn-blue); font-weight: bold; text-align: center; }
-        #side-status { font-size: 11px; color: #666; text-align: center; margin-top: 5px; font-style: italic; }
+        /* AREA DE CHAT */
+        #chat-main { flex: 1; display: flex; flex-direction: column; border-right: 1px solid #d0deee; position: relative; }
+        #msgs { flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; gap: 12px; }
+        #input-area { padding: 15px; background: #f7faff; border-top: 1px solid #d0deee; }
+        #in-msg { width: 100%; height: 70px; padding: 10px; border: 1px solid #a0b5d0; border-radius: 4px; resize: none; font-size: 13px; }
 
-        /* UTILIDADES */
-        .emote-img { width: 22px; vertical-align: middle; }
-        .shake { animation: s 0.1s 10; }
-        @keyframes s { 0%, 100% {transform:translate(0,0)} 25% {transform:translate(5px,5px)} 50% {transform:translate(-5px,-5px)} }
-        
-        #login-box { background: white; padding: 40px; border-radius: 12px; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.3); width: 350px; }
+        /* PANEL DERECHO: FOTOS DE AMBOS (MSN STYLE) */
+        #sidebar-right { width: 220px; background: #fdfdfd; display: flex; flex-direction: column; align-items: center; padding: 20px 10px; gap: 40px; }
+        .frame { display: flex; flex-direction: column; align-items: center; width: 100%; }
+        .avatar-big { width: 140px; height: 140px; border: 6px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border-radius: 10px; object-fit: cover; background: #eee; }
+        .name-label { margin-top: 10px; font-weight: bold; color: var(--msn-blue); font-size: 14px; text-align: center; }
+
+        /* EMOTES Y BOTONES */
+        .emote-img { width: 22px; height: 22px; vertical-align: middle; margin: 0 2px; }
+        .tool-bar { display: flex; gap: 10px; margin-top: 10px; align-items: center; }
+        .tool-btn { background: white; border: 1px solid #ccc; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 5px; }
+        .tool-btn:hover { background: #f0f0f0; }
+
+        #login-box { background: white; padding: 45px; border-radius: 15px; width: 380px; text-align: center; box-shadow: 0 20px 80px rgba(0,0,0,0.5); }
         .hidden { display: none !important; }
-        .btn-msn { padding: 6px 12px; border: 1px solid #ccc; background: white; border-radius: 4px; cursor: pointer; font-size: 12px; }
-        .btn-msn:hover { background: #f0f0f0; }
+        .shake { animation: s 0.1s 10; }
+        @keyframes s { 0%, 100% {transform:translate(0,0)} 25% {transform:translate(6px,6px)} 50% {transform:translate(-6px,-6px)} }
     </style>
 </head>
 <body>
 
     <div id="login-box">
-        <h2 style="color:var(--msn-blue); margin-bottom:20px;">THE REALS MSN</h2>
-        <input id="u" placeholder="Usuario" style="display:block; margin:10px auto; padding:12px; width:100%; border: 1px solid #ccc; border-radius: 6px;">
-        <input id="p" type="password" placeholder="Clave" style="display:block; margin:10px auto; padding:12px; width:100%; border: 1px solid #ccc; border-radius: 6px;">
-        <button onclick="login()" style="width:100%; padding:12px; background:var(--msn-blue); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold; margin-top: 10px;">Iniciar Sesión</button>
+        <h2 style="color:var(--msn-blue); margin-bottom:25px;">THE REALS MSN</h2>
+        <input id="u" placeholder="Nombre de usuario" style="width:100%; padding:14px; margin-bottom:15px; border:1px solid #ccc; border-radius:8px;">
+        <input id="p" type="password" placeholder="Contraseña" style="width:100%; padding:14px; margin-bottom:20px; border:1px solid #ccc; border-radius:8px;">
+        <button onclick="login()" style="width:100%; padding:14px; background:var(--msn-blue); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; font-size:16px;">Iniciar Sesión</button>
     </div>
 
     <div id="app-container">
         <div id="window-header">
-            <span style="font-weight:bold; color:var(--msn-blue);">Messenger - The Reals 2026</span>
-            <button class="btn-msn" onclick="document.getElementById('m-edit').classList.toggle('hidden')">Mi Perfil</button>
+            <div class="my-info">
+                <img id="my-avatar-top" src="">
+                <div>
+                    <b id="my-name-top" style="color:var(--msn-blue);">Cargando...</b><br>
+                    <small id="my-desc-top" style="color:#666;">¿En qué piensas?</small>
+                </div>
+            </div>
+            <button onclick="openEdit()" style="background:none; border:1px solid #a0b5d0; padding:5px 15px; cursor:pointer; border-radius:4px; font-size:11px;">Editar Perfil</button>
         </div>
+
         <div id="main-layout">
             <div id="sidebar-left">
-                <div class="cat">Salas</div>
-                <div id="group-list">
-                    <button class="user-item" onclick="changeChat('conversando', 'Conversando', '', 'Sala General')">
-                        <div class="avatar-min" style="background: #0055e5;"></div> 
-                        <div class="user-info"><b>Conversando</b><span>Chat de todos</span></div>
-                    </button>
-                    <button class="user-item" onclick="changeChat('juegos', 'Juegos', '', 'Comunidad Gamer')">
-                        <div class="avatar-min" style="background: #ff8800;"></div> 
-                        <div class="user-info"><b>Juegos</b><span>Espacio Gaming</span></div>
-                    </button>
-                    <button class="user-item" onclick="changeChat('solotodo', 'Solotodo', '', 'Hardware y Ofertas')">
-                        <div class="avatar-min" style="background: #00aa00;"></div> 
-                        <div class="user-info"><b>Solotodo</b><span>Hardware Chat</span></div>
-                    </button>
-                </div>
-                <div class="cat">Contactos</div>
-                <div id="contact-list" style="overflow-y:auto; flex:1;"></div>
+                <div class="cat-title">SALAS DEL GRUPO</div>
+                <button class="user-item" onclick="changeChat('conversando', 'Conversando', '', 'Sala General de Chat')">
+                    <div class="avatar-min" style="background:#0055e5;"></div> <div><b>Conversando</b><br><span class="user-status-text">Pública</span></div>
+                </button>
+                <button class="user-item" onclick="changeChat('juegos', 'Juegos', '', 'Comunidad Gamer')">
+                    <div class="avatar-min" style="background:#ff8800;"></div> <div><b>Juegos</b><br><span class="user-status-text">Pública</span></div>
+                </button>
+                <button class="user-item" onclick="changeChat('solotodo', 'Solotodo', '', 'Ofertas Hardware')">
+                    <div class="avatar-min" style="background:#00aa00;"></div> <div><b>Solotodo</b><br><span class="user-status-text">Pública</span></div>
+                </button>
+                
+                <div class="cat-title">CONTACTOS ONLINE</div>
+                <div id="contact-list" style="flex:1; overflow-y:auto;"></div>
             </div>
 
             <div id="chat-main">
                 <div id="msgs"></div>
-                <div id="input-panel">
-                    <textarea id="in-msg" placeholder="Escribe un mensaje..."></textarea>
-                    <div style="display:flex; gap:10px; margin-top:8px; align-items:center;">
-                        <button class="btn-msn" onclick="sendBuzz()">🔔 Zumbido</button>
-                        <button class="btn-msn" onclick="document.getElementById('up-img').click()">🖼️ Foto</button>
-                        <button class="btn-msn" onclick="document.getElementById('up-aud').click()">🎵 Audio</button>
-                        <button onclick="sendText()" style="margin-left:auto; background:var(--msn-blue); color:white; border:none; padding:8px 25px; border-radius:4px; cursor:pointer; font-weight:bold;">Enviar</button>
+                <div id="input-area">
+                    <textarea id="in-msg" placeholder="Escribe un mensaje aquí..."></textarea>
+                    <div class="tool-bar">
+                        <button class="tool-btn" onclick="sendBuzz()">🔔 Zumbido</button>
+                        <button class="tool-btn" onclick="document.getElementById('up-img').click()">🖼️ Imagen</button>
+                        <button class="tool-btn" onclick="document.getElementById('up-aud').click()">🎵 Audio</button>
                         
                         <input type="file" id="up-img" class="hidden" accept="image/*" onchange="upFile(this, 'img')">
                         <input type="file" id="up-aud" class="hidden" accept="audio/*" onchange="upFile(this, 'aud')">
+
+                        <button onclick="sendText()" style="margin-left:auto; background:var(--msn-blue); color:white; border:none; padding:8px 30px; border-radius:5px; font-weight:bold; cursor:pointer;">Enviar</button>
                     </div>
                 </div>
             </div>
 
             <div id="sidebar-right">
-                <img id="side-avatar" class="avatar-big" src="https://via.placeholder.com/130?text=MSN">
-                <div id="side-name">Conversando</div>
-                <div id="side-status">Sala General</div>
+                <div class="frame">
+                    <img id="side-avatar-target" class="avatar-big" src="">
+                    <div id="side-name-target" class="name-label">Conversando</div>
+                </div>
+                <div class="frame">
+                    <img id="side-avatar-me" class="avatar-big" src="">
+                    <div class="name-label" style="color:#666;">(Tú)</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="m-edit" class="hidden" style="position:fixed; top:25%; left:35%; background:white; padding:30px; border:2px solid var(--msn-blue); z-index:1000; box-shadow:0 0 100px rgba(0,0,0,0.5); border-radius:12px; width:340px;">
-        <h3 style="margin-bottom:15px; color:var(--msn-blue)">Mi Perfil</h3>
-        Estado:<br> <input id="new-desc" style="width:100%; margin-top:5px; margin-bottom:20px; padding:10px; border:1px solid #ccc; border-radius:4px;"><br>
-        Foto:<br> <input type="file" id="new-foto" accept="image/*" style="margin-top:5px; margin-bottom:25px;"><br>
-        <button onclick="saveProfile()" style="background:var(--msn-blue); color:white; padding:10px; border:none; cursor:pointer; width:100%; border-radius:6px; font-weight:bold;">Guardar Cambios</button>
-        <button onclick="document.getElementById('m-edit').classList.add('hidden')" style="width:100%; margin-top:10px; background:none; border:none; color:gray; cursor:pointer;">Cerrar</button>
+    <div id="m-edit" class="hidden" style="position:fixed; top:20%; left:35%; background:white; padding:30px; border:2px solid var(--msn-blue); z-index:2000; box-shadow:0 0 100px rgba(0,0,0,0.5); border-radius:15px; width:360px;">
+        <h3 style="margin-bottom:20px;">Personalizar mi MSN</h3>
+        Nuevo Estado:<br> <input id="new-desc" style="width:100%; padding:10px; margin:10px 0; border:1px solid #ccc;">
+        Nueva Foto:<br> <input type="file" id="new-foto" accept="image/*" style="margin:10px 0;">
+        <button onclick="saveProfile()" style="width:100%; padding:12px; background:var(--msn-blue); color:white; border:none; cursor:pointer; font-weight:bold; border-radius:6px;">Guardar Cambios</button>
+        <button onclick="closeEdit()" style="width:100%; margin-top:10px; background:none; border:none; color:gray; cursor:pointer;">Cancelar</button>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -117,67 +130,67 @@
         const socket = io();
         let me = localStorage.getItem('msn_user') || "";
         let curTarget = 'conversando';
-        
+        let myProfileData = {};
+
         const emotes = { 
             ':)': 'https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/32/emoji_u1f642.png',
             ':P': 'https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/32/emoji_u1f61b.png',
             '(H)': 'https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/32/emoji_u1f60e.png',
-            ':D': 'https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/32/emoji_u1f604.png'
+            ':D': 'https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/32/emoji_u1f604.png',
+            ':(': 'https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/32/emoji_u1f641.png',
+            ';)': 'https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/32/emoji_u1f609.png'
         };
 
-        // Autologin
-        if(me) {
-            socket.emit('login', { user: me, pass: localStorage.getItem('msn_pass') });
-        }
+        if(me) socket.emit('login', { user: me, pass: localStorage.getItem('msn_pass') });
 
-        function login() { 
-            const u = document.getElementById('u').value;
-            const p = document.getElementById('p').value;
+        function login() {
+            const u = document.getElementById('u').value, p = document.getElementById('p').value;
             if(u && p) {
-                localStorage.setItem('msn_user', u);
-                localStorage.setItem('msn_pass', p);
-                socket.emit('login', { user: u, pass: p }); 
+                localStorage.setItem('msn_user', u); localStorage.setItem('msn_pass', p);
+                socket.emit('login', { user: u, pass: p });
             }
         }
 
         socket.on('login_status', res => {
             if(res.success) {
-                me = res.user;
+                me = res.user; myProfileData = res.perfil;
                 document.getElementById('login-box').classList.add('hidden');
                 document.getElementById('app-container').style.display = 'flex';
-                // Solo cargar historial si estamos en la sala inicial
+                updateMyVisuals();
                 res.history.forEach(m => render(m));
-            } else {
-                localStorage.clear();
-                alert("Usuario o clave incorrecta");
-            }
+            } else { localStorage.clear(); alert("Error de acceso"); }
         });
+
+        function updateMyVisuals() {
+            const foto = myProfileData.foto || "https://via.placeholder.com/140?text=YO";
+            document.getElementById('my-avatar-top').src = foto;
+            document.getElementById('side-avatar-me').src = foto;
+            document.getElementById('my-name-top').innerText = me;
+            document.getElementById('my-desc-top').innerText = myProfileData.descripcion;
+        }
 
         socket.on('lista_contactos', lista => {
             const container = document.getElementById('contact-list');
             container.innerHTML = "";
             lista.forEach(u => {
-                if(u.user === me) {
-                    // Actualizar mi propia info en el panel derecho si estoy chateando conmigo mismo o en sala
-                    if(curTarget === 'conversando') {
-                        document.getElementById('side-avatar').src = u.foto || "https://via.placeholder.com/130?text=MSN";
-                    }
-                    return;
+                if(u.user === me) { 
+                    myProfileData = u; 
+                    updateMyVisuals(); 
+                    return; 
                 }
-                const b = document.createElement('button');
-                b.className = "user-item";
-                const icon = u.foto ? `<img src="${u.foto}" class="avatar-min">` : `<div class="avatar-min" style="background:#ddd"></div>`;
-                b.innerHTML = `${icon} <div class="user-info"><b>${u.user}</b><span>${u.online ? 'En línea' : 'Desconectado'}</span></div>`;
-                b.onclick = () => changeChat(u.user, u.user, u.foto, u.descripcion);
-                container.appendChild(b);
+                const btn = document.createElement('button');
+                btn.className = "user-item";
+                const img = u.foto ? `<img src="${u.foto}" class="avatar-min">` : `<div class="avatar-min" style="background:#ccc"></div>`;
+                btn.innerHTML = `${img} <div><b>${u.user}</b><br><span class="user-status-text">${u.online ? 'Online' : 'Desconectado'} - ${u.descripcion}</span></div>`;
+                btn.onclick = () => changeChat(u.user, u.user, u.foto, u.descripcion);
+                container.appendChild(btn);
             });
         });
 
         function changeChat(target, name, img, status) {
             curTarget = target;
-            document.getElementById('side-name').innerText = name;
-            document.getElementById('side-status').innerText = status || "En línea";
-            document.getElementById('side-avatar').src = img || "https://via.placeholder.com/130?text=" + name;
+            document.getElementById('side-name-target').innerText = name;
+            document.getElementById('side-avatar-target').src = img || "https://via.placeholder.com/140?text=" + name;
             document.getElementById('msgs').innerHTML = "";
             socket.emit('get_private_history', target);
         }
@@ -192,20 +205,17 @@
 
         function upFile(el, tipo) {
             const f = el.files[0];
+            if(!f) return;
             const r = new FileReader();
             r.onload = () => socket.emit('chat message', { to: curTarget, tipo, archivo: r.result });
             r.readAsDataURL(f);
+            el.value = ""; // Reset para poder subir el mismo archivo
         }
 
         socket.on('chat message', m => {
-            // Lógica de filtrado de mensajes según chat activo
-            const esMismoTarget = (m.to === curTarget || m.user === curTarget);
-            const esSalaGeneral = (curTarget === 'conversando' && (!m.to || m.to === 'conversando'));
-            const esMiPropioMensajeEnSala = (m.user === me && m.to === curTarget);
-
-            if(esMismoTarget || esSalaGeneral || esMiPropioMensajeEnSala) {
-                render(m);
-            }
+            const isForMe = (m.to === curTarget || m.user === curTarget || (curTarget === 'conversando' && m.to === 'conversando'));
+            if(isForMe) render(m);
+            
             if(m.isBuzz) {
                 document.getElementById('app-container').classList.add('shake');
                 setTimeout(()=>document.getElementById('app-container').classList.remove('shake'), 600);
@@ -223,37 +233,38 @@
         function render(m) {
             const container = document.getElementById('msgs');
             const d = document.createElement('div');
-            d.style.marginBottom = "12px";
             
-            let c = m.text || "";
-            for(let e in emotes) c = c.split(e).join(`<img src="${emotes[e]}" class="emote-img">`);
+            let content = m.text || "";
+            // RESTAURAR EMOTICONES
+            for(let code in emotes) {
+                content = content.split(code).join(`<img src="${emotes[code]}" class="emote-img">`);
+            }
             
-            if(m.tipo === 'img') c = `<img src="${m.archivo}" style="max-width:280px; border-radius:8px; display:block; margin-top:8px; border: 1px solid #ddd;">`;
-            if(m.tipo === 'aud') c = `<audio controls src="${m.archivo}" style="display:block; margin-top:8px;"></audio>`;
-            if(m.tipo === 'zumbido') c = `<span style="color:red; font-weight:bold;">¡ZUMBIDO!</span>`;
+            if(m.tipo === 'img') content = `<img src="${m.archivo}" style="max-width:300px; border-radius:8px; border:1px solid #ddd; margin-top:5px; display:block;">`;
+            if(m.tipo === 'aud') content = `<audio controls src="${m.archivo}" style="margin-top:5px; display:block;"></audio>`;
+            if(m.tipo === 'zumbido') content = `<span style="color:red; font-weight:bold; font-size:12px;">¡Ha enviado un zumbido!</span>`;
 
-            d.innerHTML = `<b style="color:var(--msn-blue); font-size:13px;">${m.user}:</b><br><span style="font-size:14px; color:#333;">${c}</span>`;
+            d.innerHTML = `<b style="color:var(--msn-blue); font-size:13px;">${m.user} dice:</b><br><span style="font-size:13px; color:#333;">${content}</span>`;
             container.appendChild(d);
             container.scrollTop = container.scrollHeight;
         }
 
+        // PERFIL
+        function openEdit() { document.getElementById('m-edit').classList.remove('hidden'); }
+        function closeEdit() { document.getElementById('m-edit').classList.add('hidden'); }
+        
         function saveProfile() {
             const f = document.getElementById('new-foto').files[0];
             const d = document.getElementById('new-desc').value;
-            
-            const finalize = (fotoData) => {
-                socket.emit('update_profile', { desc: d, foto: fotoData });
-                document.getElementById('m-edit').classList.add('hidden');
-                // IMPORTANTE: NO usamos location.reload()
+            const send = (fData) => {
+                socket.emit('update_profile', { desc: d, foto: fData });
+                closeEdit();
             };
-
             if(f) {
                 const r = new FileReader();
-                r.onload = () => finalize(r.result);
+                r.onload = () => send(r.result);
                 r.readAsDataURL(f);
-            } else {
-                finalize(null);
-            }
+            } else send(null);
         }
     </script>
 </body>
