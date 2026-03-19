@@ -1,15 +1,129 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>MSN Rústico</title>
+    <meta charset="UTF-8">
+    <title>Black MSN Rústico</title>
     <style>
-        body { background-color: #008080; font-family: sans-serif; display: flex; justify-content: center; padding-top: 50px; }
-        #msn-window { width: 400px; background: #ece9d8; border: 2px solid #7a7a7a; padding: 10px; box-shadow: 5px 5px 15px rgba(0,0,0,0.5); }
-        #messages { height: 300px; background: white; border: 1px inset gray; overflow-y: scroll; margin-bottom: 10px; padding: 5px; list-style: none; }
-        input { width: 70%; padding: 5px; }
-        button { padding: 5px; cursor: pointer; background: #e1e1e1; border: 1px solid #7a7a7a; }
+        /* --- ESTILO GLOBAL Y MODO OSCURO --- */
+        body { 
+            background-color: #1a1a1a; /* Fondo casi negro */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            padding-top: 30px; 
+            color: #e0e0e0; /* Texto gris claro */
+        }
+
+        /* --- VENTANA PRINCIPAL ESTILO MSN --- */
+        #msn-window { 
+            width: 420px; 
+            background: #2d2d2d; /* Fondo de ventana gris oscuro */
+            border: 2px solid #404040; /* Borde sutil */
+            padding: 10px; 
+            border-radius: 8px; /* Bordes ligeramente redondeados */
+            box-shadow: 0px 10px 30px rgba(0,0,0,0.7); /* Sombra profunda */
+            position: relative;
+        }
+
+        /* --- BARRA DE TÍTULO --- */
+        #title-bar { 
+            background: linear-gradient(to right, #333, #555); /* Degradado oscuro */
+            color: #fff; 
+            padding: 8px; 
+            font-weight: bold; 
+            font-size: 14px;
+            margin-bottom: 15px; 
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* --- ÁREA DE MENSAJES --- */
+        #messages-container {
+            background: #1f1f1f; /* Fondo de chat más oscuro */
+            border: 1px inset #404040; 
+            border-radius: 4px;
+            height: 320px; 
+            overflow-y: scroll; 
+            margin-bottom: 10px; 
+            padding: 10px;
+        }
+
+        #messages { list-style: none; padding: 0; margin: 0; }
         
-        /* Animación del Zumbido */
+        #messages li { 
+            margin-bottom: 8px; 
+            font-size: 13px; 
+            line-height: 1.4;
+            word-wrap: break-word; /* Para que textos largos no rompan la ventana */
+        }
+
+        /* Estilo para los nombres de usuario */
+        #messages li strong { color: #8ab4f8; /* Azul claro para nicks */ }
+        
+        /* Estilo para mensajes del sistema/zumbido */
+        #messages li.system-msg { color: #ff6b6b; font-style: italic; text-align: center; }
+
+        /* --- ÁREA DE ENTRADA (Input y Botones) --- */
+        #input-area {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        input { 
+            flex-grow: 1; /* Ocupa el espacio disponible */
+            padding: 8px; 
+            background-color: #3d3d3d; /* Input oscuro */
+            border: 1px solid #555; 
+            color: #fff; 
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        input:focus { outline: none; border-color: #8ab4f8; }
+
+        button { 
+            padding: 8px 15px; 
+            cursor: pointer; 
+            background: #444; /* Botones oscuros */
+            border: 1px solid #555; 
+            color: #e0e0e0;
+            border-radius: 4px;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+        
+        button:hover { background: #555; }
+
+        /* Botón de Zumbido especial */
+        #buzz-btn { background: #802020; color: #ff9999; border-color: #a04040; font-weight: bold;}
+        #buzz-btn:hover { background: #a03030; }
+
+        /* --- PANEL DE EMOJIS --- */
+        #emoji-panel {
+            background: #333;
+            border: 1px solid #555;
+            border-radius: 4px;
+            padding: 5px;
+            margin-bottom: 5px;
+            display: none; /* Oculto por defecto */
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        
+        .emoji-btn {
+            background: none;
+            border: none;
+            padding: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        
+        .emoji-btn:hover { background: #444; }
+
+        /* --- ANIMACIÓN DEL ZUMBIDO (Modo Oscuro) --- */
         @keyframes shake {
             0% { transform: translate(2px, 2px); }
             20% { transform: translate(-4px, -4px); }
@@ -18,60 +132,130 @@
             100% { transform: translate(0, 0); }
         }
         .shake-effect { animation: shake 0.2s; animation-iteration-count: 3; }
+
+        /* --- SCROLLBAR ESTILO OSCURO (Rústico) --- */
+        #messages-container::-webkit-scrollbar { width: 8px; }
+        #messages-container::-webkit-scrollbar-track { background: #1f1f1f; }
+        #messages-container::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+        #messages-container::-webkit-scrollbar-thumb:hover { background: #777; }
+
     </style>
 </head>
 <body>
 
 <div id="msn-window">
-    <div style="background: linear-gradient(to right, #0055e4, #3bb2ff); color: white; padding: 5px; font-weight: bold; margin-bottom: 10px;">
-        MSN Messenger - Chat Rústico
+    <div id="title-bar">
+        <span>Black MSN - Chat Rústico</span>
+        <span style="font-size: 10px; color: #aaa;">v1.0</span>
     </div>
-    <ul id="messages"></ul>
-    <input id="input" autocomplete="off" placeholder="Escribe un mensaje..." />
-    <button onclick="sendMessage()">Enviar</button>
-    <button onclick="sendBuzz()" style="color: red; font-weight: bold;">!</button>
+    
+    <div id="messages-container">
+        <ul id="messages"></ul>
+    </div>
+
+    <div id="emoji-panel">
+        <button class="emoji-btn" onclick="addEmoji('😀')">😀</button>
+        <button class="emoji-btn" onclick="addEmoji('😂')">😂</button>
+        <button class="emoji-btn" onclick="addEmoji('😉')">😉</button>
+        <button class="emoji-btn" onclick="addEmoji('😮')">😮</button>
+        <button class="emoji-btn" onclick="addEmoji('😢')">😢</button>
+        <button class="emoji-btn" onclick="addEmoji('😠')">😠</button>
+        <button class="emoji-btn" onclick="addEmoji('👍')">👍</button>
+        <button class="emoji-btn" onclick="addEmoji('❤️')">❤️</button>
+    </div>
+
+    <div id="input-area">
+        <button type="button" onclick="toggleEmojiPanel()" style="padding: 8px 10px;">😊</button>
+        <input id="input" autocomplete="off" placeholder="Escribe un mensaje..." onkeypress="handleKeyPress(event)" />
+        <button onclick="sendMessage()">Enviar</button>
+        <button id="buzz-btn" onclick="sendBuzz()">Z!</button>
+    </div>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
     var socket = io();
+    var input = document.getElementById('input');
+    var messagesList = document.getElementById('messages');
+    var messagesContainer = document.getElementById('messages-container');
+    var emojiPanel = document.getElementById('emoji-panel');
     
-    // --- ARREGLO DEL NICK ---
-    // Esto se ejecuta apenas carga la página
-    var nombre = prompt("¡Bienvenido! Escribe tu Nick para el MSN:");
+    // --- LÓGICA DEL NICK ---
+    var nombre = prompt("¡Bienvenido al Black MSN! Escribe tu Nick:");
     if (!nombre || nombre.trim() === "") {
         nombre = "Invitado_" + Math.floor(Math.random() * 1000);
     }
 
+    function handleKeyPress(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    }
+
     function sendMessage() {
-        var input = document.getElementById('input');
         if (input.value) {
+            // Ocultar panel de emojis si está abierto al enviar
+            emojiPanel.style.display = 'none';
             socket.emit('chat message', { user: nombre, text: input.value });
             input.value = '';
         }
     }
 
     function sendBuzz() {
+        // Ocultar panel de emojis
+        emojiPanel.style.display = 'none';
         socket.emit('chat message', { user: "SISTEMA", text: "ha enviado un ZUMBIDO", isBuzz: true });
     }
 
+    // --- LÓGICA DE EMOJIS ---
+    function toggleEmojiPanel() {
+        if (emojiPanel.style.display === 'flex') {
+            emojiPanel.style.display = 'none';
+        } else {
+            emojiPanel.style.display = 'flex';
+            input.focus(); // Mantener el foco en el input
+        }
+    }
+
+    function addEmoji(emoji) {
+        input.value += emoji; // Añade el emoji al final del texto actual
+        input.focus(); // Devuelve el foco al input
+    }
+
+    // --- RECIBIR MENSAJES ---
     socket.on('chat message', function(data) {
         var item = document.createElement('li');
-        item.innerHTML = `<strong>${data.user}:</strong> ${data.text}`;
-        document.getElementById('messages').appendChild(item);
         
-        // Si es un zumbido, hacemos vibrar la ventana
         if (data.isBuzz) {
+            item.classList.add('system-msg');
+            item.innerHTML = `<strong>${data.user}</strong> ${data.text}`;
+            
+            // Efecto de Zumbido
             document.getElementById('msn-window').classList.add('shake-effect');
             setTimeout(() => {
                 document.getElementById('msn-window').classList.remove('shake-effect');
             }, 600);
+            
+            // (Opcional) Sonido rústico de beep si el navegador lo permite
+            // let context = new AudioContext();
+            // let osc = context.createOscillator();
+            // osc.type = "sine"; osc.frequency.value = 400; osc.connect(context.destination);
+            // osc.start(); setTimeout(()=>osc.stop(), 200);
+
+        } else if (data.user === "SISTEMA") {
+             item.classList.add('system-msg');
+             item.innerHTML = data.text;
+        } else {
+            // Mensaje normal: formateamos el texto para que los emojis se vean bien
+            item.innerHTML = `<strong>${data.user}:</strong> ${data.text}`;
         }
         
+        messagesList.appendChild(item);
+        
         // Auto-scroll al final
-        var objDiv = document.getElementById("messages");
-        objDiv.scrollTop = objDiv.scrollHeight;
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     });
+
 </script>
 </body>
 </html>
