@@ -14,7 +14,7 @@ db.serialize(() => {
     db.run("CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, user TEXT, to_user TEXT, text TEXT, isBuzz INTEGER, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)");
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname));
 
 // Almacén de sockets para saber quién es quién
 let activeSockets = {};
