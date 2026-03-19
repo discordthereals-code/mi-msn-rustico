@@ -15,34 +15,34 @@
         /* CHAT WINDOW */
         #chat-window { display: none; width: 100%; max-width: 800px; height: 100vh; background: #141414; flex-direction: column; border-left: 1px solid #333; border-right: 1px solid #333; }
         #title-bar { background: #222; color: #ffff00; padding: 15px; border-bottom: 2px solid #ffff00; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
-        #messages-container { flex-grow: 1; overflow-y: auto; padding: 20px; }
+        #messages-container { flex-grow: 1; overflow-y: auto; padding: 20px; background: #0f0f0f; }
         
-        /* BURBUJAS */
+        /* MENSAJES */
         #messages { list-style: none; padding: 0; margin: 0; }
         .msg-item { margin-bottom: 12px; padding: 10px; border-radius: 8px; background: #1f1f1f; border-left: 4px solid #ffff00; }
         .msg-time { font-size: 11px; color: #666; margin-right: 10px; }
         .msg-user { color: #ffff00; font-weight: bold; margin-right: 8px; }
-        .chat-img { max-width: 100%; max-height: 280px; border-radius: 8px; margin-top: 10px; border: 1px solid #333; }
+        .chat-img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid #333; }
         audio { height: 35px; margin-top: 10px; filter: invert(1); width: 100%; max-width: 250px; }
 
         /* VISTA PREVIA AUDIO */
         #voice-preview { display: none; background: #222; padding: 15px; border-top: 2px solid #ff4444; align-items: center; justify-content: space-between; gap: 10px; }
-        .btn-action { border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-
+        
         /* INPUT AREA */
         #input-area { padding: 15px; background: #1a1a1a; border-top: 1px solid #333; }
         .controls { display: flex; gap: 10px; align-items: center; }
         #msg-input { flex-grow: 1; padding: 12px 18px; background: #252525; border: 1px solid #444; color: white; border-radius: 25px; outline: none; }
         
-        /* BOTONES REDONDOS (EL CLIP ESTÁ AQUÍ) */
-        .btn-round { background: #333; border: none; border-radius: 50%; width: 45px; height: 45px; cursor: pointer; color: white; font-size: 20px; transition: 0.2s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        /* BOTONES REDONDOS (Clip y Mic) */
+        .btn-round { background: #333; border: none; border-radius: 50%; width: 45px; height: 45px; cursor: pointer; color: white; font-size: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .btn-round:active { transform: scale(0.9); }
         .btn-mic.recording { background: #ff4444; animation: pulse 1s infinite; }
         .btn-send { background: #ffff00; color: black; border-radius: 12px; padding: 0 20px; font-weight: bold; height: 45px; border: none; cursor: pointer; }
 
         @keyframes pulse { 50% { opacity: 0.4; } }
-        @keyframes shake { 0%, 100% { transform: translate(0,0); } 10%, 30%, 50%, 70%, 90% { transform: translate(-6px, -6px); } 20%, 40%, 60%, 80% { transform: translate(6px, 6px); } }
-        .shake-effect { animation: shake 0.3s; }
+        /* SACUDIDA ORIGINAL QUE TE GUSTÓ */
+        @keyframes shake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(8px,8px); } 50% { transform: translate(-8px,-8px); } }
+        .shake-effect { animation: shake 0.1s 6; }
     </style>
 </head>
 <body>
@@ -50,30 +50,29 @@
 <div id="login-screen">
     <h1 style="color:#ffff00; margin-bottom:20px;">THE REALS</h1>
     <input type="text" id="user" class="login-input" placeholder="Nombre">
-    <input type="password" id="pass" class="login-input" placeholder="Clave">
+    <input type="password" id="pass" class="login-input" placeholder="Contraseña">
     <button class="btn-yellow" onclick="login()">ENTRAR</button>
 </div>
 
 <div id="chat-window">
     <div id="title-bar">
-        <span id="tema-title">THE REALS</span>
-        <span style="font-size: 11px; color: #777; cursor: pointer" onclick="location.reload()">Cerrar Sesión</span>
+        <span id="tema-title">CARGANDO...</span>
+        <span style="font-size: 11px; color: #777; cursor: pointer" onclick="location.reload()">Cerrar</span>
     </div>
     <div id="messages-container"><ul id="messages"></ul></div>
+    
     <div id="voice-preview">
-        <div style="display:flex; align-items:center; gap:10px; flex-grow:1;">
-            <span style="font-size:20px;">🎙️</span>
-            <audio id="audio-playback" controls style="flex-grow:1;"></audio>
-        </div>
+        <audio id="audio-playback" controls></audio>
         <div style="display:flex; gap:5px;">
-            <button class="btn-action" onclick="cancelAudio()" style="background:#444; color:white;">Borrrar</button>
-            <button class="btn-action" onclick="sendAudio()" style="background:#ffff00; color:black;">Enviar</button>
+            <button onclick="cancelAudio()" style="background:#444; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer;">Borrar</button>
+            <button onclick="sendAudio()" style="background:#ffff00; color:black; border:none; padding:8px 12px; border-radius:5px; font-weight:bold; cursor:pointer;">Enviar</button>
         </div>
     </div>
+
     <div id="input-area">
         <div class="controls">
             <input type="file" id="file-input" style="display:none" accept="image/*" onchange="sendFile(this)">
-            <button class="btn-round" onclick="document.getElementById('file-input').click()" title="Imagen">📎</button>
+            <button class="btn-round" onclick="document.getElementById('file-input').click()">📎</button>
             
             <input id="msg-input" placeholder="Escribe un mensaje..." onkeypress="if(event.key==='Enter')sendText()">
             
@@ -105,7 +104,10 @@
         } else if(res.msg) alert(res.msg);
     });
 
-    socket.on('actualizar_tema', t => document.getElementById('tema-title').innerText = t);
+    // --- MEJORA: ACTUALIZACIÓN DE TEMA EN TIEMPO REAL ---
+    socket.on('actualizar_tema', (t) => {
+        document.getElementById('tema-title').innerText = t;
+    });
 
     const getH = () => new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
@@ -126,15 +128,15 @@
             const reader = new FileReader();
             reader.onload = e => socket.emit('chat message', { user: miUser, img: e.target.result, time: getH() });
             reader.readAsDataURL(input.files[0]);
-            input.value = ""; // Limpiar
+            input.value = "";
         }
     }
 
+    // --- AUDIO CON CANCELACIÓN DE RUIDO ---
     async function handleMic() {
         const btn = document.getElementById('mic-btn');
         if (!recorder || recorder.state === "inactive") {
             try {
-                // Filtros activados para sonido nítido (Noise Suppression y Echo Cancellation)
                 const stream = await navigator.mediaDevices.getUserMedia({ 
                     audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } 
                 });
@@ -150,11 +152,11 @@
                         document.getElementById('audio-playback').src = currentAudioBase64;
                         document.getElementById('voice-preview').style.display = 'flex';
                     };
-                    stream.getTracks().forEach(track => track.stop());
+                    stream.getTracks().forEach(t => t.stop());
                 };
                 recorder.start();
                 btn.classList.add('recording');
-            } catch(e) { alert("❌ Error: No se pudo usar el micro."); }
+            } catch(e) { alert("Error de micro"); }
         } else {
             recorder.stop();
             btn.classList.remove('recording');
@@ -173,36 +175,18 @@
         }
     }
 
-    // --- SONIDO DE ZUMBIDO POTENTE (Mezcla de Sawtooth y Square) ---
+    // --- EL ZUMBIDO ELECTRÓNICO QUE TE GUSTÓ (SAWTOOTH 440Hz) ---
     function playBuzzSound() {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        
-        // Creamos dos osciladores para un sonido más rico y potente
-        const o1 = ctx.createOscillator();
-        const o2 = ctx.createOscillator();
-        const g = ctx.createGain();
-        
-        // Sawtooth para la agresividad del Brrrr
-        o1.type = 'sawtooth';
-        o1.frequency.setValueAtTime(160, ctx.currentTime);
-        
-        // Square para la fuerza
-        o2.type = 'square';
-        o2.frequency.setValueAtTime(110, ctx.currentTime);
-        
-        // Ganancia inicial fuerte pero rápida
-        g.gain.setValueAtTime(0.4, ctx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
-        
-        o1.connect(g);
-        o2.connect(g);
-        g.connect(ctx.destination);
-        
-        o1.start();
-        o2.start();
-        
-        o1.stop(ctx.currentTime + 0.5);
-        o2.stop(ctx.currentTime + 0.5);
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(440, ctx.currentTime);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(); 
+        osc.stop(ctx.currentTime + 0.5);
     }
 
     socket.on('chat message', (m) => {
@@ -211,19 +195,24 @@
             playBuzzSound();
             const win = document.getElementById('chat-window');
             win.classList.add('shake-effect');
-            setTimeout(() => win.classList.remove('shake-effect'), 400);
+            setTimeout(() => win.classList.remove('shake-effect'), 600);
         }
     });
 
     function render(m) {
+        const messagesUl = document.getElementById('messages');
         const li = document.createElement('li');
         li.className = "msg-item";
-        let body = `<span class="msg-time">${m.time}</span> <span class="msg-user">${m.user}:</span> `;
-        if(m.audio) body += `<br><audio controls src="${m.audio}"></audio>`;
-        else if(m.img) body += `<br><img src="${m.img}" class="chat-img">`;
-        else body += m.text;
-        li.innerHTML = body;
-        document.getElementById('messages').appendChild(li);
+        
+        let header = `<span class="msg-time">${m.time}</span> <span class="msg-user">${m.user}:</span> `;
+        let body = "";
+        
+        if(m.audio) body = `<br><audio controls src="${m.audio}"></audio>`;
+        else if(m.img) body = `<br><img src="${m.img}" class="chat-img">`;
+        else body = m.text;
+
+        li.innerHTML = header + body;
+        messagesUl.appendChild(li);
         document.getElementById('messages-container').scrollTop = 999999;
     }
 </script>
