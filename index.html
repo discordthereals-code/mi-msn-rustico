@@ -205,7 +205,7 @@
             flex: 1;
         }
 
-        .c-name { font-size: 13px; font-weight: bold; color: #333; }
+        .c-name { font-size: 13px; font-weight: bold; color: #333; display: flex; align-items: center; }
         .c-status { font-size: 11px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         .badge-notify {
@@ -329,11 +329,10 @@
             padding-top: 30px;
         }
 
-        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 4px; flex-shrink: 0; }
         .online { background: var(--status-online); }
         .offline { background: var(--status-offline); }
 
-        /* ZUMBIDO: ANIMACIÓN MÁS FUERTE */
         .nudge-shake { animation: nudge-action 0.1s 12; }
         @keyframes nudge-action {
             0% { transform: translate(0,0); }
@@ -385,7 +384,7 @@
         .login-input:focus { border-color: var(--msn-blue); }
 
         /* ==================================================== */
-        /* RESPONSIVE PARA ANDROID TOTALMENTE AFINADO Y ORDENADO */
+        /* RESPONSIVE PARA ANDROID (AHORA SÍ SE VE EL NOMBRE Y EL PUNTO) */
         /* ==================================================== */
         @media (max-width: 900px) {
             #app { height: 100%; max-height: 100vh; width: 100vw; border: none; border-radius: 0; }
@@ -396,7 +395,6 @@
             
             main { flex-direction: column; overflow: hidden; }
             
-            /* Panel Izquierdo: Ahora es una barra superior deslizable tipo "Stories" */
             #sidebar-left { 
                 width: 100%; height: auto; border-right: none; 
                 border-bottom: 1px solid #dcecfc; flex-direction: row; 
@@ -405,25 +403,29 @@
             }
             .category-label { display: none; }
             #dynamic-friends-list { display: flex; flex-direction: row; }
-            .contact-item { padding: 5px 10px; width: auto; border-bottom: none; justify-content: center; flex-direction: column; gap: 4px;}
-            .contact-item img { width: 45px; height: 45px; }
-            .c-info { display: none; } /* Ocultamos los textos para mantenerlo limpio */
+            
+            /* Ajuste para los contactos: Avatar arriba, Nombre+Punto abajo */
+            .contact-item { padding: 5px 10px; width: auto; border-bottom: none; justify-content: flex-start; flex-direction: column; gap: 4px; align-items: center; }
+            .contact-item img { width: 45px; height: 45px; border-radius: 5px; }
+            
+            .c-info { display: flex; flex-direction: column; align-items: center; width: 100%; }
+            .c-name { font-size: 10px; font-weight: bold; justify-content: center; max-width: 65px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .c-status { display: none; } /* Seguimos ocultando la descripción para mantener el orden */
+            .status-dot { width: 7px; height: 7px; margin-right: 3px; }
+
             .badge-notify { top: 0; right: 5px; }
 
-            /* Panel Central: El chat ocupa todo el espacio libre */
             #chat-view { width: 100%; flex: 1; border-bottom: 1px solid #dcecfc; }
             #messages-wall { padding: 15px; }
             #input-zone { padding: 10px; gap: 8px; flex-direction: column; }
             #main-textarea { height: 50px; font-size: 14px; }
             .btn-send { width: 100%; padding: 10px; }
 
-            /* Panel Derecho: Queda fijo al fondo solo mostrando YouTube */
             #sidebar-right { 
                 width: 100%; padding: 10px; border-left: none; 
                 flex-shrink: 0; background: #fff; 
             }
             #yt-module { margin-bottom: 0; width: 100%; }
-            /* Se ocultan las fotos gigantes y redundancias en móvil */
             #target-avatar-big, #target-name-big, #target-status-big, #my-small-preview { display: none; } 
         }
     </style>
@@ -467,7 +469,7 @@
                 <button class="contact-item" onclick="switchToChat('conversando', 'Conversando', '/logo-conversando.png', 'Chat principal de la comunidad')">
                     <img src="/logo-conversando.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
                     <div class="c-info">
-                        <b class="c-name">Conversando</b>
+                        <b class="c-name"><span class="status-dot online"></span>Conversando</b>
                         <span class="c-status">Chat principal de la comunidad</span>
                     </div>
                     <span class="badge-notify" id="notify-conversando">0</span>
@@ -476,7 +478,7 @@
                 <button class="contact-item" onclick="switchToChat('juegos', 'Juegos', '/logo-juegos.png', 'Comunidad Gaming & Fun')">
                     <img src="/logo-juegos.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
                     <div class="c-info">
-                        <b class="c-name">Juegos</b>
+                        <b class="c-name"><span class="status-dot online"></span>Juegos</b>
                         <span class="c-status">Comunidad Gaming & Fun</span>
                     </div>
                     <span class="badge-notify" id="notify-juegos">0</span>
@@ -485,7 +487,7 @@
                 <button class="contact-item" onclick="switchToChat('solotodo', 'Solo Todo', '/logo-solotodo.png', 'Marketplace & Ofertas')">
                     <img src="/logo-solotodo.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
                     <div class="c-info">
-                        <b class="c-name">Solo Todo</b>
+                        <b class="c-name"><span class="status-dot online"></span>Solo Todo</b>
                         <span class="c-status">Ventas, compras y permutas</span>
                     </div>
                     <span class="badge-notify" id="notify-solotodo">0</span>
@@ -577,13 +579,24 @@
 
         const sndLogin = new Audio('https://raw.githubusercontent.com/pabluro/msn-assets/main/login.mp3');
         const sndMessage = new Audio('https://www.myinstants.com/media/sounds/messenger-mensaje.mp3');
-        // Zumbido modificado a un archivo clásico y directo
         const sndBuzz = new Audio('https://www.myinstants.com/media/sounds/msn-nudge.mp3');
 
+        // TRUCO PARA DESBLOQUEAR AUDIO EN MÓVILES
+        let audioUnlocked = false;
         function enableAudioContext() {
+            if(audioUnlocked) return;
             [sndLogin, sndMessage, sndBuzz].forEach(a => {
-                a.play().then(() => { a.pause(); a.currentTime = 0; }).catch(() => {});
+                a.volume = 0; // Silenciamos para el permiso
+                let playPromise = a.play();
+                if(playPromise !== undefined) {
+                    playPromise.then(() => {
+                        a.pause();
+                        a.currentTime = 0;
+                        a.volume = 1; // Devolvemos el volumen a la normalidad
+                    }).catch(() => {});
+                }
             });
+            audioUnlocked = true;
         }
 
         if(myUsername) {
@@ -591,6 +604,7 @@
         }
 
         function handleLoginAttempt() {
+            enableAudioContext(); // Forzamos el desbloqueo exactamente al tocar el botón
             const u = document.getElementById('login-u').value.trim();
             const p = document.getElementById('login-p').value.trim();
             if(!u || !p) return alert("Por favor, completa los campos.");
