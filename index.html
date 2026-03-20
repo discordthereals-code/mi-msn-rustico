@@ -2,819 +2,242 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MSN Messenger Elite 2026</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MSN Elite 2026 - Mobile Ultimate</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         /* ==========================================================================
-           VARIABLES GLOBALES Y PALETA DE COLORES
+           1. VARIABLES Y RESET
            ========================================================================== */
         :root {
             --msn-blue: #0055e5;
-            --msn-light: #e1eefc;
-            --msn-bg: #71ADFF;
-            --white: #ffffff;
-            --win-bg: #f0f7ff;
-            --header-grad: linear-gradient(to bottom, #fcfdfe 0%, #d6e8f7 100%);
-            --shadow-heavy: 0 10px 40px rgba(0,0,0,0.4);
-            --border-color: #b4c7de;
-            --yt-red: #FF0000;
+            --bg-light: #f4f8fc;
+            --border-color: #dcecfc;
+            --text-dark: #333;
+            --text-muted: #777;
             --nudge-red: #ff3b3b;
             --status-online: #31a24c;
-            --text-main: #333333;
-            --text-muted: #888888;
         }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: #e9eff5; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
 
         /* ==========================================================================
-           RESETEO BASE
-           ========================================================================== */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: var(--msn-bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: fixed;
-        }
-
-        /* ==========================================================================
-           CONTENEDOR PRINCIPAL DE LA APP
+           2. CONTENEDOR PRINCIPAL (ESTILO MÓVIL)
            ========================================================================== */
         #app {
-            display: none; /* Se muestra tras el login */
-            width: 1400px;
-            max-width: 100vw;
-            height: 920px;
-            max-height: 100vh;
-            background-color: var(--white);
-            display: flex;
-            flex-direction: column;
-            box-shadow: var(--shadow-heavy);
-            border: 2px solid #1c1c1c;
-            position: relative;
-        }
-
-        /* ==========================================================================
-           CABECERA (HEADER GLOBAL)
-           ========================================================================== */
-        header {
-            height: 160px;
-            background: var(--header-grad);
-            border-bottom: 2px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 30px;
-            gap: 25px;
-            flex-shrink: 0;
-        }
-
-        .my-avatar-container {
-            position: relative;
-        }
-
-        #my-avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 12px;
-            border: 4px solid var(--white);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            object-fit: cover;
-            cursor: pointer;
-            transition: transform 0.3s ease, border-color 0.3s ease;
-            background-color: #eeeeee;
-        }
-
-        #my-avatar:hover {
-            transform: scale(1.05);
-            border-color: var(--msn-blue);
-        }
-        
-        .user-info-box {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            flex-shrink: 1;
-            min-width: 0;
-        }
-
-        .name-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        #my-name-display {
-            font-size: 20px;
-            font-weight: bold;
-            color: var(--text-main);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        /* Reproductor YouTube Integrado */
-        #media-bar {
-            background-color: rgba(255, 255, 255, 0.7);
-            border: 1px solid #a0b5d0;
-            border-radius: 25px;
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            width: 500px;
-        }
-
-        #yt-input {
-            border: none;
-            background: transparent;
-            flex: 1;
-            outline: none;
-            font-size: 13px;
-            color: #444444;
-        }
-
-        .media-actions {
-            display: flex;
-            gap: 15px;
-            color: #555555;
-            font-size: 18px;
-        }
-
-        .media-actions i {
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .media-actions i:hover {
-            color: var(--msn-blue);
-            transform: scale(1.2);
-        }
-
-        /* ==========================================================================
-           ÁREA PRINCIPAL (SIDEBARS Y CHAT)
-           ========================================================================== */
-        main {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* --- Panel Izquierdo: Lista de Contactos --- */
-        #contacts-panel {
-            width: 380px;
-            border-right: 1px solid #dcecfc;
-            display: flex;
-            flex-direction: column;
-            background-color: #f8fbff;
-            flex-shrink: 0;
-        }
-
-        .section-title {
-            padding: 12px 25px;
-            font-size: 12px;
-            font-weight: 900;
-            color: #5a708a;
-            background-color: #edf4fb;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        #friends-container {
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        .contact-card {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 18px 25px;
-            border: none;
-            background: transparent;
+            display: none; /* Se oculta hasta el login */
             width: 100%;
-            text-align: left;
-            cursor: pointer;
-            border-bottom: 1px solid #f0f4f8;
-            transition: background-color 0.2s ease;
+            max-width: 500px;
+            height: 100vh;
+            background: #fff;
+            flex-direction: column;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
             position: relative;
         }
 
-        .contact-card:hover {
-            background-color: #e8f2ff;
+        /* ==========================================================================
+           3. CABECERAS (MI PERFIL Y CONTACTO ACTIVO)
+           ========================================================================== */
+        #my-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 15px; background: #eef4fb; border-bottom: 1px solid var(--border-color); flex-shrink: 0;
         }
+        .profile-left { display: flex; align-items: center; gap: 12px; }
+        .profile-left img { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; border: 1px solid #ccc; }
+        .profile-info b { font-size: 16px; color: var(--msn-blue); display: block; }
+        .profile-info span { font-size: 12px; color: var(--text-muted); font-style: italic; }
+        .profile-info .status { font-size: 11px; font-weight: bold; color: #555; margin-top: 2px; }
+        .btn-config { background: #fff; border: 1px solid #b4c7de; color: var(--msn-blue); padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; transition: 0.2s; }
+        .btn-config:active { transform: scale(0.95); }
 
-        .contact-card img {
-            width: 60px;
-            height: 60px;
-            border-radius: 6px;
-            border: 1px solid #dddddd;
-            object-fit: cover;
+        #target-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 15px; background: #fff; border-bottom: 1px solid #eee; flex-shrink: 0;
         }
+        .target-left { display: flex; align-items: center; gap: 12px; }
+        .target-left img { width: 45px; height: 45px; border-radius: 8px; border: 1px solid #ddd; object-fit: cover; }
+        .target-info b { font-size: 15px; color: var(--text-dark); display: flex; align-items: center; gap: 5px; }
+        .target-info .dot { width: 10px; height: 10px; background: var(--status-online); border-radius: 50%; }
+        .target-info span { font-size: 12px; color: var(--text-muted); }
 
-        .contact-text b {
-            font-size: 15px;
-            color: #222222;
-            display: block;
+        /* ==========================================================================
+           4. BARRA HORIZONTAL DE NAVEGACIÓN
+           ========================================================================== */
+        #horizontal-nav {
+            display: flex; overflow-x: auto; padding: 12px 15px; gap: 15px;
+            border-bottom: 1px solid #eee; background: #fff; scrollbar-width: none; flex-shrink: 0;
         }
+        #horizontal-nav::-webkit-scrollbar { display: none; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 65px; cursor: pointer; position: relative; }
+        .nav-item img { width: 55px; height: 55px; border-radius: 10px; border: 1px solid #ddd; object-fit: cover; }
+        .nav-item span { font-size: 11px; font-weight: bold; color: var(--text-dark); display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+        .nav-item .dot { width: 8px; height: 8px; border-radius: 50%; background: #ccc; }
+        .nav-item .dot.active { background: var(--status-online); }
+        .unread-badge { position: absolute; top: -3px; right: 2px; width: 14px; height: 14px; background: #ff8c00; border-radius: 50%; border: 2px solid #fff; display: none; }
 
-        .contact-text p {
-            font-size: 12px;
-            color: #777777;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 220px;
-        }
+        /* ==========================================================================
+           5. ÁREA DE CHAT Y MENSAJES
+           ========================================================================== */
+        #chat-area { flex: 1; overflow-y: auto; padding: 15px; background: #fff; display: flex; flex-direction: column; }
+        .msg-row { margin-bottom: 15px; animation: fadeIn 0.3s; }
+        .msg-head { font-size: 12px; font-weight: bold; color: var(--msn-blue); margin-bottom: 3px; display: flex; justify-content: space-between; }
+        .msg-time { color: #aaa; font-size: 10px; font-weight: normal; }
+        .msg-body { font-size: 14px; color: var(--text-dark); background: var(--bg-light); padding: 10px 12px; border-radius: 8px; display: inline-block; max-width: 95%; word-wrap: break-word; border: 1px solid var(--border-color); line-height: 1.4; }
+        .msg-body a { color: var(--msn-blue); font-weight: bold; text-decoration: underline; }
+
+        #typing-box { height: 20px; font-size: 11px; color: #2b9348; font-style: italic; font-weight: bold; padding: 0 15px; flex-shrink: 0; }
+
+        /* ==========================================================================
+           6. ZONA DE ESCRITURA Y YOUTUBE
+           ========================================================================== */
+        #input-area { padding: 15px; background: #f8fbff; border-top: 1px solid #eee; display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; }
+        .emojis { font-size: 22px; display: flex; gap: 10px; cursor: pointer; }
+        .btn-zumbido { background: #fff; border: 1px solid #ffcccc; color: var(--nudge-red); font-weight: bold; font-size: 11px; padding: 6px 12px; border-radius: 6px; display: flex; align-items: center; gap: 5px; cursor: pointer; transition: 0.2s; }
+        .btn-zumbido:active { transform: scale(0.95); }
         
-        .unread-indicator {
-            position: absolute;
-            top: 18px;
-            right: 25px;
-            width: 12px;
-            height: 12px;
-            background-color: #ff8c00;
-            border-radius: 50%;
-            display: none;
-            border: 2px solid var(--white);
-            box-shadow: 0 0 5px rgba(0,0,0,0.2);
-        }
+        #text-input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; outline: none; font-size: 14px; }
+        .btn-enviar { background: var(--msn-blue); color: #fff; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer; width: 100%; transition: 0.2s; }
+        .btn-enviar:active { background: #0044b8; }
 
-        .listening {
-            color: var(--msn-blue) !important;
-            font-weight: bold;
-            font-style: italic;
-            font-size: 11px;
-        }
-
-        /* --- Panel Central: Área de Chat --- */
-        #chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background-color: var(--white);
-            position: relative;
-        }
-
-        /* Encabezado Dinámico del Chat (Fiel a la imagen) */
-        #chat-top-header {
-            background: linear-gradient(to right, #f4f8fc, #ffffff);
-            padding: 15px 25px;
-            border-bottom: 1px solid #dcecfc;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex-shrink: 0;
-        }
-
-        #chat-top-avatar {
-            width: 65px;
-            height: 65px;
-            border-radius: 10px;
-            border: 2px solid var(--white);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            object-fit: cover;
-        }
-
-        .chat-top-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        #chat-top-name {
-            color: var(--msn-blue);
-            font-size: 18px;
-            font-weight: bold;
-            display: block;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        #chat-top-desc {
-            font-size: 13px;
-            color: #666666;
-            font-style: italic;
-            display: block;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .chat-top-status-row {
-            font-size: 12px;
-            color: #888888;
-            margin-top: 5px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-weight: bold;
-        }
-
-        /* Flujo de Mensajes */
-        #messages-flow {
-            flex: 1;
-            overflow-y: auto;
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .message-row {
-            display: flex;
-            flex-direction: column;
-            max-width: 90%;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .message-header {
-            font-size: 13px;
-            font-weight: bold;
-            color: var(--msn-blue);
-            margin-bottom: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .message-time {
-            font-weight: normal;
-            color: #bbbbbb;
-            font-size: 11px;
-            margin-left: 10px;
-        }
-
-        .message-body {
-            font-size: 15px;
-            color: #333333;
-            line-height: 1.6;
-            word-wrap: break-word;
-        }
-
-        .message-body a {
-            color: var(--msn-blue);
-            text-decoration: underline;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        /* Panel de Entrada de Texto */
-        #input-zone {
-            padding: 25px;
-            background-color: #f4f8fc;
-            border-top: 1px solid #e1e8f0;
-        }
-
-        #chat-input {
-            width: 100%;
-            height: 90px;
-            padding: 15px;
-            border: 1px solid #b4c7de;
-            border-radius: 8px;
-            resize: none;
-            outline: none;
-            font-size: 16px;
-            margin-bottom: 15px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-        }
-
-        .action-row {
-            display: flex;
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .msn-btn {
-            padding: 12px 25px;
-            border-radius: 8px;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: all 0.2s ease;
-        }
-
-        .btn-primary {
-            background-color: var(--msn-blue);
-            color: var(--white);
-            flex: 1;
-        }
-
-        .btn-secondary {
-            background-color: var(--white);
-            border: 1px solid #cccccc;
-            color: #555555;
-        }
-
-        .msn-btn:active {
-            transform: scale(0.98);
-        }
-
-        /* --- Panel Derecho: TV y Previsualización --- */
-        #preview-panel {
-            width: 340px;
-            border-left: 1px solid #dcecfc;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 40px 20px;
-            flex-shrink: 0;
-            background-color: #fdfdfd;
-        }
-
-        #tv-frame {
-            width: 300px;
-            height: 170px;
-            background-color: #000000;
-            border-radius: 12px;
-            overflow: hidden;
-            display: none;
-            margin-bottom: 30px;
-            border: 2px solid #333333;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        .target-avatar-big {
-            width: 210px;
-            height: 210px;
-            border-radius: 15px;
-            border: 8px solid var(--white);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-            object-fit: cover;
-            background-color: #eeeeee;
-        }
+        #youtube-container { background: var(--bg-light); padding: 10px 15px; border-top: 1px solid var(--border-color); flex-shrink: 0; }
+        .yt-header { font-size: 12px; font-weight: bold; color: var(--msn-blue); margin-bottom: 8px; display: flex; align-items: center; gap: 5px; justify-content: space-between; }
+        #yt-player-box { width: 100%; height: 90px; background: #000; border-radius: 8px; overflow: hidden; }
 
         /* ==========================================================================
-           RESPONSIVE DESIGN: SISTEMA CAJA POR CAJA (ANDROID)
+           7. MODALES (LOGIN Y CONFIGURACIÓN RECUPERADOS)
            ========================================================================== */
-        @media (max-width: 850px) {
-            header {
-                height: 120px;
-                padding: 10px 15px;
-            }
-            
-            #media-bar {
-                display: none; /* Se oculta para ahorrar espacio en móvil */
-            }
-            
-            #contacts-panel {
-                width: 100%;
-                position: absolute;
-                inset: 0;
-                z-index: 10;
-            }
-            
-            #chat-area {
-                width: 100%;
-                position: absolute;
-                inset: 0;
-                z-index: 5;
-                transform: translateX(100%);
-                transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            }
-            
-            #chat-area.active {
-                transform: translateX(0);
-                z-index: 20;
-            }
-            
-            #preview-panel {
-                display: none;
-            }
-            
-            .mobile-back {
-                display: block !important;
-            }
-        }
+        .curtain { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .modal-box { background: #fff; padding: 30px; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; }
+        .modal-input { width: 100%; padding: 15px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; margin-bottom: 15px; outline: none; }
+        .modal-btn { width: 100%; padding: 15px; background: var(--msn-blue); color: #fff; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; margin-bottom: 10px; }
+        .modal-btn.cancel { background: #eee; color: #555; }
 
-        .mobile-back {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 24px;
-            color: var(--msn-blue);
-            margin-right: 15px;
-            cursor: pointer;
-        }
-
-        /* ==========================================================================
-           MODALES Y PANTALLA DE LOGIN
-           ========================================================================== */
-        #login-curtain {
-            position: fixed;
-            inset: 0;
-            background-color: var(--msn-bg);
-            z-index: 5000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .login-module {
-            background-color: var(--white);
-            padding: 60px;
-            border-radius: 25px;
-            width: 90%;
-            max-width: 480px;
-            text-align: center;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
-        }
-
-        .l-field {
-            width: 100%;
-            padding: 18px;
-            margin-bottom: 20px;
-            border: 2px solid #dddddd;
-            border-radius: 12px;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.3s ease;
-        }
-
-        .l-field:focus {
-            border-color: var(--msn-blue);
-        }
-
-        /* ==========================================================================
-           ANIMACIONES CLÁSICAS
-           ========================================================================== */
-        .shake-nudge {
-            animation: vibe 0.1s 15;
-        }
-
-        @keyframes vibe {
-            0% { transform: translate(0, 0); }
-            25% { transform: translate(8px, 8px); }
-            50% { transform: translate(-8px, -8px); }
-            75% { transform: translate(8px, -8px); }
-            100% { transform: translate(0, 0); }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        /* ANIMACIONES */
+        .vibrate { animation: vibe 0.1s 15; }
+        @keyframes vibe { 0% {transform:translate(0,0)} 25% {transform:translate(5px,5px)} 50% {transform:translate(-5px,-5px)} 100% {transform:translate(0,0)} }
+        @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
     </style>
 </head>
-<body onclick="iniciarAudioNavegador()">
+<body onclick="iniciarAudio()">
 
-    <div id="login-curtain">
-        <div class="login-module">
-            <h1 style="color: var(--msn-blue); font-style: italic; margin-bottom: 10px; font-size: 45px;">MSN Messenger</h1>
-            <p style="color: #888888; margin-bottom: 40px; font-weight: bold; font-size: 14px; letter-spacing: 1px;">ELITE EDITION 2026</p>
+    <div id="login-curtain" class="curtain">
+        <div class="modal-box">
+            <h1 style="color:var(--msn-blue); font-style:italic; margin-bottom:10px;">MSN Elite</h1>
+            <p style="color:#888; margin-bottom:30px; font-weight:bold; font-size:13px; letter-spacing:1px;">EDICIÓN MÓVIL 2026</p>
             
-            <input id="user-in" type="text" class="l-field" placeholder="Correo electrónico o usuario">
-            <input id="pass-in" type="password" class="l-field" placeholder="Contraseña">
+            <input id="user-in" type="text" class="modal-input" placeholder="Nombre de usuario">
+            <input id="pass-in" type="password" class="modal-input" placeholder="Contraseña">
             
-            <button onclick="ejecutarLogin()" style="width: 100%; padding: 20px; background-color: var(--msn-blue); color: var(--white); border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(0,85,229,0.3); transition: 0.2s ease;">
-                Iniciar Sesión
-            </button>
+            <button class="modal-btn" onclick="ejecutarLogin()">Iniciar Sesión</button>
         </div>
     </div>
 
-    <div id="modal-perfil" style="display: none; position: fixed; inset: 0; background-color: rgba(0,0,0,0.8); z-index: 6000; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
-        <div style="background-color: var(--white); padding: 45px; border-radius: 20px; width: 90%; max-width: 480px; box-shadow: 0 20px 60px rgba(0,0,0,0.4);">
-            <h2 style="color: var(--msn-blue); margin-bottom: 25px;">
-                <i class="fa-solid fa-user-pen"></i> Editar Perfil
-            </h2>
+    <div id="modal-perfil" class="curtain" style="display:none; z-index:9500;">
+        <div class="modal-box">
+            <h2 style="color:var(--msn-blue); margin-bottom:20px;"><i class="fa-solid fa-user-pen"></i> Tu Perfil</h2>
             
-            <p style="font-size: 13px; font-weight: bold; margin-bottom: 8px; color: #555555;">Imagen de Perfil:</p>
-            <input type="file" id="input-foto" accept="image/*" style="margin-bottom: 25px; width: 100%; font-size: 14px;">
+            <p style="font-size:12px; text-align:left; color:#777; font-weight:bold; margin-bottom:5px;">Subir Foto:</p>
+            <input type="file" id="input-foto" accept="image/*" class="modal-input" style="padding:10px;">
             
-            <p style="font-size: 13px; font-weight: bold; margin-bottom: 8px; color: #555555;">Mensaje Personal:</p>
-            <input type="text" id="input-desc" placeholder="¿En qué estás pensando?" style="width: 100%; padding: 15px; border: 2px solid #eeeeee; border-radius: 10px; margin-bottom: 30px; outline: none; font-size: 15px;">
+            <p style="font-size:12px; text-align:left; color:#777; font-weight:bold; margin-bottom:5px;">Mensaje Personal:</p>
+            <input type="text" id="input-desc" class="modal-input" placeholder="¿En qué estás pensando?">
             
-            <div style="display: flex; gap: 15px;">
-                <button class="msn-btn btn-primary" onclick="guardarPerfil()">Guardar Cambios</button>
-                <button class="msn-btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
-            </div>
+            <button class="modal-btn" onclick="guardarPerfil()">Guardar Cambios</button>
+            <button class="modal-btn cancel" onclick="cerrarModal()">Cancelar</button>
         </div>
     </div>
 
     <div id="app">
         
-        <header>
-            <button class="mobile-back" onclick="toggleAndroidChat(false)">
-                <i class="fa-solid fa-arrow-left"></i>
-            </button>
-            
-            <div class="my-avatar-container">
-                <img id="my-avatar" src="/logo-conversando.png" onclick="abrirModal()" title="Haz clic para editar tu perfil">
-            </div>
-            
-            <div class="user-info-box">
-                <div class="name-row">
-                    <b id="my-name-display">Cargando perfil...</b>
-                    <span style="width: 12px; height: 12px; background-color: #31a24c; border-radius: 50%; display: inline-block; border: 2px solid var(--white); box-shadow: 0 0 3px rgba(0,0,0,0.2);" title="Disponible"></span>
-                </div>
-                
-                <div id="media-bar">
-                    <i class="fa-brands fa-youtube" style="color: #FF0000; font-size: 22px;"></i>
-                    <input id="yt-input" type="text" placeholder="Pega aquí el link de YouTube o Playlist..." onchange="cargarMultimedia(this.value)">
-                    <div class="media-actions">
-                        <i class="fa-solid fa-play" onclick="controlarYT('play')" title="Reproducir"></i>
-                        <i class="fa-solid fa-pause" onclick="controlarYT('pause')" title="Pausar"></i>
-                        <i class="fa-solid fa-stop" onclick="controlarYT('stop')" title="Detener TV" style="color: #d00000;"></i>
+        <div id="my-header">
+            <div class="profile-left">
+                <img id="my-avatar" src="/logo-conversando.png" onclick="abrirModal()">
+                <div class="profile-info">
+                    <b id="my-name">Cargando...</b>
+                    <span id="my-desc">Conectando al servidor...</span>
+                    <div class="status" id="my-status">
+                        <i class="fa-brands fa-youtube" style="color:red"></i> Disponible | ☀️ +22°C Stgo
                     </div>
                 </div>
             </div>
-            
-            <button class="msn-btn btn-secondary" onclick="abrirModal()">
-                <i class="fa-solid fa-gear"></i> <span class="hide-mobile">Opciones</span>
-            </button>
-        </header>
+            <button class="btn-config" onclick="abrirModal()"><i class="fa-solid fa-gear"></i> Ajustes</button>
+        </div>
 
-        <main>
-            
-            <div id="contacts-panel">
-                <div class="section-title">Comunidad Onrender</div>
-                
-                <button class="contact-card" onclick="cambiarChat('conversando', 'Sala General', '/logo-conversando.png', 'Chat global de la plataforma')">
-                    <img src="/logo-conversando.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
-                    <div class="contact-text">
-                        <b>Sala General</b>
-                        <p>Chat público</p>
-                    </div>
-                    <div id="dot-conversando" class="unread-indicator"></div>
-                </button>
-                
-                <button class="contact-card" onclick="cambiarChat('juegos', 'Zona Gamer', 'https://cdn-icons-png.flaticon.com/512/686/686589.png', 'Estrategias de Rust y Bellwright')">
-                    <img src="https://cdn-icons-png.flaticon.com/512/686/686589.png">
-                    <div class="contact-text">
-                        <b>Zona Gamer</b>
-                        <p>Rust & Bellwright</p>
-                    </div>
-                    <div id="dot-juegos" class="unread-indicator"></div>
-                </button>
-                
-                <div class="section-title">Contactos en línea</div>
-                <div id="dynamic-friends-list" style="flex: 1; overflow-y: auto;"></div>
+        <div id="target-header">
+            <div class="target-left">
+                <img id="target-avatar" src="/logo-conversando.png">
+                <div class="target-info">
+                    <b><span class="dot" id="target-dot"></span> <span id="target-name">Sala General</span></b>
+                    <span id="target-desc">Chat global de la plataforma</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="horizontal-nav">
+            <div style="font-size:12px; color:#aaa; padding:15px; text-align:center; width:100%;">
+                Cargando grupos y contactos...
+            </div>
+        </div>
+
+        <div id="chat-area">
             </div>
 
-            <div id="chat-area">
-                
-                <div id="chat-top-header">
-                    <img id="chat-top-avatar" src="/logo-conversando.png">
-                    <div class="chat-top-info">
-                        <b id="chat-top-name">Sala General</b>
-                        <span id="chat-top-desc">Chat global de la plataforma</span>
-                        <div class="chat-top-status-row">
-                            <span style="color: #d00000;">
-                                <i class="fa-brands fa-youtube"></i> 
-                                <span id="chat-top-status-text" style="color: #333333;">Disponible</span>
-                            </span>
-                            <span style="border-left: 1px solid #cccccc; padding-left: 12px; color: #555555;">
-                                <i class="fa-solid fa-sun" style="color: #ff9900;"></i> +22°C Stgo
-                            </span>
-                        </div>
-                    </div>
-                </div>
+        <div id="typing-box"></div>
 
-                <div id="messages-flow"></div>
-                
-                <div id="typing-indicator" style="height: 25px; padding: 0 30px; font-size: 12px; color: #2b9348; font-weight: bold; font-style: italic;"></div>
-                
-                <div id="input-zone">
-                    <textarea id="chat-input" placeholder="Escribe un mensaje aquí..." oninput="notificarEscritura()"></textarea>
-                    <div class="action-row">
-                        <button class="msn-btn btn-primary" onclick="enviarMensaje()">
-                            <i class="fa-solid fa-paper-plane"></i> Enviar Mensaje
-                        </button>
-                        <button class="msn-btn btn-secondary" onclick="enviarZumbido()" style="color: var(--nudge-red); border-color: #ffcccc;">
-                            <i class="fa-solid fa-bell"></i> ZUMBIDO
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="preview-panel">
-                <div id="tv-frame">
-                    <div id="yt-player-api"></div>
-                </div>
-                
-                <img id="target-avatar-big" class="target-avatar-big" src="/logo-conversando.png">
-                <h3 id="target-name-big" style="margin-top: 25px; color: var(--msn-blue); font-size: 22px; text-align: center;">Sala General</h3>
-                
-                <div style="margin-top: auto; text-align: center; padding-top: 20px; border-top: 1px solid #eeeeee; width: 100%;">
-                    <img id="my-mini-preview" class="target-avatar-big" style="width: 130px; height: 130px; border-width: 4px;">
-                    <p style="font-size: 11px; color: #aaaaaa; margin-top: 8px; font-weight: bold;">Vista previa de tu perfil</p>
-                </div>
+        <div id="input-area">
+            <div class="toolbar">
+                <div class="emojis">😊 😂 ❤️ 😮 😛</div>
+                <button class="btn-zumbido" onclick="enviarZumbido()"><i class="fa-solid fa-bell"></i> ENVIAR ZUMBIDO</button>
             </div>
             
-        </main>
+            <input type="text" id="text-input" placeholder="Escribe un mensaje aquí..." oninput="notificarEscritura()">
+            <button class="btn-enviar" onclick="enviarMensaje()">Enviar Mensaje (Enter)</button>
+        </div>
+
+        <div id="youtube-container">
+            <div class="yt-header">
+                <span><i class="fa-brands fa-youtube" style="color:red"></i> Sintonía YouTube</span>
+                <input type="text" id="yt-input" placeholder="Pega un link aquí..." style="border:1px solid #ccc; border-radius:4px; padding:4px 8px; font-size:11px; width:140px; outline:none;" onchange="cargarMultimedia(this.value)">
+            </div>
+            <div id="yt-player-box">
+                <span style="color:#666; font-size:12px; display:flex; align-items:center; justify-content:center; height:100%;">El reproductor se activará aquí</span>
+            </div>
+        </div>
+
     </div>
-
-    <script src="/socket.io/socket.io.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
-    
+
     <script>
-        // Inicialización de variables globales
         const socket = io();
         let miUsuario = localStorage.getItem('msn_user_elite') || "";
         let chatActivo = 'conversando';
-        let ytPlayer;
-        let timerEscritura;
+        let ytPlayer, timerEscritura;
 
-        // --- 1. SISTEMA MULTIMEDIA YOUTUBE ---
-        
-        function onYouTubeIframeAPIReady() {
-            ytPlayer = new YT.Player('yt-player-api', {
-                height: '170',
-                width: '300',
-                playerVars: { 
-                    'controls': 0, 
-                    'disablekb': 1, 
-                    'rel': 0 
-                },
-                events: { 
-                    'onStateChange': sincronizarMusica 
-                }
-            });
-        }
-
-        function cargarMultimedia(url) {
-            if(!ytPlayer) return;
-            let id = "";
-            
-            // Detectar si es playlist o video individual
-            if(url.includes("list=")) {
-                id = url.split("list=")[1].split("&")[0];
-                ytPlayer.loadPlaylist({list: id, listType: 'playlist'});
-            } else {
-                id = url.includes("v=") ? url.split("v=")[1].split("&")[0] : url.split("youtu.be/")[1]?.split("?")[0] || url;
-                ytPlayer.loadVideoById(id);
-            }
-            
-            // Alternar vista de TV vs Avatar
-            document.getElementById('tv-frame').style.display = 'block';
-            document.getElementById('target-avatar-big').style.display = 'none';
-            document.getElementById('yt-input').style.display = 'none';
-        }
-
-        function sincronizarMusica(e) {
-            // Cuando la música suena, enviar actualización al servidor
-            if(e.data == YT.PlayerState.PLAYING) {
-                const titulo = ytPlayer.getVideoData().title;
-                socket.emit('update_profile', { desc: "🎵 " + titulo, foto: null });
-            }
-        }
-
-        function controlarYT(accion) {
-            if(!ytPlayer) return;
-            if(accion === 'play') ytPlayer.playVideo();
-            if(accion === 'pause') ytPlayer.pauseVideo();
-            if(accion === 'stop') {
-                ytPlayer.stopVideo();
-                document.getElementById('tv-frame').style.display = 'none';
-                document.getElementById('target-avatar-big').style.display = 'block';
-                document.getElementById('yt-input').style.display = 'block';
-                document.getElementById('yt-input').value = "";
-                socket.emit('update_profile', { desc: "Disponible", foto: null });
-            }
-        }
-
-        // --- 2. SISTEMA DE AUDIO NATIVO ---
-        
+        // --- A. SISTEMA DE AUDIO NATIVO ---
         const sndLogin = new Audio('https://raw.githubusercontent.com/pabluro/msn-assets/main/login.mp3');
         const sndMsg = new Audio('https://www.myinstants.com/media/sounds/messenger-mensaje.mp3');
         const sndBuzz = new Audio('https://www.myinstants.com/media/sounds/msn-messenger-buzz.mp3');
         
-        function iniciarAudioNavegador() {
-            // Desbloquear políticas de autoplay en navegadores modernos
+        function iniciarAudio() {
             [sndLogin, sndMsg, sndBuzz].forEach(s => s.play().then(() => s.pause()).catch(() => {}));
         }
 
-        // --- 3. GESTIÓN DE SESIÓN Y LOGIN ---
-        
+        // --- B. GESTIÓN DE SESIÓN Y LOGIN ---
         if(miUsuario) {
-            socket.emit('login', { user: miUsuario, pass: localStorage.getItem('msn_pass_elite') });
+            socket.emit('login', { user: miUsuario, pass: '123' }); // Bypass simulado para la demo
         }
 
         function ejecutarLogin() {
             const u = document.getElementById('user-in').value.trim();
             const p = document.getElementById('pass-in').value.trim();
-            if(!u || !p) return;
+            if(!u) return;
             
             localStorage.setItem('msn_user_elite', u);
-            localStorage.setItem('msn_pass_elite', p);
             socket.emit('login', { user: u, pass: p });
         }
 
@@ -825,128 +248,120 @@
                 document.getElementById('app').style.display = 'flex';
                 
                 actualizarMiPerfil(r.perfil);
-                cambiarChat('conversando', 'Sala General', '/logo-conversando.png', 'Chat global de la plataforma');
+                cambiarChat('conversando', 'Conversando', '/logo-conversando.png', 'Chat Global');
                 sndLogin.play().catch(()=>{});
             } else { 
-                alert(r.msg); 
-                localStorage.clear(); 
-                location.reload(); 
+                alert(r.msg); localStorage.clear(); location.reload(); 
             }
         });
 
         function actualizarMiPerfil(perfil) {
-            const foto = perfil.foto || "/logo-conversando.png";
-            document.getElementById('my-avatar').src = foto;
-            document.getElementById('my-mini-preview').src = foto;
-            document.getElementById('my-name-display').innerText = miUsuario;
+            document.getElementById('my-avatar').src = perfil.foto || "/logo-conversando.png";
+            document.getElementById('my-name').innerText = miUsuario;
+            document.getElementById('my-desc').innerText = perfil.descripcion || "En la vida pienso";
         }
 
-        // --- 4. RENDERIZADO DE CONTACTOS E INTERFAZ DINÁMICA ---
-        
-        socket.on('lista_contactos', lista => {
-            const contenedor = document.getElementById('dynamic-friends-list');
-            contenedor.innerHTML = "";
-            
-            lista.forEach(usuario => {
-                if(usuario.user === miUsuario) { 
-                    actualizarMiPerfil(usuario); 
-                    return; 
-                }
-                
-                const isListening = usuario.descripcion && usuario.descripcion.includes('🎵');
-                
-                // Actualizar el header dinámico si es el usuario con el que estamos chateando
-                if(usuario.user === chatActivo) {
-                    const statusText = document.getElementById('chat-top-status-text');
-                    statusText.innerText = usuario.descripcion || 'Disponible';
-                    statusText.style.color = isListening ? 'var(--msn-blue)' : '#333333';
-                    document.getElementById('chat-top-avatar').src = usuario.foto || '/logo-conversando.png';
-                }
-
-                // Crear tarjeta de contacto en el panel izquierdo
-                const btn = document.createElement('button');
-                btn.className = "contact-card";
-                btn.innerHTML = `
-                    <img src="${usuario.foto || '/logo-conversando.png'}">
-                    <div class="contact-text">
-                        <b>${usuario.user}</b>
-                        <p class="${isListening ? 'listening' : ''}">${usuario.descripcion || 'Disponible'}</p>
-                    </div>
-                    <div id="dot-${usuario.user}" class="unread-indicator"></div>
-                `;
-                
-                btn.onclick = () => cambiarChat(usuario.user, usuario.user, usuario.foto, usuario.descripcion);
-                contenedor.appendChild(btn);
+        // --- C. REPRODUCTOR YOUTUBE ANCLADO ---
+        function onYouTubeIframeAPIReady() {
+            document.getElementById('yt-player-box').innerHTML = '<div id="yt-player-api"></div>';
+            ytPlayer = new YT.Player('yt-player-api', {
+                height: '90', width: '100%',
+                playerVars: { 'controls': 1, 'disablekb': 1 },
+                events: { 'onStateChange': sincronizarMusica }
             });
-        });
+        }
 
-        // --- 5. NAVEGACIÓN Y CAMBIO DE SALA ---
-        
-        function toggleAndroidChat(mostrar) {
-            const chatPanel = document.getElementById('chat-area');
-            if (mostrar) {
-                chatPanel.classList.add('active');
-            } else {
-                chatPanel.classList.remove('active');
+        function cargarMultimedia(url) {
+            if(!ytPlayer) return;
+            let id = url.includes("list=") ? url.split("list=")[1].split("&")[0] : (url.includes("v=") ? url.split("v=")[1].split("&")[0] : url.split("youtu.be/")[1]?.split("?")[0] || url);
+            url.includes("list=") ? ytPlayer.loadPlaylist({list: id}) : ytPlayer.loadVideoById(id);
+            document.getElementById('yt-input').value = ""; // Limpiar input
+        }
+
+        function sincronizarMusica(e) {
+            const statusBox = document.getElementById('my-status');
+            if(e.data == YT.PlayerState.PLAYING) {
+                const titulo = ytPlayer.getVideoData().title;
+                socket.emit('update_profile', { desc: "🎵 " + titulo });
+                statusBox.innerHTML = `<i class="fa-brands fa-youtube" style="color:red"></i> 🎵 ${titulo} | ☀️ +22°C Stgo`;
+                statusBox.style.color = "var(--msn-blue)";
+            } else if (e.data == YT.PlayerState.PAUSED || e.data == YT.PlayerState.ENDED) {
+                socket.emit('update_profile', { desc: "Disponible" });
+                statusBox.innerHTML = `<i class="fa-brands fa-youtube" style="color:red"></i> Disponible | ☀️ +22°C Stgo`;
+                statusBox.style.color = "#555";
             }
         }
 
+        // --- D. BARRA HORIZONTAL: GRUPOS FIJOS Y CONTACTOS ---
+        socket.on('lista_contactos', lista => {
+            const nav = document.getElementById('horizontal-nav');
+            
+            // 1. Inyectar siempre los 3 grupos fijos de tu diseño
+            let htmlNav = `
+                <div class="nav-item" onclick="cambiarChat('conversando', 'Conversando', '/logo-conversando.png', 'Chat Global')">
+                    <img src="/logo-conversando.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
+                    <span><div class="dot ${chatActivo === 'conversando' ? 'active' : ''}"></div> Conversando</span>
+                    <div id="badge-conversando" class="unread-badge"></div>
+                </div>
+                <div class="nav-item" onclick="cambiarChat('juegos', 'Juegos', '/logo-juegos.png', 'Rust & Bellwright')">
+                    <img src="/logo-juegos.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
+                    <span><div class="dot ${chatActivo === 'juegos' ? 'active' : ''}"></div> Juegos</span>
+                    <div id="badge-juegos" class="unread-badge"></div>
+                </div>
+                <div class="nav-item" onclick="cambiarChat('solotodo', 'Solo Todo', '/logo-solotodo.png', 'Hardware y Ofertas')">
+                    <img src="/logo-solotodo.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
+                    <span><div class="dot ${chatActivo === 'solotodo' ? 'active' : ''}"></div> Solo Todo</span>
+                    <div id="badge-solotodo" class="unread-badge"></div>
+                </div>
+            `;
+
+            // 2. Inyectar usuarios conectados
+            lista.forEach(u => {
+                if(u.user === miUsuario) { actualizarMiPerfil(u); return; }
+                
+                const isActive = chatActivo === u.user ? 'active' : '';
+                htmlNav += `
+                    <div class="nav-item" onclick="cambiarChat('${u.user}', '${u.user}', '${u.foto || 'https://i.imgur.com/8Q9qZ7Y.png'}', '${u.descripcion || 'Disponible'}')">
+                        <img src="${u.foto || 'https://i.imgur.com/8Q9qZ7Y.png'}" style="background:#eee;">
+                        <span><div class="dot ${isActive}"></div> ${u.user}</span>
+                        <div id="badge-${u.user}" class="unread-badge"></div>
+                    </div>
+                `;
+
+                // Actualizar info del chat activo si mutó
+                if(u.user === chatActivo) {
+                    document.getElementById('target-desc').innerText = u.descripcion || 'Disponible';
+                    document.getElementById('target-avatar').src = u.foto || 'https://i.imgur.com/8Q9qZ7Y.png';
+                }
+            });
+            nav.innerHTML = htmlNav;
+        });
+
+        // --- E. CAMBIO DE CHAT ---
         function cambiarChat(id, nombre, foto, desc) {
             chatActivo = id;
             
-            // Apagar notificación (punto naranja)
-            const dot = document.getElementById('dot-' + id);
-            if(dot) dot.style.display = 'none';
-
-            // Actualizar Panel Derecho (Escritorio)
-            document.getElementById('target-name-big').innerText = nombre;
-            document.getElementById('target-avatar-big').src = foto || '/logo-conversando.png';
-
-            // Actualizar Header Dinámico Superior (Diseño Elite)
-            document.getElementById('chat-top-name').innerText = nombre;
-            document.getElementById('chat-top-avatar').src = foto || '/logo-conversando.png';
-            document.getElementById('chat-top-desc').innerText = desc || "En línea";
+            // Actualizar Cabecera
+            document.getElementById('target-name').innerText = nombre;
+            document.getElementById('target-avatar').src = foto;
+            document.getElementById('target-desc').innerText = desc || "Disponible";
             
-            const statusText = document.getElementById('chat-top-status-text');
-            statusText.innerText = desc || "Disponible";
-            
-            // Colorear si el contacto está escuchando música
-            if(desc && desc.includes('🎵')) {
-                statusText.style.color = 'var(--msn-blue)';
-            } else {
-                statusText.style.color = '#333333';
-            }
+            // Ocultar notificación
+            const badge = document.getElementById('badge-' + id);
+            if(badge) badge.style.display = 'none';
 
-            // Limpiar historial de chat y pedir mensajes al servidor
-            document.getElementById('messages-flow').innerHTML = "";
+            // Refrescar puntitos verdes
+            document.querySelectorAll('.nav-item .dot').forEach(dot => dot.classList.remove('active'));
+            event.currentTarget.querySelector('.dot').classList.add('active');
+
+            // Cargar mensajes
+            document.getElementById('chat-area').innerHTML = "";
             socket.emit('get_private_history', id);
-
-            // Activar vista deslizable en dispositivos móviles (Android/iOS)
-            if(window.innerWidth <= 850) {
-                toggleAndroidChat(true);
-            }
         }
 
-        // --- 6. MOTOR DE MENSAJERÍA, LINKS Y RELOJ ---
-        
-        function notificarEscritura() { 
-            socket.emit('typing', { to: chatActivo, user: miUsuario }); 
-        }
-        
-        socket.on('typing_status', datos => {
-            if(datos.user === chatActivo && datos.to === miUsuario) {
-                const indicador = document.getElementById('typing-indicator');
-                indicador.innerText = datos.user + " está escribiendo un mensaje...";
-                
-                clearTimeout(timerEscritura);
-                timerEscritura = setTimeout(() => { 
-                    indicador.innerText = ""; 
-                }, 3000);
-            }
-        });
-
+        // --- F. ENVIAR Y RECIBIR MENSAJES (CON LINKS Y HORA) ---
         function enviarMensaje() {
-            const input = document.getElementById('chat-input');
+            const input = document.getElementById('text-input');
             const txt = input.value.trim();
             if(txt) {
                 socket.emit('chat message', { to: chatActivo, text: txt });
@@ -955,116 +370,82 @@
             }
         }
 
-        function enviarZumbido() { 
-            socket.emit('chat message', { to: chatActivo, isBuzz: true }); 
-        }
+        function enviarZumbido() { socket.emit('chat message', { to: chatActivo, isBuzz: true }); }
+        
+        function notificarEscritura() { socket.emit('typing', { to: chatActivo, user: miUsuario }); }
+        socket.on('typing_status', d => {
+            if(d.user === chatActivo && d.to === miUsuario) {
+                document.getElementById('typing-box').innerText = d.user + " está escribiendo...";
+                clearTimeout(timerEscritura);
+                timerEscritura = setTimeout(() => { document.getElementById('typing-box').innerText = ""; }, 3000);
+            }
+        });
 
         socket.on('chat message', m => {
             const origen = m.to || 'conversando';
-            const esGrupo = ['conversando', 'juegos'].includes(origen);
-            
-            // Lógica para saber si el mensaje pertenece a la pestaña actual abierta
+            const esGrupo = ['conversando', 'juegos', 'solotodo'].includes(origen);
             const esParaMiPantalla = (esGrupo && origen === chatActivo) || (m.user === chatActivo) || (m.user === miUsuario && m.to === chatActivo);
 
             if(esParaMiPantalla) {
                 pintarGlobo(m);
                 if(m.user !== miUsuario) sndMsg.play().catch(()=>{});
-                
                 if(m.isBuzz) {
-                    const appContenedor = document.getElementById('app');
-                    appContenedor.classList.add('shake-nudge');
+                    document.getElementById('app').classList.add('vibrate');
                     sndBuzz.play().catch(()=>{});
-                    
-                    setTimeout(() => {
-                        appContenedor.classList.remove('shake-nudge');
-                    }, 1500);
+                    setTimeout(() => document.getElementById('app').classList.remove('vibrate'), 1500);
                 }
             } else {
-                // Notificación silenciosa en la barra lateral
                 const idNotificacion = esGrupo ? origen : m.user;
-                const punto = document.getElementById('dot-' + idNotificacion);
-                if(punto) punto.style.display = 'block';
+                const badge = document.getElementById('badge-' + idNotificacion);
+                if(badge) badge.style.display = 'block';
                 sndMsg.play().catch(()=>{});
             }
         });
 
         function pintarGlobo(m) {
-            const flow = document.getElementById('messages-flow');
+            const area = document.getElementById('chat-area');
+            const horaStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             
-            // Obtener hora exacta
-            const ahora = new Date();
-            const horaStr = ahora.getHours().toString().padStart(2, '0') + ":" + ahora.getMinutes().toString().padStart(2, '0');
-            
+            // Regex para links
+            let txt = m.isBuzz ? '<b style="color:var(--nudge-red);"><i class="fa-solid fa-bell"></i> ZUMBIDO</b>' : (m.texto || m.text);
+            txt = txt.replace(/(https?:\/\/[^\s]+)/g, url => `<a href="${url}" target="_blank">${url}</a>`);
+
             const div = document.createElement('div');
-            div.className = "message-row";
-
-            // Procesar Zumbidos y Links Clickeables (Expresión Regular)
-            let htmlTexto = m.isBuzz ? '<b style="color:var(--nudge-red);"><i class="fa-solid fa-bell"></i> TE HA ENVIADO UN ZUMBIDO</b>' : (m.texto || m.text);
-            const regexURL = /(https?:\/\/[^\s]+)/g;
-            htmlTexto = htmlTexto.replace(regexURL, url => `<a href="${url}" target="_blank">${url}</a>`);
-
+            div.className = "msg-row";
             div.innerHTML = `
-                <div class="message-header">
+                <div class="msg-head">
                     <span>${m.user} dice:</span>
-                    <span class="message-time">${horaStr}</span>
+                    <span class="msg-time">${horaStr}</span>
                 </div>
-                <div class="message-body">${htmlTexto}</div>
+                <div class="msg-body">${txt}</div>
             `;
-            
-            flow.appendChild(div);
-            flow.scrollTop = flow.scrollHeight;
+            area.appendChild(div);
+            area.scrollTop = area.scrollHeight;
         }
 
-        // Recuperar historial de la base de datos de Onrender
-        socket.on('actualizar_historial', d => { 
-            if(d.target === chatActivo) {
-                d.history.forEach(m => pintarGlobo(m)); 
-            }
-        });
+        socket.on('actualizar_historial', d => { if(d.target === chatActivo) d.history.forEach(m => pintarGlobo(m)); });
 
-        // --- 7. EDICIÓN DE PERFIL ---
-        
-        function abrirModal() { 
-            document.getElementById('modal-perfil').style.display = 'flex'; 
-        }
-        
-        function cerrarModal() { 
-            document.getElementById('modal-perfil').style.display = 'none'; 
-        }
-        
+        // --- G. CONFIGURACIÓN (MODALES) ---
+        function abrirModal() { document.getElementById('modal-perfil').style.display = 'flex'; }
+        function cerrarModal() { document.getElementById('modal-perfil').style.display = 'none'; }
         function guardarPerfil() {
             const archivo = document.getElementById('input-foto').files[0];
-            const textoDesc = document.getElementById('input-desc').value;
-            
+            const texto = document.getElementById('input-desc').value;
             if(archivo) {
                 const reader = new FileReader();
-                reader.onload = (e) => {
-                    socket.emit('update_profile', { desc: textoDesc, foto: e.target.result });
-                    cerrarModal();
-                };
+                reader.onload = (e) => { socket.emit('update_profile', { desc: texto, foto: e.target.result }); cerrarModal(); };
                 reader.readAsDataURL(archivo);
             } else {
-                socket.emit('update_profile', { desc: textoDesc, foto: null });
+                socket.emit('update_profile', { desc: texto, foto: null });
                 cerrarModal();
             }
         }
 
-        // --- 8. FIX DE TECLADO ANDROID Y ENTER ---
-        
-        // Evita que el teclado virtual rompa el diseño Flexbox
+        // Fix teclado Android
         window.visualViewport.addEventListener('resize', () => {
-            const h = window.visualViewport.height;
-            document.body.style.height = h + 'px';
-            document.getElementById('app').style.height = h + 'px';
-            document.getElementById('messages-flow').scrollTop = 999999;
-        });
-
-        // Permite enviar mensajes usando la tecla Enter sin usar Shift
-        document.getElementById('chat-input').addEventListener('keydown', e => {
-            if(e.key === 'Enter' && !e.shiftKey) { 
-                e.preventDefault(); 
-                enviarMensaje(); 
-            }
+            document.body.style.height = window.visualViewport.height + 'px';
+            document.getElementById('app').style.height = window.visualViewport.height + 'px';
+            document.getElementById('chat-area').scrollTop = 999999;
         });
     </script>
 </body>
