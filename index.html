@@ -571,308 +571,265 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
     <script>
-        const socket = io();
-        let myUsername = localStorage.getItem('msn_master_user') || "";
-        let activeChatId = 'conversando';
-        let unreadCounts = {};
-        let typingTimeout;
+const socket = io();
+let myUsername = localStorage.getItem('msn_master_user') || "";
+let activeChatId = 'conversando';
+let unreadCounts = {};
+let typingTimeout;
 
-        const sndLogin = new Audio('https://raw.githubusercontent.com/pabluro/msn-assets/main/login.mp3');
-        const sndMessage = new Audio('https://www.myinstants.com/media/sounds/messenger-mensaje.mp3');
-        const sndBuzz = new Audio('https://www.myinstants.com/media/sounds/msn-nudge.mp3');
+const sndLogin = new Audio('https://raw.githubusercontent.com/pabluro/msn-assets/main/login.mp3');
+const sndMessage = new Audio('https://www.myinstants.com/media/sounds/messenger-mensaje.mp3');
+const sndBuzz = new Audio('https://www.myinstants.com/media/sounds/msn-nudge.mp3');
 
-        // TRUCO PARA DESBLOQUEAR AUDIO EN MÓVILES
-        let audioUnlocked = false;
-        function enableAudioContext() {
-            if(audioUnlocked) return;
-            [sndLogin, sndMessage, sndBuzz].forEach(a => {
-                a.volume = 0; // Silenciamos para el permiso
-                let playPromise = a.play();
-                if(playPromise !== undefined) {
-                    playPromise.then(() => {
-                        a.pause();
-                        a.currentTime = 0;
-                        a.volume = 1; // Devolvemos el volumen a la normalidad
-                    }).catch(() => {});
-                }
-            });
-            audioUnlocked = true;
+/* =========================
+   🔐 ANTI XSS
+========================= */
+function escapeHTML(str) {
+    return str.replace(/[&<>"']/g, tag => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    }[tag]));
+}
+
+/* =========================
+   🎥 YOUTUBE FIX
+========================= */
+function extractVideoId(url) {
+    const regExp = /(?:youtube\.com\/.*v=|youtu\.be\/|youtube\.com\/shorts\/)([^&\n?#]+)/;
+    const match = url.match(regExp);
+    return match ? match[1] : null;
+}
+
+/* =========================
+   AUDIO MOBILE FIX
+========================= */
+let audioUnlocked = false;
+function enableAudioContext() {
+    if(audioUnlocked) return;
+    [sndLogin, sndMessage, sndBuzz].forEach(a => {
+        a.volume = 0;
+        let playPromise = a.play();
+        if(playPromise !== undefined) {
+            playPromise.then(() => {
+                a.pause();
+                a.currentTime = 0;
+                a.volume = 1;
+            }).catch(() => {});
         }
+    });
+    audioUnlocked = true;
+}
 
-        if(myUsername) {
-            socket.emit('login', { user: myUsername, pass: localStorage.getItem('msn_master_pass') });
+if(myUsername) {
+    socket.emit('login', { user: myUsername, pass: localStorage.getItem('msn_master_pass') });
+}
+
+/* =========================
+   LOGIN
+========================= */
+function handleLoginAttempt() {
+    enableAudioContext();
+    const u = document.getElementById('login-u').value.trim();
+    const p = document.getElementById('login-p').value.trim();
+    if(!u || !p) return alert("Completa los campos.");
+
+    localStorage.setItem('msn_master_user', u);
+    localStorage.setItem('msn_master_pass', p);
+    socket.emit('login', { user: u, pass: p });
+}
+
+socket.on('login_status', res => {
+    if(res.success) {
+        myUsername = res.user;
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'flex';
+        syncMyProfile(res.perfil);
+        switchToChat('conversando', 'Conversando', '/logo-conversando.png', 'Sala General');
+        sndLogin.play().catch(()=>{});
+        initExternalApis();
+    } else {
+        alert(res.msg);
+        localStorage.clear();
+    }
+});
+
+/* =========================
+   PERFIL
+========================= */
+function syncMyProfile(p) {
+    const pic = p.foto || "https://via.placeholder.com/160";
+    document.getElementById('my-avatar-display').src = pic;
+    document.getElementById('my-mini-avatar').src = pic;
+    document.getElementById('my-user-label').innerText = myUsername;
+    document.getElementById('my-status-label').innerText = p.descripcion || "Disponible";
+}
+
+/* =========================
+   CLIMA
+========================= */
+function initExternalApis() {
+    fetch('https://wttr.in/Santiago?format=%c+%t')
+        .then(res => res.text())
+        .then(data => document.getElementById('weather-api-text').innerText = "| " + data)
+        .catch(() => document.getElementById('weather-api-text').innerText = "| ☀️ 24°C Santiago");
+}
+
+/* =========================
+   CONTACTOS
+========================= */
+socket.on('lista_contactos', list => {
+    const container = document.getElementById('dynamic-friends-list');
+    container.innerHTML = "";
+
+    list.forEach(u => {
+        if(u.user === myUsername) { syncMyProfile(u); return; }
+
+        const btn = document.createElement('button');
+        btn.className = "contact-item";
+
+        btn.innerHTML = `
+            <img src="${u.foto || ''}">
+            <div class="c-info">
+                <b class="c-name">${u.user}</b>
+                <span class="c-status">${u.descripcion || ''}</span>
+            </div>
+            <span class="badge-notify" id="notify-${u.user}">0</span>
+        `;
+
+        btn.onclick = () => switchToChat(u.user, u.user, u.foto, u.descripcion);
+        container.appendChild(btn);
+    });
+});
+
+/* =========================
+   CAMBIO CHAT (FIX TYPING)
+========================= */
+function switchToChat(id, name, img, desc) {
+    activeChatId = id;
+
+    document.getElementById('messages-wall').innerHTML = "";
+    document.getElementById('typing-indicator').innerText = "";
+    clearTimeout(typingTimeout);
+
+    socket.emit('get_private_history', id);
+}
+
+/* =========================
+   MENSAJES
+========================= */
+function performSendMessage() {
+    const input = document.getElementById('main-textarea');
+    const msg = input.value.trim();
+    if(!msg) return;
+
+    // COMANDOS
+    if(msg === "/clear"){
+        document.getElementById('messages-wall').innerHTML = "";
+        input.value = "";
+        return;
+    }
+
+    if(msg === "/nudge"){
+        emitNudge();
+        input.value = "";
+        return;
+    }
+
+    socket.emit('chat message', { to: activeChatId, text: msg });
+    input.value = "";
+}
+
+/* =========================
+   NUDGE
+========================= */
+function emitNudge() {
+    socket.emit('chat message', { to: activeChatId, isBuzz: true });
+}
+
+/* =========================
+   RECIBIR MENSAJE (PRO)
+========================= */
+socket.on('chat message', m => {
+
+    const isMine = m.user === myUsername;
+    const wall = document.getElementById('messages-wall');
+
+    if(m.isBuzz){
+        document.getElementById('app').classList.add('nudge-shake');
+        sndBuzz.play().catch(()=>{});
+        setTimeout(()=>document.getElementById('app').classList.remove('nudge-shake'),800);
+        return;
+    }
+
+    let content = escapeHTML(m.texto || m.text || "");
+
+    content = content.replace(/(https?:\/\/[^\s]+)/g, url => {
+        const yt = extractVideoId(url);
+        if(yt){
+            return `<iframe width="220" height="130" src="https://www.youtube.com/embed/${yt}"></iframe>`;
         }
+        return `<a href="${url}" target="_blank">${url}</a>`;
+    });
 
-        function handleLoginAttempt() {
-            enableAudioContext(); // Forzamos el desbloqueo exactamente al tocar el botón
-            const u = document.getElementById('login-u').value.trim();
-            const p = document.getElementById('login-p').value.trim();
-            if(!u || !p) return alert("Por favor, completa los campos.");
+    const div = document.createElement('div');
+    div.style.display = "flex";
+    div.style.flexDirection = "column";
+    div.style.alignItems = isMine ? "flex-end" : "flex-start";
 
-            localStorage.setItem('msn_master_user', u);
-            localStorage.setItem('msn_master_pass', p);
-            socket.emit('login', { user: u, pass: p });
-        }
+    const time = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 
-        socket.on('login_status', res => {
-            if(res.success) {
-                myUsername = res.user;
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('app').style.display = 'flex';
-                syncMyProfile(res.perfil);
-                switchToChat('conversando', 'Conversando', '/logo-conversando.png', 'Sala General');
-                sndLogin.play().catch(()=>{});
-                initExternalApis();
-            } else {
-                alert("Error de autenticación: " + res.msg);
-                localStorage.clear();
-            }
-        });
+    div.innerHTML = `
+        <div class="msg-header">${m.user} [${time}]</div>
+        <div style="
+            background:${isMine ? '#d1e7ff' : '#f1f1f1'};
+            padding:10px;
+            border-radius:12px;
+            max-width:60%;
+        ">
+            ${content}
+        </div>
+    `;
 
-        function syncMyProfile(p) {
-            const pic = p.foto || "https://via.placeholder.com/160";
-            document.getElementById('my-avatar-display').src = pic;
-            document.getElementById('my-mini-avatar').src = pic;
-            document.getElementById('my-user-label').innerText = myUsername;
-            document.getElementById('my-status-label').innerText = p.descripcion || "Disponible";
-        }
+    const nearBottom = wall.scrollTop + wall.clientHeight >= wall.scrollHeight - 50;
 
-        function initExternalApis() {
-            fetch('https://wttr.in/Santiago?format=%c+%t')
-                .then(res => res.text())
-                .then(data => document.getElementById('weather-api-text').innerText = "| " + data)
-                .catch(() => document.getElementById('weather-api-text').innerText = "| ☀️ 24°C Santiago");
-        }
+    wall.appendChild(div);
 
-        socket.on('lista_contactos', list => {
-            const container = document.getElementById('dynamic-friends-list');
-            container.innerHTML = "";
-            list.forEach(u => {
-                if(u.user === myUsername) { syncMyProfile(u); return; }
+    if(nearBottom){
+        wall.scrollTop = wall.scrollHeight;
+    }
 
-                const btn = document.createElement('button');
-                btn.className = "contact-item";
-                const isOnline = u.online ? 'online' : 'offline';
-                
-                const isMusic = u.descripcion && u.descripcion.includes('🎵');
-                const textStyle = isMusic ? 'color:var(--msn-blue); font-weight:bold;' : '';
+    if(!isMine) sndMessage.play().catch(()=>{});
+});
 
-                btn.innerHTML = `
-                    <img src="${u.foto || 'https://via.placeholder.com/60'}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
-                    <div class="c-info">
-                        <b class="c-name"><span class="status-dot ${isOnline}"></span>${u.user}</b>
-                        <span class="c-status" style="${textStyle}">${u.descripcion || 'Disponible'}</span>
-                    </div>
-                    <span class="badge-notify" id="notify-${u.user}">0</span>
-                `;
-                btn.onclick = () => switchToChat(u.user, u.user, u.foto, u.descripcion);
-                container.appendChild(btn);
+/* =========================
+   ENTER UX
+========================= */
+document.getElementById('main-textarea').addEventListener('keydown', e => {
+    if(e.key === 'Enter' && !e.shiftKey){
+        e.preventDefault();
+        performSendMessage();
+    }
+});
 
-                if(unreadCounts[u.user]) updateBadge(u.user, unreadCounts[u.user]);
+/* =========================
+   TYPING
+========================= */
+document.getElementById('main-textarea').addEventListener('input', () => {
+    socket.emit('typing', { to: activeChatId, user: myUsername });
+});
 
-                if(u.user === activeChatId) {
-                    document.getElementById('target-status-big').innerText = u.descripcion || "Disponible";
-                    document.getElementById('target-avatar-big').src = u.foto || "https://via.placeholder.com/160";
-                }
-            });
-        });
-
-        function switchToChat(id, name, img, desc) {
-            activeChatId = id;
-            unreadCounts[id] = 0;
-            updateBadge(id, 0);
-
-            document.getElementById('target-name-big').innerText = name;
-            document.getElementById('target-status-big').innerText = desc || "Disponible";
-            document.getElementById('target-avatar-big').src = img || "https://via.placeholder.com/160";
-
-            document.getElementById('messages-wall').innerHTML = "";
-            socket.emit('get_private_history', id);
-        }
-
-        function updateBadge(id, n) {
-            const badge = document.getElementById('notify-' + id);
-            if(badge) {
-                badge.innerText = n;
-                badge.style.display = n > 0 ? 'block' : 'none';
-            }
-        }
-
-        function reportTyping() {
-            socket.emit('typing', { to: activeChatId, user: myUsername });
-        }
-
-        socket.on('typing_status', data => {
-            if(data.to === myUsername && data.user === activeChatId) {
-                document.getElementById('typing-indicator').innerText = `${data.user} está escribiendo...`;
-                clearTimeout(typingTimeout);
-                typingTimeout = setTimeout(() => { document.getElementById('typing-indicator').innerText = ""; }, 3000);
-            }
-        });
-
-        function performSendMessage() {
-            const input = document.getElementById('main-textarea');
-            const msg = input.value.trim();
-            if(msg) {
-                socket.emit('chat message', { to: activeChatId, text: msg });
-                input.value = "";
-                input.focus();
-            }
-        }
-
-        function emitNudge() {
-            socket.emit('chat message', { to: activeChatId, isBuzz: true });
-        }
-
-        socket.on('chat message', m => {
-            const origin = m.to || 'conversando';
-            const isGroup = ['conversando', 'juegos', 'solotodo'].includes(origin);
-            const isCurrent = (isGroup && origin === activeChatId) || 
-                               (m.user === activeChatId && m.to === myUsername) || 
-                               (m.user === myUsername && m.to === activeChatId);
-
-            if(isCurrent) {
-                appendMessage(m);
-                if(m.user !== myUsername) sndMessage.play().catch(()=>{});
-            } else {
-                const key = isGroup ? origin : m.user;
-                unreadCounts[key] = (unreadCounts[key] || 0) + 1;
-                updateBadge(key, unreadCounts[key]);
-                sndMessage.play().catch(()=>{});
-            }
-
-            if(m.isBuzz && isCurrent) {
-                document.getElementById('app').classList.add('nudge-shake');
-                sndBuzz.play().catch(()=>{});
-                setTimeout(() => document.getElementById('app').classList.remove('nudge-shake'), 800);
-            }
-        });
-
-        socket.on('actualizar_historial', r => {
-            if(r.target === activeChatId) {
-                const wall = document.getElementById('messages-wall');
-                wall.innerHTML = "";
-                r.history.forEach(m => appendMessage(m));
-            }
-        });
-
-        function appendMessage(m) {
-            const wall = document.getElementById('messages-wall');
-            const div = document.createElement('div');
-            div.className = "msg-block";
-
-            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            let content = m.texto || m.text || "";
-
-            if(m.isBuzz) {
-                content = `<span style="color:red; font-weight:bold;">TE HA ENVIADO UN ZUMBIDO.</span>`;
-            } else {
-                content = content.replace(/(https?:\/\/[^\s]+)/g, url => `<a href="${url}" target="_blank" style="color:var(--msn-blue);">${url}</a>`);
-                content = content.replace(/:\)/g, '😊').replace(/:D/g, '😃').replace(/\(L\)/g, '❤️');
-            }
-
-            div.innerHTML = `
-                <div class="msg-header">${m.user} dice: <span>[${time}]</span></div>
-                <div class="msg-content">${content}</div>
-            `;
-
-            wall.appendChild(div);
-            wall.scrollTop = wall.scrollHeight;
-        }
-
-        function openProfileSettings() { document.getElementById('modal-profile').style.display = 'flex'; }
-        function closeProfileSettings() { document.getElementById('modal-profile').style.display = 'none'; }
-
-        function applyProfileChanges() {
-            const fileInput = document.getElementById('input-new-photo');
-            const phrase = document.getElementById('input-new-phrase').value;
-
-            if(fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    socket.emit('update_profile', { desc: phrase, foto: e.target.result });
-                    closeProfileSettings();
-                };
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                socket.emit('update_profile', { desc: phrase }); 
-                closeProfileSettings();
-            }
-        }
-
-        function insertEmoji(e) {
-            const area = document.getElementById('main-textarea');
-            area.value += e;
-            area.focus();
-        }
-
-        window.visualViewport.addEventListener('resize', () => {
-            const h = window.visualViewport.height;
-            document.body.style.height = h + 'px';
-            document.getElementById('app').style.height = h + 'px';
-            const wall = document.getElementById('messages-wall');
-            wall.scrollTop = wall.scrollHeight;
-        });
-
-        document.getElementById('main-textarea').addEventListener('keydown', e => {
-            if(e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                performSendMessage();
-            }
-        });
-
-        let ytPlayerObj;
-
-        function onYouTubeIframeAPIReady() {
-            ytPlayerObj = new YT.Player('yt-player', {
-                height: '130',
-                width: '100%',
-                videoId: '',
-                playerVars: { 'controls': 0, 'rel': 0 },
-                events: { 'onStateChange': onPlayerStateChange }
-            });
-        }
-
-        document.getElementById('yt-url-input').addEventListener('change', function(e) {
-            const url = e.target.value.trim();
-            if(!url || !ytPlayerObj) return;
-
-            if(url.includes('list=')) {
-                const listId = url.split('list=')[1].split('&')[0];
-                ytPlayerObj.loadPlaylist({list: listId, listType: 'playlist'});
-            } else {
-                let videoId = '';
-                if(url.includes('v=')) videoId = url.split('v=')[1].split('&')[0];
-                else if(url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1].split('?')[0];
-                if(videoId) ytPlayerObj.loadVideoById(videoId);
-            }
-        });
-
-        function onPlayerStateChange(event) {
-            if (event.data == YT.PlayerState.PLAYING) {
-                const data = ytPlayerObj.getVideoData();
-                const title = data && data.title ? data.title : "Música en YouTube";
-                const statusStr = "🎵 Escuchando: " + title;
-                
-                socket.emit('update_profile', { desc: statusStr });
-                
-                document.getElementById('yt-api-text').innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" width="12" height="12"> ${statusStr}`;
-            } else if (event.data == YT.PlayerState.PAUSED || event.data == YT.PlayerState.ENDED) {
-                socket.emit('update_profile', { desc: "Disponible" });
-                document.getElementById('yt-api-text').innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" width="12" height="12"> Disponible`;
-            }
-        }
-
-        function ytPlay() { if(ytPlayerObj && ytPlayerObj.playVideo) ytPlayerObj.playVideo(); }
-        function ytPause() { if(ytPlayerObj && ytPlayerObj.pauseVideo) ytPlayerObj.pauseVideo(); }
-        function ytStop() { 
-            if(ytPlayerObj && ytPlayerObj.stopVideo) {
-                ytPlayerObj.stopVideo(); 
-                socket.emit('update_profile', { desc: "Disponible" });
-                document.getElementById('yt-api-text').innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" width="12" height="12"> Disponible`;
-            }
-        }
-        function ytNext() { if(ytPlayerObj && ytPlayerObj.nextVideo) ytPlayerObj.nextVideo(); }
-    </script>
+socket.on('typing_status', data => {
+    if(data.to === myUsername && data.user === activeChatId){
+        document.getElementById('typing-indicator').innerText = data.user + " está escribiendo...";
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(()=>{
+            document.getElementById('typing-indicator').innerText = "";
+        },2000);
+    }
+});
+</script>
 </body>
 </html>
