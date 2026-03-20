@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MSN Messenger - EL CÓDIGO REAL (SIN RECORTES)</title>
+    <title>MSN Messenger - VERSIÓN RECUPERADA (SIN ERRORES)</title>
     
     <style>
+        /* ============================================================
+           CSS - DISEÑO ORIGINAL Y ADAPTACIÓN MÓVIL
+           ============================================================ */
         :root {
             --msn-blue: #0055e5;
             --msn-bg: #71ADFF;
             --header-grad: linear-gradient(to bottom, #f9fcff 0%, #dcecfc 100%);
             --border-color: #b4c7de;
-            --white: #ffffff;
-            --shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
-        /* RESETEO COMPLETO */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -32,24 +32,23 @@
             overflow: hidden;
         }
 
-        /* CONTENEDOR PRINCIPAL MSN */
         #app {
             display: none; /* Se activa tras login */
-            width: 1100px;
+            width: 1150px;
             max-width: 100vw;
-            height: 800px;
+            height: 850px;
             max-height: 100vh;
-            background: var(--white);
-            border: 1px solid #333;
+            background: #ffffff;
+            border: 1px solid #222;
             flex-direction: column;
             position: relative;
-            box-shadow: 0 20px 70px rgba(0,0,0,0.5);
+            box-shadow: 0 25px 80px rgba(0,0,0,0.5);
         }
 
-        /* CABECERA CON MI INFORMACIÓN */
+        /* HEADER */
         header {
             background: var(--header-grad);
-            padding: 15px 20px;
+            padding: 15px 25px;
             border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
@@ -57,42 +56,38 @@
             flex-shrink: 0;
         }
 
-        .my-info-block {
+        .my-identity {
             display: flex;
             align-items: center;
-            gap: 15px;
-            overflow: hidden;
+            gap: 18px;
             flex: 1;
+            min-width: 0;
         }
 
-        #my-img-display {
-            width: 60px;
-            height: 60px;
+        #my-avatar-img {
+            width: 65px;
+            height: 65px;
             border: 2px solid #fff;
-            border-radius: 4px;
+            border-radius: 5px;
             object-fit: cover;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            cursor: pointer;
-            background: #e0e0e0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            background: #f0f0f0;
         }
 
-        .my-details {
+        .my-text-info {
             display: flex;
             flex-direction: column;
             min-width: 0;
         }
 
-        #my-user-label {
+        #my-name-display {
             color: var(--msn-blue);
-            font-size: 15px;
+            font-size: 16px;
             font-weight: bold;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
-        #my-status-label {
-            color: #666;
+        #my-status-display {
+            color: #555;
             font-size: 12px;
             font-style: italic;
             white-space: nowrap;
@@ -100,290 +95,341 @@
             text-overflow: ellipsis;
         }
 
-        /* CUERPO PRINCIPAL DEL MESSENGER */
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-edit-profile {
+            padding: 8px 15px;
+            background: #fff;
+            border: 1px solid #a0b5d0;
+            color: var(--msn-blue);
+            font-weight: bold;
+            font-size: 11px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        /* MAIN LAYOUT */
         main {
             display: flex;
             flex: 1;
             overflow: hidden;
-            position: relative;
         }
 
         /* COLUMNA IZQUIERDA: GRUPOS Y CONTACTOS */
-        #side-contacts {
-            width: 280px;
+        #left-pane {
+            width: 300px;
             border-right: 1px solid #d0deee;
             display: flex;
             flex-direction: column;
-            background: #ffffff;
-            flex-shrink: 0;
-        }
-
-        /* COLUMNA CENTRAL: EL CHAT */
-        #chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: white;
-            min-width: 0;
-        }
-
-        /* COLUMNA DERECHA: PERFIL DEL AMIGO */
-        #side-profile {
-            width: 220px;
-            background: #fcfcfc;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 25px 15px;
-            border-left: 1px solid #d0deee;
-            flex-shrink: 0;
-        }
-
-        /* RESPONSIVE PARA MÓVILES (FIX ANDROID) */
-        @media (max-width: 800px) {
-            #side-profile {
-                position: absolute;
-                right: 0; top: 0; bottom: 0;
-                z-index: 1000;
-                width: 250px;
-                background: white;
-                transform: translateX(100%);
-                transition: transform 0.3s ease-in-out;
-            }
-            #side-profile.visible {
-                transform: translateX(0);
-                box-shadow: -10px 0 30px rgba(0,0,0,0.2);
-            }
-            #side-contacts { width: 90px; }
-            #side-contacts .contact-text-info, #side-contacts .cat-label { display: none; }
-            #btn-show-info { display: block !important; }
-        }
-
-        #btn-show-info {
-            display: none;
-            padding: 6px 12px;
             background: #fff;
-            border: 1px solid var(--msn-blue);
-            color: var(--msn-blue);
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: bold;
-            cursor: pointer;
+            flex-shrink: 0;
         }
 
-        /* LISTAS Y ETIQUETAS */
-        .cat-label {
+        .section-header {
             background: #eff6ff;
-            padding: 10px 15px;
+            padding: 12px 18px;
             font-size: 11px;
             font-weight: bold;
             color: #4a607a;
-            border-bottom: 1px solid #d0deee;
+            border-bottom: 1px solid #dcecfc;
             text-transform: uppercase;
         }
 
-        .contact-item {
+        .list-btn {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 15px;
-            cursor: pointer;
+            gap: 15px;
+            padding: 15px;
+            width: 100%;
             border: none;
             background: transparent;
-            width: 100%;
+            cursor: pointer;
             text-align: left;
-            border-bottom: 1px solid #f2f6fb;
+            border-bottom: 1px solid #f5f8fb;
             position: relative;
         }
 
-        .contact-item:hover { background: #f4f9ff; }
+        .list-btn:hover { background: #f0f7ff; }
 
-        .badge-count {
+        .list-btn .badge {
             position: absolute;
-            top: 10px; right: 10px;
+            top: 12px;
+            right: 15px;
             background: #ff8c00;
-            color: white;
+            color: #fff;
             font-size: 10px;
             font-weight: bold;
-            padding: 2px 7px;
-            border-radius: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
             display: none;
         }
 
-        .contact-text-info {
+        .contact-info-col {
             display: flex;
             flex-direction: column;
             min-width: 0;
             flex: 1;
         }
 
-        .c-name { font-size: 13px; font-weight: bold; color: #333; }
-        .c-status { font-size: 11px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .c-user { font-weight: bold; font-size: 13px; color: #333; }
+        .c-phrase { font-size: 11px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* ÁREA DE MENSAJES */
-        #msg-feed {
+        /* COLUMNA CENTRAL: CHAT */
+        #center-pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            min-width: 0;
+        }
+
+        #chat-scroller {
             flex: 1;
             overflow-y: auto;
             padding: 25px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            background: #fff;
+            gap: 20px;
         }
 
-        .msg-bubble { display: flex; flex-direction: column; }
-        .msg-user { font-size: 12px; font-weight: bold; color: var(--msn-blue); }
-        .msg-time { font-weight: normal; color: #bbb; font-size: 10px; margin-left: 5px; }
-        .msg-text { font-size: 14px; color: #333; margin-top: 2px; line-height: 1.4; word-wrap: break-word; }
+        #typing-status-bar {
+            height: 25px;
+            padding: 0 25px;
+            font-size: 11px;
+            color: #2b9348;
+            font-style: italic;
+        }
 
-        /* BARRA DE HERRAMIENTAS */
-        #chat-tools {
-            padding: 10px 15px;
+        #tool-strip {
+            padding: 10px 20px;
             background: #f1f5f9;
             border-top: 1px solid #d0deee;
-            display: flex; gap: 12px; align-items: center;
+            display: flex;
+            gap: 15px;
+            align-items: center;
         }
 
-        .tool-icon { font-size: 22px; cursor: pointer; user-select: none; }
-        #typing-box { font-size: 11px; color: #31a24c; padding: 2px 20px; height: 20px; font-style: italic; }
+        .emoji-trigger { font-size: 24px; cursor: pointer; user-select: none; }
 
-        /* ENTRADA DE TEXTO */
-        #input-zone { padding: 15px; background: #f7faff; border-top: 1px solid #eee; }
-        #main-input {
-            width: 100%; height: 70px; padding: 12px; border: 1px solid #a0b5d0;
-            border-radius: 4px; resize: none; font-size: 15px; outline: none;
+        #input-container {
+            padding: 20px;
+            background: #f7faff;
+            border-top: 1px solid #eee;
         }
 
-        .send-btn {
-            width: 100%; margin-top: 10px; background: var(--msn-blue); color: white;
-            border: none; padding: 12px; border-radius: 4px; font-weight: bold; cursor: pointer;
+        #chat-textarea {
+            width: 100%;
+            height: 80px;
+            padding: 15px;
+            border: 1px solid #a0b5d0;
+            border-radius: 5px;
+            resize: none;
+            font-size: 15px;
+            outline: none;
         }
 
-        /* AVATARES */
-        .av-small { width: 45px; height: 45px; border-radius: 4px; object-fit: cover; border: 1px solid #ccc; flex-shrink: 0; }
-        .av-big { width: 140px; height: 140px; border: 5px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); border-radius: 8px; object-fit: cover; }
+        .btn-send-msg {
+            width: 100%;
+            margin-top: 12px;
+            padding: 14px;
+            background: var(--msn-blue);
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 15px;
+        }
 
-        .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
-        .online { background: #31a24c; } .offline { background: #bdc1c6; }
+        /* COLUMNA DERECHA: INFO */
+        #right-pane {
+            width: 240px;
+            background: #fafafa;
+            border-left: 1px solid #d0deee;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 15px;
+            flex-shrink: 0;
+        }
+
+        .big-avatar {
+            width: 160px;
+            height: 160px;
+            border: 6px solid #fff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            object-fit: cover;
+            background: #eee;
+        }
+
+        /* MODALES */
+        .modal-overlay {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 40px;
+            border-radius: 15px;
+            width: 450px;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        /* LOGIN */
+        #login-overlay {
+            background: #fff;
+            padding: 50px;
+            border-radius: 20px;
+            width: 420px;
+            text-align: center;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.4);
+        }
+
+        .input-login {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        /* ESTADOS */
+        .status-pill { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+        .st-online { background: #31a24c; }
+        .st-offline { background: #bdc1c6; }
 
         /* ZUMBIDO */
-        .buzz-shake { animation: shake 0.1s 10; }
-        @keyframes shake { 0%, 100% {transform: translate(0,0)} 25% {transform: translate(5px,5px)} 50% {transform: translate(-5px,-5px)} }
-
-        /* MODALES Y LOGIN */
-        .overlay {
-            display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.7);
-            align-items: center; justify-content: center; z-index: 5000;
-        }
-        .modal-body { background: white; padding: 35px; border-radius: 12px; width: 400px; text-align: center; box-shadow: var(--shadow); }
-
-        #login-screen {
-            background: white; padding: 50px; border-radius: 15px; width: 400px;
-            text-align: center; box-shadow: var(--shadow);
+        .shake-app { animation: msn-shake 0.1s 10; }
+        @keyframes msn-shake {
+            0% { transform: translate(0,0); }
+            25% { transform: translate(8px,8px); }
+            50% { transform: translate(-8px,-8px); }
+            75% { transform: translate(8px,-8px); }
+            100% { transform: translate(0,0); }
         }
     </style>
 </head>
-<body onclick="initAudio()">
+<body onclick="unlockAudio()">
 
-    <div id="login-screen">
-        <h1 style="color:var(--msn-blue); margin-bottom:10px; font-style: italic;">THE REAL MSN</h1>
-        <p style="font-size:13px; color:#666; margin-bottom:30px;">Ingresa tus datos de Passport</p>
-        <input id="l-user" type="text" placeholder="Usuario" style="width:100%; padding:14px; margin-bottom:12px; border:1px solid #ccc; border-radius:6px;">
-        <input id="l-pass" type="password" placeholder="Contraseña" style="width:100%; padding:14px; margin-bottom:20px; border:1px solid #ccc; border-radius:6px;">
-        <button onclick="doLogin()" style="width:100%; padding:14px; background:var(--msn-blue); color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">Iniciar Sesión</button>
+    <div id="login-overlay">
+        <h1 style="color:var(--msn-blue); font-style: italic; margin-bottom:10px;">MSN Messenger</h1>
+        <p style="color:#666; font-size:14px; margin-bottom:35px;">Inicia sesión con tu cuenta de Passport</p>
+        <input id="inp-u" class="input-login" type="text" placeholder="Correo o Usuario">
+        <input id="inp-p" class="input-login" type="password" placeholder="Contraseña">
+        <button onclick="attemptLogin()" class="btn-send-msg">Iniciar Sesión</button>
     </div>
 
     <div id="app">
         <header>
-            <div class="my-info-block">
-                <img id="my-img-display" onclick="openProfile()" src="" title="Editar Perfil">
-                <div class="my-details">
-                    <b id="my-user-label">Cargando...</b>
-                    <span id="my-status-label">Cargando frase...</span>
+            <div class="my-identity">
+                <img id="my-avatar-img" src="" alt="Yo">
+                <div class="my-text-info">
+                    <b id="my-name-display">Usuario</b>
+                    <span id="my-status-display">Conectando...</span>
                 </div>
             </div>
-            <button id="btn-show-info" onclick="toggleRight()">Ver Info</button>
+            <div class="header-actions">
+                <button class="btn-edit-profile" onclick="showModalProfile()">Editar Perfil</button>
+            </div>
         </header>
 
         <main>
-            <div id="side-contacts">
-                <div class="cat-label">SALAS DE GRUPO</div>
+            <div id="left-pane">
+                <div class="section-header">Grupos de Chat</div>
                 
-                <button class="contact-item" onclick="changeChat('conversando', 'Conversando', '/logo-conversando.png', 'Sala General')">
-                    <img src="/logo-conversando.png" class="av-small" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
-                    <div class="contact-text-info">
-                        <span class="c-name">Conversando</span>
-                        <span class="c-status">Chat para todos</span>
+                <button class="list-btn" onclick="openRoom('conversando', 'Conversando', 'https://cdn-icons-png.flaticon.com/512/686/686589.png', 'Sala General de Conversación')">
+                    <img src="https://cdn-icons-png.flaticon.com/512/686/686589.png" width="45" height="45" style="border-radius:4px;">
+                    <div class="contact-info-col">
+                        <span class="c-user">Conversando</span>
+                        <span class="c-phrase">Chat Global</span>
                     </div>
-                    <span class="badge-count" id="badge-conversando">0</span>
+                    <span class="badge" id="badge-conversando">0</span>
                 </button>
 
-                <button class="contact-item" onclick="changeChat('juegos', 'Juegos', 'https://cdn-icons-png.flaticon.com/512/686/686589.png', 'Sala de Juegos')">
-                    <img src="https://cdn-icons-png.flaticon.com/512/686/686589.png" class="av-small">
-                    <div class="contact-text-info">
-                        <span class="c-name">Juegos</span>
-                        <span class="c-status">Ranking y más</span>
+                <button class="list-btn" onclick="openRoom('juegos', 'Juegos', 'https://cdn-icons-png.flaticon.com/512/686/686589.png', 'Sala de Juegos y Diversión')">
+                    <img src="https://cdn-icons-png.flaticon.com/512/686/686589.png" width="45" height="45" style="border-radius:4px;">
+                    <div class="contact-info-col">
+                        <span class="c-user">Juegos</span>
+                        <span class="c-phrase">Comunidad Gamer</span>
                     </div>
-                    <span class="badge-count" id="badge-juegos">0</span>
+                    <span class="badge" id="badge-juegos">0</span>
                 </button>
 
-                <button class="contact-item" onclick="changeChat('solotodo', 'Solo Todo', 'https://cdn-icons-png.flaticon.com/512/686/686589.png', 'Marketplace')">
-                    <img src="https://cdn-icons-png.flaticon.com/512/686/686589.png" class="av-small">
-                    <div class="contact-text-info">
-                        <span class="c-name">Solo Todo</span>
-                        <span class="c-status">Ventas y permutas</span>
+                <button class="list-btn" onclick="openRoom('solotodo', 'Solo Todo', 'https://cdn-icons-png.flaticon.com/512/686/686589.png', 'Sala de Compra y Venta')">
+                    <img src="https://cdn-icons-png.flaticon.com/512/686/686589.png" width="45" height="45" style="border-radius:4px;">
+                    <div class="contact-info-col">
+                        <span class="c-user">Solo Todo</span>
+                        <span class="c-phrase">Marketplace MSN</span>
                     </div>
-                    <span class="badge-count" id="badge-solotodo">0</span>
+                    <span class="badge" id="badge-solotodo">0</span>
                 </button>
 
-                <div class="cat-label">CONTACTOS ONLINE</div>
-                <div id="contact-list" style="flex:1; overflow-y:auto;"></div>
+                <div class="section-header">Contactos Online</div>
+                <div id="contacts-scroller" style="flex:1; overflow-y:auto;">
+                    </div>
             </div>
 
-            <div id="chat-area">
-                <div id="msg-feed"></div>
-                <div id="typing-box"></div>
-                <div id="chat-tools">
-                    <span class="tool-icon" onclick="addEmo('😊')">😊</span>
-                    <span class="tool-icon" onclick="addEmo('😂')">😂</span>
-                    <span class="tool-icon" onclick="addEmo('😛')">😛</span>
-                    <span class="tool-icon" onclick="addEmo('😮')">😮</span>
-                    <span class="tool-icon" onclick="addEmo('❤️')">❤️</span>
-                    <button onclick="sendBuzz()" style="margin-left:auto; font-size:10px; cursor:pointer; padding:5px 8px;">🔔 ZUMBIDO</button>
+            <div id="center-pane">
+                <div id="chat-scroller"></div>
+                <div id="typing-status-bar"></div>
+                
+                <div id="tool-strip">
+                    <span class="emoji-trigger" onclick="addEmoji('😊')">😊</span>
+                    <span class="emoji-trigger" onclick="addEmoji('😂')">😂</span>
+                    <span class="emoji-trigger" onclick="addEmoji('😛')">😛</span>
+                    <span class="emoji-trigger" onclick="addEmoji('❤️')">❤️</span>
+                    <button onclick="sendNudge()" style="margin-left:auto; cursor:pointer; font-size:10px; padding:5px 10px;">🔔 ZUMBIDO</button>
                 </div>
-                <div id="input-zone">
-                    <textarea id="main-input" placeholder="Escribe aquí..." oninput="handleTyping()"></textarea>
-                    <button class="send-btn" onclick="sendMessage()">Enviar Mensaje</button>
+
+                <div id="input-container">
+                    <textarea id="chat-textarea" placeholder="Escribe un mensaje aquí..." oninput="emitTyping()"></textarea>
+                    <button class="btn-send-msg" onclick="handleSend()">Enviar</button>
                 </div>
             </div>
 
-            <div id="side-profile">
-                <img id="target-av" class="av-big" src="https://via.placeholder.com/140">
-                <b id="target-name" style="margin-top:15px; color:var(--msn-blue); font-size:16px;">...</b>
-                <span id="target-desc" style="font-size:12px; color:#666; margin-top:8px; text-align:center;">...</span>
+            <div id="right-pane">
+                <img id="target-big-avatar" class="big-avatar" src="https://via.placeholder.com/160">
+                <h3 id="target-big-name" style="margin-top:20px; color:var(--msn-blue);">...</h3>
+                <p id="target-big-status" style="font-size:12px; color:#666; text-align:center; margin-top:10px; font-style:italic;">...</p>
                 
-                <div style="margin-top:auto; text-align:center; width:100%; border-top:1px solid #eee; padding-top:20px;">
-                    <img id="mini-my-av" class="av-big" style="width:100px; height:100px;">
-                    <p style="font-size:11px; color:#999; margin-top:8px;">(Tu imagen actual)</p>
+                <div style="margin-top:auto; padding-top:30px; border-top:1px solid #eee; width:100%; text-align:center;">
+                    <img id="my-mini-big-avatar" class="big-avatar" style="width:110px; height:110px;">
+                    <p style="font-size:11px; color:#aaa; margin-top:10px;">(Tu foto actual)</p>
                 </div>
             </div>
         </main>
     </div>
 
-    <div id="modal-perfil" class="overlay">
-        <div class="modal-body">
-            <h2 style="color:var(--msn-blue); margin-bottom:20px;">Mi Perfil MSN</h2>
-            <div style="text-align:left; margin-bottom:15px;">
-                <label style="font-size:12px; font-weight:bold;">Mensaje Personal:</label>
-                <input id="new-status" type="text" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:4px;">
+    <div id="modal-profile" class="modal-overlay">
+        <div class="modal-content">
+            <h2 style="color:var(--msn-blue); margin-bottom:25px;">Configurar mi Perfil</h2>
+            
+            <div style="text-align:left; margin-bottom:20px;">
+                <label style="font-size:12px; font-weight:bold; color:#444;">Mensaje Personal:</label>
+                <input id="edit-desc" type="text" class="input-login" style="margin-top:5px;">
             </div>
-            <div style="text-align:left; margin-bottom:25px;">
-                <label style="font-size:12px; font-weight:bold;">Foto de Perfil:</label>
-                <input id="new-foto" type="file" accept="image/*" style="width:100%; margin-top:5px; font-size:12px;">
+            
+            <div style="text-align:left; margin-bottom:30px;">
+                <label style="font-size:12px; font-weight:bold; color:#444;">Cambiar Foto:</label>
+                <input id="edit-file" type="file" accept="image/*" style="width:100%; margin-top:10px;">
             </div>
-            <div style="display:flex; gap:10px;">
-                <button onclick="saveProfile()" style="flex:1; padding:12px; background:var(--msn-blue); color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">Guardar</button>
-                <button onclick="closeProfile()" style="flex:1; padding:12px; background:#eee; border:none; border-radius:5px; cursor:pointer;">Cancelar</button>
+            
+            <div style="display:flex; gap:15px;">
+                <button onclick="commitProfile()" class="btn-send-msg" style="flex:1;">Guardar</button>
+                <button onclick="hideModalProfile()" class="btn-send-msg" style="flex:1; background:#eee; color:#333;">Cancelar</button>
             </div>
         </div>
     </div>
@@ -391,23 +437,29 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        let yo = localStorage.getItem('msn_user') || "";
-        let salaActual = 'conversando';
-        let noLeidos = {};
-        let tTyping;
+        let currentU = localStorage.getItem('msn_user') || "";
+        let currentSala = 'conversando';
+        let pendingMessages = {};
+        let tTimer;
 
-        const sLogin = new Audio('https://raw.githubusercontent.com/pabluro/msn-assets/main/login.mp3');
-        const sMsg = new Audio('https://www.myinstants.com/media/sounds/messenger-mensaje.mp3');
-        const sBuzz = new Audio('https://www.myinstants.com/media/sounds/msn-messenger-buzz.mp3');
+        // Audios
+        const audioIn = new Audio('https://raw.githubusercontent.com/pabluro/msn-assets/main/login.mp3');
+        const audioMsg = new Audio('https://www.myinstants.com/media/sounds/messenger-mensaje.mp3');
+        const audioBuzz = new Audio('https://www.myinstants.com/media/sounds/msn-messenger-buzz.mp3');
 
-        function initAudio() { [sLogin, sMsg, sBuzz].forEach(a => { a.play().then(()=> { a.pause(); a.currentTime=0; }).catch(()=>{}) }); }
+        function unlockAudio() {
+            [audioIn, audioMsg, audioBuzz].forEach(a => {
+                a.play().then(() => { a.pause(); a.currentTime = 0; }).catch(() => {});
+            });
+        }
 
-        if(yo) socket.emit('login', { user: yo, pass: localStorage.getItem('msn_pass') });
+        // Login
+        if(currentU) socket.emit('login', { user: currentU, pass: localStorage.getItem('msn_pass') });
 
-        function doLogin() {
-            const u = document.getElementById('l-user').value.trim();
-            const p = document.getElementById('l-pass').value.trim();
-            if(!u || !p) return alert("Rellena todo");
+        function attemptLogin() {
+            const u = document.getElementById('inp-u').value.trim();
+            const p = document.getElementById('inp-p').value.trim();
+            if(!u || !p) return;
             localStorage.setItem('msn_user', u);
             localStorage.setItem('msn_pass', p);
             socket.emit('login', { user: u, pass: p });
@@ -415,143 +467,148 @@
 
         socket.on('login_status', res => {
             if(res.success) {
-                yo = res.user;
-                document.getElementById('login-screen').style.display = 'none';
+                currentU = res.user;
+                document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('app').style.display = 'flex';
-                syncMiInfo(res.perfil);
-                changeChat('conversando', 'Conversando', '/logo-conversando.png', 'Sala General');
-                sLogin.play().catch(()=>{});
-            } else { alert("Error: " + res.msg); localStorage.clear(); }
+                renderMyIdentity(res.perfil);
+                openRoom('conversando', 'Conversando', 'https://cdn-icons-png.flaticon.com/512/686/686589.png', 'Sala General');
+                audioIn.play().catch(()=>{});
+            } else { alert("Login fallido"); localStorage.clear(); }
         });
 
-        function syncMiInfo(p) {
+        function renderMyIdentity(p) {
             const img = p.foto || "https://via.placeholder.com/150";
-            document.getElementById('my-img-display').src = img;
-            document.getElementById('mini-my-av').src = img;
-            document.getElementById('my-user-label').innerText = yo;
-            document.getElementById('my-status-label').innerText = p.descripcion || "Disponible";
+            document.getElementById('my-avatar-img').src = img;
+            document.getElementById('my-mini-big-avatar').src = img;
+            document.getElementById('my-name-display').innerText = currentU;
+            document.getElementById('my-status-display').innerText = p.descripcion || "Disponible";
         }
 
+        // Contactos
         socket.on('lista_contactos', lista => {
-            const cont = document.getElementById('contact-list');
-            cont.innerHTML = "";
+            const scroller = document.getElementById('contacts-scroller');
+            scroller.innerHTML = "";
             lista.forEach(u => {
-                if(u.user === yo) { syncMiInfo(u); return; }
-                const div = document.createElement('button');
-                div.className = "contact-item";
-                const dClass = u.online ? 'online' : 'offline';
-                div.innerHTML = `
-                    <img src="${u.foto || 'https://via.placeholder.com/45'}" class="av-small">
-                    <div class="contact-text-info">
-                        <span class="c-name"><span class="dot ${dClass}"></span>${u.user}</span>
-                        <span class="c-status">${u.descripcion || 'Disponible'}</span>
+                if(u.user === currentU) { renderMyIdentity(u); return; }
+                const b = document.createElement('button');
+                b.className = "list-btn";
+                const sCls = u.online ? 'st-online' : 'st-offline';
+                b.innerHTML = `
+                    <img src="${u.foto || 'https://via.placeholder.com/45'}" width="45" height="45" style="border-radius:4px; object-fit:cover;">
+                    <div class="contact-info-col">
+                        <span class="c-user"><span class="status-pill ${sCls}"></span>${u.user}</span>
+                        <span class="c-phrase">${u.descripcion || 'Disponible'}</span>
                     </div>
-                    <span class="badge-count" id="badge-${u.user}">0</span>
+                    <span class="badge" id="badge-${u.user}">0</span>
                 `;
-                div.onclick = () => changeChat(u.user, u.user, u.foto, u.descripcion);
-                cont.appendChild(div);
-                if(noLeidos[u.user]) updateBadge(u.user, noLeidos[u.user]);
+                b.onclick = () => openRoom(u.user, u.user, u.foto, u.descripcion);
+                scroller.appendChild(b);
+                if(pendingMessages[u.user]) refreshBadge(u.user, pendingMessages[u.user]);
             });
         });
 
-        function changeChat(id, name, img, desc) {
-            salaActual = id;
-            noLeidos[id] = 0;
-            updateBadge(id, 0);
-            document.getElementById('target-name').innerText = name;
-            document.getElementById('target-desc').innerText = desc || "Disponible";
-            document.getElementById('target-av').src = img || "https://via.placeholder.com/140?text=" + name;
-            document.getElementById('msg-feed').innerHTML = "";
+        // Chat
+        function openRoom(id, name, img, desc) {
+            currentSala = id;
+            pendingMessages[id] = 0;
+            refreshBadge(id, 0);
+            document.getElementById('target-big-name').innerText = name;
+            document.getElementById('target-big-status').innerText = desc || "Disponible";
+            document.getElementById('target-big-avatar').src = img || "https://via.placeholder.com/160?text=" + name;
+            document.getElementById('chat-scroller').innerHTML = "";
             socket.emit('get_private_history', id);
         }
 
-        function updateBadge(id, n) {
-            const b = document.getElementById('badge-' + id);
-            if(b) { b.innerText = n; b.style.display = n > 0 ? 'block' : 'none'; }
+        function refreshBadge(id, n) {
+            const el = document.getElementById('badge-' + id);
+            if(el) { el.innerText = n; el.style.display = n > 0 ? 'block' : 'none'; }
         }
 
-        function handleTyping() { socket.emit('typing', { to: salaActual, user: yo }); }
-        socket.on('typing_status', data => {
-            if(data.to === yo && data.user === salaActual) {
-                document.getElementById('typing-box').innerText = `${data.user} está escribiendo...`;
-                clearTimeout(tTyping);
-                tTyping = setTimeout(()=> document.getElementById('typing-box').innerText = "", 3000);
+        function emitTyping() { socket.emit('typing', { to: currentSala, user: currentU }); }
+        socket.on('typing_status', d => {
+            if(d.to === currentU && d.user === currentSala) {
+                document.getElementById('typing-status-bar').innerText = `${d.user} está escribiendo...`;
+                clearTimeout(tTimer);
+                tTimer = setTimeout(()=> document.getElementById('typing-status-bar').innerText = "", 3000);
             }
         });
 
-        function sendMessage() {
-            const v = document.getElementById('main-input').value.trim();
-            if(v) { socket.emit('chat message', { to: salaActual, text: v }); document.getElementById('main-input').value = ""; }
+        function handleSend() {
+            const txt = document.getElementById('chat-textarea').value.trim();
+            if(txt) {
+                socket.emit('chat message', { to: currentSala, text: txt });
+                document.getElementById('chat-textarea').value = "";
+                document.getElementById('chat-textarea').focus();
+            }
         }
 
-        function sendBuzz() { socket.emit('chat message', { to: salaActual, isBuzz: true }); }
+        function sendNudge() { socket.emit('chat message', { to: currentSala, isBuzz: true }); }
 
         socket.on('chat message', m => {
-            const room = m.to || 'conversando';
-            const isG = ['conversando', 'juegos', 'solotodo'].includes(room);
-            const isMine = (isG && room === salaActual) || (m.user === salaActual && m.to === yo) || (m.user === yo && m.to === salaActual);
+            const origin = m.to || 'conversando';
+            const isGrp = ['conversando', 'juegos', 'solotodo'].includes(origin);
+            const isMine = (isGrp && origin === currentSala) || (m.user === currentSala && m.to === currentU) || (m.user === currentU && m.to === currentSala);
 
             if(isMine) {
-                render(m);
-                if(m.user !== yo) sMsg.play().catch(()=>{});
+                draw(m);
+                if(m.user !== currentU) audioMsg.play().catch(()=>{});
             } else {
-                const id = isG ? room : m.user;
-                noLeidos[id] = (noLeidos[id] || 0) + 1;
-                updateBadge(id, noLeidos[id]);
-                sMsg.play().catch(()=>{});
+                const targetId = isGrp ? origin : m.user;
+                pendingMessages[targetId] = (pendingMessages[targetId] || 0) + 1;
+                refreshBadge(targetId, pendingMessages[targetId]);
+                audioMsg.play().catch(()=>{});
             }
 
             if(m.isBuzz && isMine) {
-                document.getElementById('app').classList.add('buzz-shake');
-                sBuzz.play().catch(()=>{});
-                setTimeout(()=> document.getElementById('app').classList.remove('buzz-shake'), 800);
+                document.getElementById('app').classList.add('shake-app');
+                audioBuzz.play().catch(()=>{});
+                setTimeout(()=> document.getElementById('app').classList.remove('shake-app'), 800);
             }
         });
 
-        socket.on('actualizar_historial', res => {
-            if(res.target === salaActual) {
-                const feed = document.getElementById('msg-feed');
-                feed.innerHTML = "";
-                res.history.forEach(m => render(m));
+        socket.on('actualizar_historial', r => {
+            if(r.target === currentSala) {
+                const s = document.getElementById('chat-scroller');
+                s.innerHTML = "";
+                r.history.forEach(m => draw(m));
             }
         });
 
-        function render(m) {
-            const feed = document.getElementById('msg-feed');
+        function draw(m) {
+            const s = document.getElementById('chat-scroller');
             const d = document.createElement('div');
-            d.className = "msg-bubble";
-            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            let txt = m.texto || m.text || "";
+            const t = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            let content = m.texto || m.text || "";
 
-            if(m.isBuzz) txt = `<span style="color:red; font-weight:bold;">TE HA ENVIADO UN ZUMBIDO</span>`;
+            if(m.isBuzz) content = `<span style="color:red; font-weight:bold;">TE HA ENVIADO UN ZUMBIDO</span>`;
             else {
-                txt = txt.replace(/(https?:\/\/[^\s]+)/g, u => `<a href="${u}" target="_blank" style="color:var(--msn-blue);">${u}</a>`);
-                txt = txt.replace(/:\)/g, '😊').replace(/\(L\)/g, '❤️').replace(/:P/g, '😛');
+                content = content.replace(/(https?:\/\/[^\s]+)/g, u => `<a href="${u}" target="_blank" style="color:var(--msn-blue);">${u}</a>`);
+                content = content.replace(/:\)/g, '😊').replace(/\(L\)/g, '❤️').replace(/:P/g, '😛');
             }
 
-            d.innerHTML = `<div class="msg-user">${m.user} dice: <span class="msg-time">[${time}]</span></div><div class="msg-text">${txt}</div>`;
-            feed.appendChild(d);
-            feed.scrollTop = feed.scrollHeight;
+            d.innerHTML = `<div style="font-size:12px; font-weight:bold; color:var(--msn-blue);">${m.user} dice: <span style="font-weight:normal; color:#aaa; font-size:10px;">[${t}]</span></div><div style="font-size:14px; color:#333; margin-top:3px;">${content}</div>`;
+            s.appendChild(d);
+            s.scrollTop = s.scrollHeight;
         }
 
-        // --- FUNCIONES DE PERFIL ---
-        function openProfile() { document.getElementById('modal-perfil').style.display = 'flex'; }
-        function closeProfile() { document.getElementById('modal-perfil').style.display = 'none'; }
-        function saveProfile() {
-            const f = document.getElementById('new-foto').files[0];
-            const d = document.getElementById('new-status').value;
+        // Perfil
+        function showModalProfile() { document.getElementById('modal-profile').style.display = 'flex'; }
+        function hideModalProfile() { document.getElementById('modal-profile').style.display = 'none'; }
+        
+        function commitProfile() {
+            const f = document.getElementById('edit-file').files[0];
+            const d = document.getElementById('edit-desc').value;
             if(f) {
                 const r = new FileReader();
-                r.onload = () => { socket.emit('update_profile', { desc: d, foto: r.result }); closeProfile(); };
+                r.onload = () => { socket.emit('update_profile', { desc: d, foto: r.result }); hideModalProfile(); };
                 r.readAsDataURL(f);
-            } else { socket.emit('update_profile', { desc: d, foto: null }); closeProfile(); }
+            } else { socket.emit('update_profile', { desc: d, foto: null }); hideModalProfile(); }
         }
 
-        function toggleRight() { document.getElementById('side-profile').classList.toggle('visible'); }
-        function addEmo(e) { const i = document.getElementById('main-input'); i.value += e; i.focus(); }
+        function addEmoji(e) { const t = document.getElementById('chat-textarea'); t.value += e; t.focus(); }
 
-        document.getElementById('main-input').addEventListener('keydown', e => {
-            if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+        document.getElementById('chat-textarea').addEventListener('keydown', e => {
+            if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
         });
     </script>
 </body>
