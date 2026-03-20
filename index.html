@@ -23,24 +23,26 @@
         /* ============================================================
            2. RESET Y COMPORTAMIENTO DE SCROLL (FIX ANDROID)
            ============================================================ */
-        * {
+       * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            /* Evita el destello azul al tocar botones en móvil */
-            -webkit-tap-highlight-color: transparent; 
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* Quitamos el position:fixed del body para recuperar el scroll táctil */
+        /* Forzamos al body a ser un contenedor que no se mueva */
         html, body {
             width: 100%;
             height: 100%;
+            margin: 0;
+            padding: 0;
             background-color: var(--msn-bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: auto; 
+            display: flex;          /* Centra la App en el medio */
+            align-items: center;    /* Centrado vertical */
+            justify-content: center; /* Centrado horizontal */
+            overflow: hidden;       /* Bloquea el scroll del fondo azul */
+            position: fixed;        /* Ancla la vista */
         }
 
         /* ============================================================
@@ -60,6 +62,7 @@
             box-shadow: var(--shadow);
             overflow: hidden;
         }
+
 
         /* ============================================================
            4. CABECERA (MI PERFIL - ADMIN)
