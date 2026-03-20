@@ -333,13 +333,14 @@
         .online { background: var(--status-online); }
         .offline { background: var(--status-offline); }
 
-        .nudge-shake { animation: nudge-action 0.1s 10; }
+        /* ZUMBIDO: ANIMACIÓN MÁS FUERTE */
+        .nudge-shake { animation: nudge-action 0.1s 12; }
         @keyframes nudge-action {
             0% { transform: translate(0,0); }
-            20% { transform: translate(6px,6px); }
-            40% { transform: translate(-6px,-6px); }
-            60% { transform: translate(6px,-6px); }
-            80% { transform: translate(-6px,6px); }
+            20% { transform: translate(10px,10px); }
+            40% { transform: translate(-10px,-10px); }
+            60% { transform: translate(10px,-10px); }
+            80% { transform: translate(-10px,10px); }
             100% { transform: translate(0,0); }
         }
 
@@ -383,14 +384,47 @@
         }
         .login-input:focus { border-color: var(--msn-blue); }
 
+        /* ==================================================== */
+        /* RESPONSIVE PARA ANDROID TOTALMENTE AFINADO Y ORDENADO */
+        /* ==================================================== */
         @media (max-width: 900px) {
-            #app { height: 100%; max-height: 100vh; border: none; overflow-y: auto; display: block; }
-            main { flex-direction: column; overflow: visible; }
-            #sidebar-left { width: 100%; height: auto; border-right: none; border-bottom: 1px solid #d0deee; padding-bottom: 10px; }
-            #chat-view { width: 100%; height: 500px; flex: none; }
-            #sidebar-right { display: flex; width: 100%; height: auto; border-left: none; border-top: 1px solid #d0deee; padding-bottom: 50px; }
+            #app { height: 100%; max-height: 100vh; width: 100vw; border: none; border-radius: 0; }
             header { padding: 10px; }
             #my-avatar-display { width: 50px; height: 50px; }
+            #my-user-label { font-size: 14px; }
+            #yt-api-text { max-width: 200px; }
+            
+            main { flex-direction: column; overflow: hidden; }
+            
+            /* Panel Izquierdo: Ahora es una barra superior deslizable tipo "Stories" */
+            #sidebar-left { 
+                width: 100%; height: auto; border-right: none; 
+                border-bottom: 1px solid #dcecfc; flex-direction: row; 
+                overflow-x: auto; flex-shrink: 0; padding: 5px 0;
+                background: #fdfdfd;
+            }
+            .category-label { display: none; }
+            #dynamic-friends-list { display: flex; flex-direction: row; }
+            .contact-item { padding: 5px 10px; width: auto; border-bottom: none; justify-content: center; flex-direction: column; gap: 4px;}
+            .contact-item img { width: 45px; height: 45px; }
+            .c-info { display: none; } /* Ocultamos los textos para mantenerlo limpio */
+            .badge-notify { top: 0; right: 5px; }
+
+            /* Panel Central: El chat ocupa todo el espacio libre */
+            #chat-view { width: 100%; flex: 1; border-bottom: 1px solid #dcecfc; }
+            #messages-wall { padding: 15px; }
+            #input-zone { padding: 10px; gap: 8px; flex-direction: column; }
+            #main-textarea { height: 50px; font-size: 14px; }
+            .btn-send { width: 100%; padding: 10px; }
+
+            /* Panel Derecho: Queda fijo al fondo solo mostrando YouTube */
+            #sidebar-right { 
+                width: 100%; padding: 10px; border-left: none; 
+                flex-shrink: 0; background: #fff; 
+            }
+            #yt-module { margin-bottom: 0; width: 100%; }
+            /* Se ocultan las fotos gigantes y redundancias en móvil */
+            #target-avatar-big, #target-name-big, #target-status-big, #my-small-preview { display: none; } 
         }
     </style>
 </head>
@@ -543,7 +577,8 @@
 
         const sndLogin = new Audio('https://raw.githubusercontent.com/pabluro/msn-assets/main/login.mp3');
         const sndMessage = new Audio('https://www.myinstants.com/media/sounds/messenger-mensaje.mp3');
-        const sndBuzz = new Audio('https://www.myinstants.com/media/sounds/msn-messenger-buzz.mp3');
+        // Zumbido modificado a un archivo clásico y directo
+        const sndBuzz = new Audio('https://www.myinstants.com/media/sounds/msn-nudge.mp3');
 
         function enableAudioContext() {
             [sndLogin, sndMessage, sndBuzz].forEach(a => {
@@ -605,7 +640,6 @@
                 btn.className = "contact-item";
                 const isOnline = u.online ? 'online' : 'offline';
                 
-                // Efecto visual para destacar que están escuchando música
                 const isMusic = u.descripcion && u.descripcion.includes('🎵');
                 const textStyle = isMusic ? 'color:var(--msn-blue); font-weight:bold;' : '';
 
@@ -622,7 +656,6 @@
 
                 if(unreadCounts[u.user]) updateBadge(u.user, unreadCounts[u.user]);
 
-                // ACTUALIZA EL PANEL DERECHO EN VIVO
                 if(u.user === activeChatId) {
                     document.getElementById('target-status-big').innerText = u.descripcion || "Disponible";
                     document.getElementById('target-avatar-big').src = u.foto || "https://via.placeholder.com/160";
@@ -774,9 +807,6 @@
             }
         });
 
-        // ==========================================
-        // LÓGICA DE YOUTUBE CON EMISIÓN DE ESTADO
-        // ==========================================
         let ytPlayerObj;
 
         function onYouTubeIframeAPIReady() {
