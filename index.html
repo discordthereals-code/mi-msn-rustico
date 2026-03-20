@@ -121,6 +121,10 @@
             display: flex;
             align-items: center;
             gap: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 300px;
         }
 
         #weather-api-text { color: #555; }
@@ -191,6 +195,7 @@
             border-radius: 4px;
             object-fit: cover;
             border: 1px solid #ddd;
+            background: #eee;
         }
 
         .c-info {
@@ -378,11 +383,13 @@
         }
         .login-input:focus { border-color: var(--msn-blue); }
 
+        /* RESPONSIVE PARA ANDROID CORREGIDO (Paneles apilados y visibles) */
         @media (max-width: 900px) {
-            #sidebar-right { display: none; }
-            #sidebar-left { width: 95px; }
-            #sidebar-left span, #sidebar-left b, #sidebar-left .c-status { display: none; }
-            #app { height: 100%; max-height: 100vh; border: none; }
+            #app { height: 100%; max-height: 100vh; border: none; overflow-y: auto; display: block; }
+            main { flex-direction: column; overflow: visible; }
+            #sidebar-left { width: 100%; height: auto; border-right: none; border-bottom: 1px solid #d0deee; padding-bottom: 10px; }
+            #chat-view { width: 100%; height: 500px; flex: none; }
+            #sidebar-right { display: flex; width: 100%; height: auto; border-left: none; border-top: 1px solid #d0deee; padding-bottom: 50px; }
             header { padding: 10px; }
             #my-avatar-display { width: 50px; height: 50px; }
         }
@@ -484,11 +491,12 @@
                         <div id="yt-player"></div>
                     </div>
                     <input id="yt-url-input" type="text" placeholder="Pega el link del video o playlist..." style="width: 100%; padding: 6px; font-size: 10px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 8px; outline: none;">
-                    <div style="display: flex; justify-content: center; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 4px;">
                         <button class="btn-msn" onclick="ytPlay()" title="Reproducir">▶</button>
                         <button class="btn-msn" onclick="ytPause()" title="Pausar">⏸</button>
                         <button class="btn-msn" onclick="ytStop()" title="Detener" style="color: red;">⏹</button>
                         <button class="btn-msn" onclick="ytNext()" title="Siguiente">⏭</button>
+                        <input type="range" id="yt-vol" min="0" max="100" value="50" style="width: 60px; cursor: pointer;" oninput="if(ytPlayerObj && ytPlayerObj.setVolume) ytPlayerObj.setVolume(this.value)">
                     </div>
                 </div>
                 <img id="target-avatar-big" class="big-avatar-frame" src="/logo-conversando.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
@@ -496,7 +504,7 @@
                 <p id="target-status-big" style="font-size:12px; color:#666; margin-top:10px; font-style:italic; text-align:center;">Sala General de Chat</p>
 
                 <div id="my-small-preview">
-                    <img id="my-mini-avatar" class="big-avatar-frame" style="width:120px; height:120px;">
+                    <img id="my-mini-avatar" class="big-avatar-frame" style="width:120px; height:120px;" onerror="this.src='https://via.placeholder.com/160'">
                     <p style="font-size:11px; color:#999; margin-top:10px;">(Tu imagen de perfil)</p>
                 </div>
             </div>
@@ -573,7 +581,7 @@
         });
 
         function syncMyProfile(p) {
-            const pic = p.foto || "/logo-conversando.png";
+            const pic = p.foto || "https://via.placeholder.com/160";
             document.getElementById('my-avatar-display').src = pic;
             document.getElementById('my-mini-avatar').src = pic;
             document.getElementById('my-user-label').innerText = myUsername;
@@ -598,7 +606,7 @@
                 const isOnline = u.online ? 'online' : 'offline';
 
                 btn.innerHTML = `
-                    <img src="${u.foto || '/logo-conversando.png'}">
+                    <img src="${u.foto || 'https://via.placeholder.com/60'}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
                     <div class="c-info">
                         <b class="c-name"><span class="status-dot ${isOnline}"></span>${u.user}</b>
                         <span class="c-status">${u.descripcion || 'Disponible'}</span>
@@ -619,7 +627,7 @@
 
             document.getElementById('target-name-big').innerText = name;
             document.getElementById('target-status-big').innerText = desc || "Disponible";
-            document.getElementById('target-avatar-big').src = img || "/logo-conversando.png";
+            document.getElementById('target-avatar-big').src = img || "https://via.placeholder.com/160";
 
             document.getElementById('messages-wall').innerHTML = "";
             socket.emit('get_private_history', id);
@@ -730,7 +738,7 @@
                 };
                 reader.readAsDataURL(fileInput.files[0]);
             } else {
-                socket.emit('update_profile', { desc: phrase, foto: null });
+                socket.emit('update_profile', { desc: phrase }); // Quitamos 'foto: null' para evitar errores
                 closeProfileSettings();
             }
         }
@@ -757,7 +765,7 @@
         });
 
         // ==========================================
-        // NUEVA LÓGICA DE YOUTUBE AÑADIDA AL FINAL
+        // LÓGICA DE YOUTUBE CON EMISIÓN DE ESTADO
         // ==========================================
         let ytPlayerObj;
 
@@ -788,12 +796,16 @@
 
         function onPlayerStateChange(event) {
             if (event.data == YT.PlayerState.PLAYING) {
-                const title = ytPlayerObj.getVideoData().title;
+                const data = ytPlayerObj.getVideoData();
+                const title = data && data.title ? data.title : "Música en YouTube";
                 const statusStr = "🎵 Escuchando: " + title;
-                socket.emit('update_profile', { desc: statusStr, foto: null });
+                
+                // Emite al servidor para que todos vean tu estado musical
+                socket.emit('update_profile', { desc: statusStr });
+                
                 document.getElementById('yt-api-text').innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" width="12" height="12"> ${statusStr}`;
             } else if (event.data == YT.PlayerState.PAUSED || event.data == YT.PlayerState.ENDED) {
-                socket.emit('update_profile', { desc: "Disponible", foto: null });
+                socket.emit('update_profile', { desc: "Disponible" });
                 document.getElementById('yt-api-text').innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" width="12" height="12"> Disponible`;
             }
         }
@@ -803,7 +815,7 @@
         function ytStop() { 
             if(ytPlayerObj && ytPlayerObj.stopVideo) {
                 ytPlayerObj.stopVideo(); 
-                socket.emit('update_profile', { desc: "Disponible", foto: null });
+                socket.emit('update_profile', { desc: "Disponible" });
                 document.getElementById('yt-api-text').innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" width="12" height="12"> Disponible`;
             }
         }
