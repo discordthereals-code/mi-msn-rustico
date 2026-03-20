@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MSN Messenger - LA VERSIÓN DEFINITIVA (SIN RECORTES)</title>
+    <title>MSN Messenger - EL CÓDIGO MAESTRO FINAL - YOUTUBE & ONRENDER</title>
     
     <style>
         :root {
@@ -13,9 +13,12 @@
             --border-color: #b4c7de;
             --white: #ffffff;
             --shadow: 0 10px 40px rgba(0,0,0,0.4);
+            --yt-red: #FF0000;
+            --status-online: #31a24c;
+            --status-offline: #bdc1c6;
         }
 
-        /* RESETEO PARA EVITAR SCROLL FANTASMA EN ANDROID */
+        /* RESETEO TOTAL PARA EVITAR SCROLL FANTASMA EN ANDROID */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -40,10 +43,10 @@
 
         /* CONTENEDOR PRINCIPAL: EL "ESCRITORIO" DEL MSN */
         #app {
-            display: none; /* Se activa tras login exitoso */
+            display: none; /* Se activa tras login */
             width: 1200px;
             max-width: 100vw;
-            height: 850px;
+            height: 900px;
             max-height: 100vh;
             background: var(--white);
             border: 1px solid #1c1c1c;
@@ -73,8 +76,8 @@
         }
 
         #my-avatar-display {
-            width: 65px;
-            height: 65px;
+            width: 68px;
+            height: 68px;
             border: 2px solid #fff;
             border-radius: 4px;
             object-fit: cover;
@@ -110,15 +113,26 @@
             text-overflow: ellipsis;
         }
 
-        /* ESTADO DE API (SPOTIFY / CLIMA) */
+        /* ESTADO DE API (YOUTUBE / CLIMA) */
         #api-integration-line {
             display: flex;
             align-items: center;
-            gap: 6px;
-            color: #1DB954; /* Verde Spotify */
+            gap: 8px;
             font-size: 10px;
             font-weight: bold;
             margin-top: 2px;
+        }
+
+        #yt-api-text {
+            color: var(--yt-red);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        #weather-api-text {
+            color: #555;
         }
 
         .header-btns {
@@ -149,7 +163,7 @@
 
         /* PANEL IZQUIERDO: NUESTROS ICONOS DE ONRENDER */
         #sidebar-left {
-            width: 300px;
+            width: 320px;
             border-right: 1px solid #d0deee;
             display: flex;
             flex-direction: column;
@@ -187,8 +201,8 @@
         .contact-item:hover { background: #f0f7ff; }
 
         .contact-item img {
-            width: 48px;
-            height: 48px;
+            width: 50px;
+            height: 50px;
             border-radius: 4px;
             object-fit: cover;
             border: 1px solid #ddd;
@@ -272,7 +286,7 @@
 
         #main-textarea {
             width: 100%;
-            height: 75px;
+            height: 80px;
             padding: 12px;
             border: 1px solid #a0b5d0;
             border-radius: 4px;
@@ -297,7 +311,7 @@
 
         /* PANEL DERECHO: VISTA DE CONTACTO */
         #sidebar-right {
-            width: 240px;
+            width: 260px;
             background: #fcfcfc;
             border-left: 1px solid #d0deee;
             display: flex;
@@ -308,8 +322,8 @@
         }
 
         .big-avatar-frame {
-            width: 150px;
-            height: 150px;
+            width: 160px;
+            height: 160px;
             border: 5px solid #fff;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             border-radius: 8px;
@@ -327,8 +341,8 @@
 
         /* ESTADOS DE CONEXIÓN */
         .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-        .online { background: #31a24c; }
-        .offline { background: #bdc1c6; }
+        .online { background: var(--status-online); }
+        .offline { background: var(--status-offline); }
 
         /* ZUMBIDO: ANIMACIÓN REAL */
         .nudge-shake { animation: nudge-action 0.1s 10; }
@@ -366,7 +380,7 @@
             background: white;
             padding: 50px;
             border-radius: 15px;
-            width: 420px;
+            width: 440px;
             text-align: center;
             box-shadow: var(--shadow);
             z-index: 20;
@@ -384,18 +398,20 @@
         /* RESPONSIVE PARA ANDROID */
         @media (max-width: 900px) {
             #sidebar-right { display: none; }
-            #sidebar-left { width: 90px; }
-            #sidebar-left span, #sidebar-left b { display: none; }
+            #sidebar-left { width: 95px; }
+            #sidebar-left span, #sidebar-left b, #sidebar-left .c-status { display: none; }
             #app { height: 100%; max-height: 100vh; border: none; }
+            header { padding: 10px; }
+            #my-avatar-display { width: 50px; height: 50px; }
         }
     </style>
 </head>
 <body onclick="enableAudioContext()">
 
     <div id="login-screen">
-        <h1 style="color:var(--msn-blue); font-style: italic; margin-bottom:15px; font-size: 32px;">MSN Messenger</h1>
+        <h1 style="color:var(--msn-blue); font-style: italic; margin-bottom:15px; font-size: 34px;">MSN Messenger</h1>
         <p style="color:#666; font-size:14px; margin-bottom:35px;">Introduce tus credenciales de Passport</p>
-        <input id="login-u" class="login-input" type="text" placeholder="Correo electrónico">
+        <input id="login-u" class="login-input" type="text" placeholder="Correo electrónico (ej: msn@live.com)">
         <input id="login-p" class="login-input" type="password" placeholder="Contraseña">
         <button onclick="handleLoginAttempt()" class="btn-send" style="margin-top:10px;">Iniciar Sesión</button>
         <p style="margin-top:20px; font-size:11px; color:#aaa;">© 2026 Microsoft Corporation</p>
@@ -404,18 +420,21 @@
     <div id="app">
         <header>
             <div class="my-info-block">
-                <img id="my-avatar-display" onclick="openProfileSettings()" title="Haz clic para cambiar imagen">
+                <img id="my-avatar-display" onclick="openProfileSettings()" title="Cambiar mi imagen">
                 <div class="my-details">
-                    <b id="my-user-label">Usuario</b>
+                    <b id="my-user-label">Usuario MSN</b>
                     <span id="my-status-label">Conectando...</span>
                     <div id="api-integration-line">
-                        <span id="spotify-api-text">Escuchando: ... 🎵</span>
-                        <span id="weather-api-text">| ☀️ 22°C</span>
+                        <span id="yt-api-text" onclick="setYouTubeStatus()" title="Haz clic para actualizar música">
+                            <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" width="12" height="12"> 
+                            Escuchando: Haz clic para añadir música 🎵
+                        </span>
+                        <span id="weather-api-text">| ☀️ Cargando clima...</span>
                     </div>
                 </div>
             </div>
             <div class="header-btns">
-                <button class="btn-msn" onclick="openProfileSettings()">Editar Perfil</button>
+                <button class="btn-msn" onclick="openProfileSettings()">Configuración</button>
             </div>
         </header>
 
@@ -427,7 +446,7 @@
                     <img src="/logo-conversando.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
                     <div class="c-info">
                         <b class="c-name">Conversando</b>
-                        <span class="c-status">Chat para todos</span>
+                        <span class="c-status">Chat principal de la comunidad</span>
                     </div>
                     <span class="badge-notify" id="notify-conversando">0</span>
                 </button>
@@ -436,16 +455,16 @@
                     <img src="/logo-juegos.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
                     <div class="c-info">
                         <b class="c-name">Juegos</b>
-                        <span class="c-status">Comunidad Gaming</span>
+                        <span class="c-status">Comunidad Gaming & Fun</span>
                     </div>
                     <span class="badge-notify" id="notify-juegos">0</span>
                 </button>
 
-                <button class="contact-item" onclick="switchToChat('solotodo', 'Solo Todo', '/logo-solotodo.png', 'Marketplace & Permutas')">
+                <button class="contact-item" onclick="switchToChat('solotodo', 'Solo Todo', '/logo-solotodo.png', 'Marketplace & Ofertas')">
                     <img src="/logo-solotodo.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
                     <div class="c-info">
                         <b class="c-name">Solo Todo</b>
-                        <span class="c-status">Ventas y compras</span>
+                        <span class="c-status">Ventas, compras y permutas</span>
                     </div>
                     <span class="badge-notify" id="notify-solotodo">0</span>
                 </button>
@@ -462,15 +481,14 @@
                 <div id="chat-toolbar">
                     <span class="emoji-btn" onclick="insertEmoji('😊')">😊</span>
                     <span class="emoji-btn" onclick="insertEmoji('😂')">😂</span>
-                    <span class="emoji-btn" onclick="insertEmoji('😛')">😛</span>
                     <span class="emoji-btn" onclick="insertEmoji('❤️')">❤️</span>
-                    <span class="emoji-btn" onclick="insertEmoji('😮')">😮</span>
+                    <span class="emoji-btn" onclick="insertEmoji('😛')">😛</span>
                     <button class="btn-msn" onclick="emitNudge()" style="margin-left:auto; font-size:10px;">🔔 ENVIAR ZUMBIDO</button>
                 </div>
 
                 <div id="input-zone">
                     <textarea id="main-textarea" placeholder="Escribe un mensaje aquí..." oninput="reportTyping()"></textarea>
-                    <button class="btn-send" onclick="performSendMessage()">Enviar</button>
+                    <button class="btn-send" onclick="performSendMessage()">Enviar Mensaje (Enter)</button>
                 </div>
             </div>
 
@@ -480,7 +498,7 @@
                 <p id="target-status-big" style="font-size:12px; color:#666; margin-top:10px; font-style:italic; text-align:center;">Sala General de Chat</p>
                 
                 <div id="my-small-preview">
-                    <img id="my-mini-avatar" class="big-avatar-frame" style="width:110px; height:110px;">
+                    <img id="my-mini-avatar" class="big-avatar-frame" style="width:120px; height:120px;">
                     <p style="font-size:11px; color:#999; margin-top:10px;">(Tu imagen de perfil)</p>
                 </div>
             </div>
@@ -489,15 +507,15 @@
 
     <div id="modal-profile" class="modal-overlay">
         <div class="modal-content">
-            <h2 style="color:var(--msn-blue); margin-bottom:25px;">Personalizar mi Perfil</h2>
+            <h2 style="color:var(--msn-blue); margin-bottom:25px; text-align: center;">Personalizar Perfil</h2>
             
             <div style="text-align:left; margin-bottom:20px;">
-                <label style="font-size:12px; font-weight:bold; color:#444;">Tu Frase o Estado:</label>
+                <label style="font-size:12px; font-weight:bold; color:#444;">Mensaje de Estado:</label>
                 <input id="input-new-phrase" type="text" class="login-input" style="margin-top:8px;" placeholder="¿Qué estás pensando?">
             </div>
             
             <div style="text-align:left; margin-bottom:30px;">
-                <label style="font-size:12px; font-weight:bold; color:#444;">Imagen de Perfil:</label>
+                <label style="font-size:12px; font-weight:bold; color:#444;">Cambiar Avatar:</label>
                 <input id="input-new-photo" type="file" accept="image/*" style="width:100%; margin-top:10px; font-size:13px;">
             </div>
             
@@ -511,34 +529,34 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        let myUsername = localStorage.getItem('msn_saved_user') || "";
+        let myUsername = localStorage.getItem('msn_master_user') || "";
         let activeChatId = 'conversando';
         let unreadCounts = {};
-        let typingTimer;
+        let typingTimeout;
 
-        // ELEMENTOS DE AUDIO
+        // ELEMENTOS DE SONIDO
         const sndLogin = new Audio('https://raw.githubusercontent.com/pabluro/msn-assets/main/login.mp3');
         const sndMessage = new Audio('https://www.myinstants.com/media/sounds/messenger-mensaje.mp3');
-        const sndNudge = new Audio('https://www.myinstants.com/media/sounds/msn-messenger-buzz.mp3');
+        const sndBuzz = new Audio('https://www.myinstants.com/media/sounds/msn-messenger-buzz.mp3');
 
         function enableAudioContext() {
-            [sndLogin, sndMessage, sndNudge].forEach(a => {
+            [sndLogin, sndMessage, sndBuzz].forEach(a => {
                 a.play().then(() => { a.pause(); a.currentTime = 0; }).catch(() => {});
             });
         }
 
-        // AUTO-LOGIN
+        // LÓGICA DE INICIO DE SESIÓN
         if(myUsername) {
-            socket.emit('login', { user: myUsername, pass: localStorage.getItem('msn_saved_pass') });
+            socket.emit('login', { user: myUsername, pass: localStorage.getItem('msn_master_pass') });
         }
 
         function handleLoginAttempt() {
             const u = document.getElementById('login-u').value.trim();
             const p = document.getElementById('login-p').value.trim();
-            if(!u || !p) return alert("Completa los campos");
+            if(!u || !p) return alert("Por favor, completa los campos.");
             
-            localStorage.setItem('msn_saved_user', u);
-            localStorage.setItem('msn_saved_pass', p);
+            localStorage.setItem('msn_master_user', u);
+            localStorage.setItem('msn_master_pass', p);
             socket.emit('login', { user: u, pass: p });
         }
 
@@ -547,17 +565,17 @@
                 myUsername = res.user;
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('app').style.display = 'flex';
-                syncMyVisuals(res.perfil);
+                syncMyProfile(res.perfil);
                 switchToChat('conversando', 'Conversando', '/logo-conversando.png', 'Sala General');
                 sndLogin.play().catch(()=>{});
-                initApiSimulations();
+                initExternalApis();
             } else {
-                alert("Error: " + res.msg);
+                alert("Error de autenticación: " + res.msg);
                 localStorage.clear();
             }
         });
 
-        function syncMyVisuals(p) {
+        function syncMyProfile(p) {
             const pic = p.foto || "/logo-conversando.png";
             document.getElementById('my-avatar-display').src = pic;
             document.getElementById('my-mini-avatar').src = pic;
@@ -565,39 +583,54 @@
             document.getElementById('my-status-label').innerText = p.descripcion || "Disponible";
         }
 
-        // --- APIS INTEGRATIVAS (SPOTIFY & WEATHER) ---
-        function initApiSimulations() {
-            const playlist = [
-                "Escuchando: Linkin Park - Numb 🎵",
-                "Escuchando: Evanescence - Bring Me To Life 🎵",
-                "Escuchando: Green Day - Wake Me Up 🎵",
-                "Escuchando: Estopa - Vino Tinto 🎵"
-            ];
-            
-            setInterval(() => {
-                const pick = playlist[Math.floor(Math.random() * playlist.length)];
-                document.getElementById('spotify-api-text').innerText = pick;
-                // Simular clima
-                const temps = ["☀️ 26°C", "⛅ 22°C", "☁️ 18°C"];
-                document.getElementById('weather-api-text').innerText = "| " + temps[Math.floor(Math.random()*temps.length)] + " Santiago";
-            }, 10000);
+        // --- INTEGRACIÓN YOUTUBE & CLIMA REAL ---
+        function initExternalApis() {
+            // CLIMA REAL (SANTIAGO)
+            fetch('https://wttr.in/Santiago?format=%c+%t')
+                .then(res => res.text())
+                .then(data => document.getElementById('weather-api-text').innerText = "| " + data)
+                .catch(() => document.getElementById('weather-api-text').innerText = "| ☀️ 24°C Santiago");
         }
 
-        // GESTIÓN DE CONTACTOS
+        async function setYouTubeStatus() {
+            const input = prompt("Pega el enlace de YouTube o el nombre de la canción:");
+            if(!input) return;
+
+            let finalTitle = input;
+            if(input.includes("youtube.com") || input.includes("youtu.be")) {
+                document.getElementById('yt-api-text').innerText = "🎵 Cargando título...";
+                try {
+                    const res = await fetch(`https://www.youtube.com/oembed?url=${input}&format=json`);
+                    const data = await res.json();
+                    finalTitle = data.title;
+                } catch(e) { finalTitle = "Video de YouTube"; }
+            }
+
+            const fullStatus = "Escuchando: " + finalTitle;
+            document.getElementById('yt-api-text').innerHTML = `
+                <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" width="12" height="12"> 
+                ${fullStatus} 🎵
+            `;
+
+            // Enviar al servidor para que otros lo vean en nuestro estado
+            socket.emit('update_profile', { desc: fullStatus, foto: null });
+        }
+
+        // GESTIÓN DE CONTACTOS DINÁMICOS
         socket.on('lista_contactos', list => {
             const container = document.getElementById('dynamic-friends-list');
             container.innerHTML = "";
             list.forEach(u => {
-                if(u.user === myUsername) { syncMyVisuals(u); return; }
+                if(u.user === myUsername) { syncMyProfile(u); return; }
                 
                 const btn = document.createElement('button');
                 btn.className = "contact-item";
-                const stateClass = u.online ? 'online' : 'offline';
+                const isOnline = u.online ? 'online' : 'offline';
                 
                 btn.innerHTML = `
                     <img src="${u.foto || '/logo-conversando.png'}">
                     <div class="c-info">
-                        <b class="c-name"><span class="status-dot ${stateClass}"></span>${u.user}</b>
+                        <b class="c-name"><span class="status-dot ${isOnline}"></span>${u.user}</b>
                         <span class="c-status">${u.descripcion || 'Disponible'}</span>
                     </div>
                     <span class="badge-notify" id="notify-${u.user}">0</span>
@@ -605,15 +638,15 @@
                 btn.onclick = () => switchToChat(u.user, u.user, u.foto, u.descripcion);
                 container.appendChild(btn);
                 
-                if(unreadCounts[u.user]) refreshBadgeDisplay(u.user, unreadCounts[u.user]);
+                if(unreadCounts[u.user]) updateBadge(u.user, unreadCounts[u.user]);
             });
         });
 
-        // NAVEGACIÓN DE CHAT
+        // NAVEGACIÓN ENTRE CHATS
         function switchToChat(id, name, img, desc) {
             activeChatId = id;
             unreadCounts[id] = 0;
-            refreshBadgeDisplay(id, 0);
+            updateBadge(id, 0);
             
             document.getElementById('target-name-big').innerText = name;
             document.getElementById('target-status-big').innerText = desc || "Disponible";
@@ -623,7 +656,7 @@
             socket.emit('get_private_history', id);
         }
 
-        function refreshBadgeDisplay(id, n) {
+        function updateBadge(id, n) {
             const badge = document.getElementById('notify-' + id);
             if(badge) {
                 badge.innerText = n;
@@ -638,21 +671,19 @@
 
         socket.on('typing_status', data => {
             if(data.to === myUsername && data.user === activeChatId) {
-                document.getElementById('typing-indicator').innerText = `${data.user} está escribiendo un mensaje...`;
-                clearTimeout(typingTimer);
-                typingTimer = setTimeout(() => {
-                    document.getElementById('typing-indicator').innerText = "";
-                }, 3000);
+                document.getElementById('typing-indicator').innerText = `${data.user} está escribiendo...`;
+                clearTimeout(typingTimeout);
+                typingTimeout = setTimeout(() => { document.getElementById('typing-indicator').innerText = ""; }, 3000);
             }
         });
 
         function performSendMessage() {
-            const box = document.getElementById('main-textarea');
-            const val = box.value.trim();
-            if(val) {
-                socket.emit('chat message', { to: activeChatId, text: val });
-                box.value = "";
-                box.focus();
+            const input = document.getElementById('main-textarea');
+            const msg = input.value.trim();
+            if(msg) {
+                socket.emit('chat message', { to: activeChatId, text: msg });
+                input.value = "";
+                input.focus();
             }
         }
 
@@ -662,24 +693,24 @@
 
         socket.on('chat message', m => {
             const origin = m.to || 'conversando';
-            const isGroupChat = ['conversando', 'juegos', 'solotodo'].includes(origin);
-            const isForMeNow = (isGroupChat && origin === activeChatId) || 
+            const isGroup = ['conversando', 'juegos', 'solotodo'].includes(origin);
+            const isCurrent = (isGroup && origin === activeChatId) || 
                                (m.user === activeChatId && m.to === myUsername) || 
                                (m.user === myUsername && m.to === activeChatId);
 
-            if(isForMeNow) {
-                appendMessageToWall(m);
+            if(isCurrent) {
+                appendMessage(m);
                 if(m.user !== myUsername) sndMessage.play().catch(()=>{});
             } else {
-                const targetKey = isGroupChat ? origin : m.user;
-                unreadCounts[targetKey] = (unreadCounts[targetKey] || 0) + 1;
-                refreshBadgeDisplay(targetKey, unreadCounts[targetKey]);
+                const key = isGroup ? origin : m.user;
+                unreadCounts[key] = (unreadCounts[key] || 0) + 1;
+                updateBadge(key, unreadCounts[key]);
                 sndMessage.play().catch(()=>{});
             }
 
-            if(m.isBuzz && isForMeNow) {
+            if(m.isBuzz && isCurrent) {
                 document.getElementById('app').classList.add('nudge-shake');
-                sndNudge.play().catch(()=>{});
+                sndBuzz.play().catch(()=>{});
                 setTimeout(() => document.getElementById('app').classList.remove('nudge-shake'), 800);
             }
         });
@@ -688,33 +719,32 @@
             if(r.target === activeChatId) {
                 const wall = document.getElementById('messages-wall');
                 wall.innerHTML = "";
-                r.history.forEach(m => appendMessageToWall(m));
+                r.history.forEach(m => appendMessage(m));
             }
         });
 
-        function appendMessageToWall(m) {
+        function appendMessage(m) {
             const wall = document.getElementById('messages-wall');
-            const wrap = document.createElement('div');
-            wrap.className = "msg-block";
+            const div = document.createElement('div');
+            div.className = "msg-block";
             
             const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            let body = m.texto || m.text || "";
+            let content = m.texto || m.text || "";
 
             if(m.isBuzz) {
-                body = `<span style="color:red; font-weight:bold;">TE HA ENVIADO UN ZUMBIDO.</span>`;
+                content = `<span style="color:red; font-weight:bold;">TE HA ENVIADO UN ZUMBIDO.</span>`;
             } else {
-                // Parsear Links
-                body = body.replace(/(https?:\/\/[^\s]+)/g, url => `<a href="${url}" target="_blank" style="color:var(--msn-blue);">${url}</a>`);
-                // Parsear Emoticonos básicos
-                body = body.replace(/:\)/g, '😊').replace(/:D/g, '😃').replace(/:P/g, '😛').replace(/\(L\)/g, '❤️');
+                // Parsear Links y Emojis básicos
+                content = content.replace(/(https?:\/\/[^\s]+)/g, url => `<a href="${url}" target="_blank" style="color:var(--msn-blue);">${url}</a>`);
+                content = content.replace(/:\)/g, '😊').replace(/:D/g, '😃').replace(/\(L\)/g, '❤️');
             }
 
-            wrap.innerHTML = `
+            div.innerHTML = `
                 <div class="msg-header">${m.user} dice: <span>[${time}]</span></div>
-                <div class="msg-content">${body}</div>
+                <div class="msg-content">${content}</div>
             `;
             
-            wall.appendChild(wrap);
+            wall.appendChild(div);
             wall.scrollTop = wall.scrollHeight;
         }
 
@@ -724,34 +754,38 @@
         
         function applyProfileChanges() {
             const fileInput = document.getElementById('input-new-photo');
-            const phraseInput = document.getElementById('input-new-phrase');
+            const phrase = document.getElementById('input-new-phrase').value;
             
             if(fileInput.files && fileInput.files[0]) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    socket.emit('update_profile', { desc: phraseInput.value, foto: e.target.result });
+                    socket.emit('update_profile', { desc: phrase, foto: e.target.result });
                     closeProfileSettings();
                 };
                 reader.readAsDataURL(fileInput.files[0]);
             } else {
-                socket.emit('update_profile', { desc: phraseInput.value, foto: null });
+                socket.emit('update_profile', { desc: phrase, foto: null });
                 closeProfileSettings();
             }
         }
 
         function insertEmoji(e) {
-            const tx = document.getElementById('main-textarea');
-            tx.value += e;
-            tx.focus();
+            const area = document.getElementById('main-textarea');
+            area.value += e;
+            area.focus();
         }
 
-        // FIX ANDROID KEYBOARD
+        // FIX ANDROID DINÁMICO
         window.visualViewport.addEventListener('resize', () => {
-            document.body.style.height = window.visualViewport.height + 'px';
-            window.scrollTo(0, 0);
+            const h = window.visualViewport.height;
+            document.body.style.height = h + 'px';
+            document.getElementById('app').style.height = h + 'px';
+            // Scroll al fondo para que el input no tape el último mensaje
+            const wall = document.getElementById('messages-wall');
+            wall.scrollTop = wall.scrollHeight;
         });
 
-        // ENTER PARA ENVIAR
+        // ENVIAR CON ENTER
         document.getElementById('main-textarea').addEventListener('keydown', e => {
             if(e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
