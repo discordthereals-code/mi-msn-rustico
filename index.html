@@ -70,7 +70,7 @@
         #chat-header { padding: 10px; border-bottom: 1px solid #eee; font-weight: bold; color: var(--msn-blue); font-size: 14px;}
         #chat-messages { flex: 1; overflow-y: auto; padding: 15px; }
 
-        /* Mensajes styling */
+        /* Mensajes styling (CON HORA) */
         .msg-line { margin-bottom: 8px; font-size: 13px; line-height: 1.4; }
         .msg-time { color: #888; font-size: 10px; margin-right: 6px; }
         .msg-user { font-weight: bold; color: #0056b3; margin-right: 5px; }
@@ -136,7 +136,7 @@
                     </div>
                     
                     <div id="rooms-list">
-                        <div class="list-header">Salas</div>
+                        <div class="list-header">Salas (Con Fotos de Grupo)</div>
                         <div class="contact-item" id="room-conversando" onclick="switchChat('conversando', true)">💬 Conversando</div>
                         <div class="contact-item" id="room-juegos" onclick="switchChat('juegos', true)">🎮 Juegos</div>
                         <div class="contact-item" id="room-solotodo" onclick="switchChat('solotodo', true)">🛒 Solotodo</div>
@@ -153,7 +153,7 @@
                     <div id="chat-messages"></div>
                     <div id="typing-status"></div>
                     <div id="input-area">
-                        <input type="text" id="messageInput" placeholder="Escribe un mensaje..." onkeypress="handleTyping()">
+                        <input type="text" id="messageInput" placeholder="Escribe un mensaje..." onkeypress="handleKeyPress(event)" onkeydown="handleTyping()">
                         <button onclick="sendNudge()">📢 Zumbido</button>
                         <button onclick="sendMessage()">Enviar</button>
                     </div>
@@ -198,14 +198,15 @@
         let photoBase64 = null;
         let typingTimeout;
 
-        // Mapa de Emoticonos (links a imágenes reales)
+        // Mapa de Emoticonos (links burdos a imágenes locales o placeholders)
+        // Deberás tener tus localmente o usar URLs reales.
         const emojiMap = {
-            ":)": "smiley.png", ":(": "sad.png", ":P": "tongue.png", 
-            "(H)": "cool.png", "<3": "heart.png", "(y)": "thumbsup.png"
+            ":)": "smiley", ":(": "sad", ":P": "tongue", 
+            "(H)": "cool", "<3": "heart", "(y)": "thumbsup"
         };
-        const EMOJI_BASE_URL = "https://w7.pngwing.com/pngs/451/231/"; // URL base de ejemplo (deberás tener tus localmente o usar URLs reales)
+        const EMOJI_BASE_URL = "/public/emojis/"; // URL base de ejemplo (deberás tener tus localmente)
 
-        // 1. MANEJO DE VISTAS Y LOGIN
+        // --- 1. LOGIN ---
         function attemptLogin() {
             const user = document.getElementById('username').value;
             const pass = document.getElementById('password').value;
@@ -220,7 +221,7 @@
                 updateMyProfileDisplay(data.perfil);
                 document.getElementById('login-view').classList.remove('active');
                 document.getElementById('main-view').classList.add('active');
-                switchChat('conversando', true);
+                switchChat('conversando', true); // Iniciar en sala global
             } else {
                 document.getElementById('login-status-msg').innerText = data.msg;
             }
@@ -232,7 +233,7 @@
             if (p.foto) document.getElementById('my-avatar-img').src = p.foto;
         }
 
-        // 2. GESTIÓN DE PERFIL (Modal y Base64)
+        // --- 2. GESTIÓN DE PERFIL ---
         function openProfileModal() {
             document.getElementById('edit-desc').value = document.getElementById('my-desc').innerText;
             document.getElementById('profile-modal').classList.add('active');
@@ -257,22 +258,21 @@
             document.getElementById('my-desc').innerText = desc;
             if (photoBase64) document.getElementById('my-avatar-img').src = photoBase64;
             closeModal();
-            photoBase64 = null; // Reset
+            photoBase64 = null;
         }
 
-        // 3. CAMBIO DE CHAT Y HISTORIAL
+        // --- 3. CHAT Y HISTORIAL ---
         function switchChat(target, isGroup) {
             currentChatTarget = target;
             isGroupChat = isGroup;
             
-            // UI Update
             document.querySelectorAll('.contact-item').forEach(i => i.classList.remove('active'));
             const elId = isGroup ? `room-${target}` : `contact-${target}`;
             const activeEl = document.getElementById(elId);
             if(activeEl) activeEl.classList.add('active');
 
             document.getElementById('chat-header').innerText = isGroup ? `Sala: ${target}` : `Chat Privado: ${target}`;
-            document.getElementById('chat-messages').innerHTML = ''; // Clear
+            document.getElementById('chat-messages').innerHTML = '';
 
             socket.emit('get_private_history', target);
         }
@@ -283,7 +283,7 @@
             }
         });
 
-        // 4. ENVÍO Y RECEPCIÓN DE MENSAJES (Multimedia)
+        // --- 4. ENVÍO Y RECEPCIÓN multimedia ---
         function sendMessage() {
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
@@ -295,78 +295,13 @@
             }
         }
 
-        socket.on('chat message', (data) => {
-            const shouldAppend = isGroupChat 
-                ? (data.to === currentChatTarget) 
-                : (data.user === currentChatTarget || (data.user === currentUserId && data.to === currentChatTarget));
-            
-            if (shouldAppend) {
-                appendMessage(data);
-                if (data.user !== currentUserId) {
-                    document.getElementById('sound-msg').play();
-                }
-            } else if (data.user !== currentUserId) {
-                showToast(data.user);
+        // --- AQUÍ ESTÁ EL ARREGLO PARA LA TECLA ENTER ---
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
             }
-        });
-
-        function appendMessage(data) {
-            const chatMessages = document.getElementById('chat-messages');
-            const isSelf = data.user === currentUserId;
-
-            if (data.isBuzz) {
-                chatMessages.innerHTML += `<div class="buzz-text">¡${isSelf ? 'Has enviado' : data.user + ' ha enviado'} un zumbido!</div>`;
-            } else {
-                const html = `<div class="msg-line ${isSelf ? 'msg-self' : ''}">
-                                <span class="msg-time">${data.time || ''}</span>
-                                <span class="msg-user">${data.user}:</span>
-                                <span class="msg-content">${processContent(data.text)}</span>
-                             </div>`;
-                chatMessages.innerHTML += html;
-            }
-            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        // 5. PARSER: Links, YouTube, Emoticonos
-        function processContent(text) {
-            // Segurdiad básica contra HTML
-            let p = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            
-            // Links clickeables
-            p = p.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
-            
-            // YouTube
-            const ytMatch = text.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
-            if (ytMatch) {
-                p += `<iframe class="yt-embed" src="https://www.youtube.com/embed/${ytMatch[1]}" frameborder="0" allowfullscreen></iframe>`;
-            }
-
-            // Emoticonos (Reemplazo burdo pero funcional)
-            // Para que esto funcione bien, necesitarás imágenes reales. 
-            // Usaré textos placeholders en el HTML para evitar referencias a archivos inexistentes.
-            Object.keys(emojiMap).forEach(key => {
-                // p = p.split(key).join(`<img src="${EMOJI_BASE_URL + emojiMap[key]}" class="emoji">`);
-                p = p.split(key).join(`<strong>${emojiMap[key].replace('.png','')}</strong>`); // Placeholder text
-            });
-
-            return p;
-        }
-
-        // 6. ZUMBIDOS
-        function sendNudge() {
-            socket.emit('chat message', { to: currentChatTarget, text: "BUZZ", isBuzz: true });
-        }
-
-        socket.on('nudge-received', (from) => {
-             // Solo si es en el chat activo o grupal
-             if (from === currentChatTarget || (isGroupChat && !activeSockets[currentChatTarget])) {
-                triggerNudgeEffects();
-             }
-        });
-
-        // Modificamos el manejador de chat message para detectar zumbido
-        // socket.on('chat message', (data) => { ... }) ya lo maneja arriba,
-        // pero necesitamos llamar al efecto visual/auditivo cuando data.isBuzz es true.
         socket.on('chat message', (data) => {
             const shouldAppend = isGroupChat 
                 ? (data.to === currentChatTarget) 
@@ -384,13 +319,58 @@
             }
         });
 
+        function appendMessage(data) {
+            const chatMessages = document.getElementById('chat-messages');
+            const isSelf = data.user === currentUserId;
+
+            if (data.isBuzz) {
+                chatMessages.innerHTML += `<div class="buzz-text">¡${isSelf ? 'Has enviado' : data.user + ' ha enviado'} un zumbido!</div>`;
+            } else {
+                // AQUÍ RENDERIZAMOS LA HORA (data.time)
+                const html = `<div class="msg-line ${isSelf ? 'msg-self' : ''}">
+                                <span class="msg-time">${data.time || ''}</span>
+                                <span class="msg-user">${data.user}:</span>
+                                <span class="msg-content">${processContent(data.text)}</span>
+                             </div>`;
+                chatMessages.innerHTML += html;
+            }
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // --- 5. PARSER: Links, YouTube, Emoticonos ---
+        function processContent(text) {
+            let p = text.replace(/</g, "&lt;").replace(/>/g, "&gt;"); // Seguridad básica
+            
+            // Links clickeables
+            p = p.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+            
+            // AQUÍ RENDERIZAMOS YOUTUBE
+            const ytMatch = text.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
+            if (ytMatch) {
+                p += `<iframe class="yt-embed" src="https://www.youtube.com/embed/${ytMatch[1]}" frameborder="0" allowfullscreen></iframe>`;
+            }
+
+            // Emoticonos (Placeholder de texto para que no dependa de archivos locales)
+            Object.keys(emojiMap).forEach(key => {
+                // p = p.split(key).join(`<img src="${EMOJI_BASE_URL + emojiMap[key] + '.gif'}" class="emoji">`);
+                p = p.split(key).join(`<strong>${emojiMap[key]}</strong>`); // Placeholder text
+            });
+
+            return p;
+        }
+
+        // --- 6. ZUMBIDOS ---
+        function sendNudge() {
+            socket.emit('chat message', { to: currentChatTarget, text: "BUZZ", isBuzz: true });
+        }
+
         function triggerNudgeEffects() {
             document.getElementById('sound-nudge').play();
             document.getElementById('main-window').classList.add('nudge-shake');
             setTimeout(() => document.getElementById('main-window').classList.remove('nudge-shake'), 600);
         }
 
-        // 7. LISTA DE CONTACTOS ONLINE
+        // --- 7. LISTA DE CONTACTOS Y FOTOS DE SALAS ---
         socket.on('lista_contactos', (users) => {
             const container = document.getElementById('online-list-container');
             container.innerHTML = '';
@@ -414,7 +394,7 @@
             });
         });
 
-        // 8. "ESCRIBIENDO..." Y TOAST
+        // --- 8. "ESCRIBIENDO..." Y TOAST ---
         function handleTyping() {
             clearTimeout(typingTimeout);
             socket.emit('typing', { to: currentChatTarget, user: currentUserId, isTyping: true });
