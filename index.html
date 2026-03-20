@@ -383,7 +383,6 @@
         }
         .login-input:focus { border-color: var(--msn-blue); }
 
-        /* RESPONSIVE PARA ANDROID CORREGIDO (Paneles apilados y visibles) */
         @media (max-width: 900px) {
             #app { height: 100%; max-height: 100vh; border: none; overflow-y: auto; display: block; }
             main { flex-direction: column; overflow: visible; }
@@ -499,6 +498,7 @@
                         <input type="range" id="yt-vol" min="0" max="100" value="50" style="width: 60px; cursor: pointer;" oninput="if(ytPlayerObj && ytPlayerObj.setVolume) ytPlayerObj.setVolume(this.value)">
                     </div>
                 </div>
+
                 <img id="target-avatar-big" class="big-avatar-frame" src="/logo-conversando.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
                 <h3 id="target-name-big" style="margin-top:20px; color:var(--msn-blue); text-align:center;">Conversando</h3>
                 <p id="target-status-big" style="font-size:12px; color:#666; margin-top:10px; font-style:italic; text-align:center;">Sala General de Chat</p>
@@ -604,12 +604,16 @@
                 const btn = document.createElement('button');
                 btn.className = "contact-item";
                 const isOnline = u.online ? 'online' : 'offline';
+                
+                // Efecto visual para destacar que están escuchando música
+                const isMusic = u.descripcion && u.descripcion.includes('🎵');
+                const textStyle = isMusic ? 'color:var(--msn-blue); font-weight:bold;' : '';
 
                 btn.innerHTML = `
                     <img src="${u.foto || 'https://via.placeholder.com/60'}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
                     <div class="c-info">
                         <b class="c-name"><span class="status-dot ${isOnline}"></span>${u.user}</b>
-                        <span class="c-status">${u.descripcion || 'Disponible'}</span>
+                        <span class="c-status" style="${textStyle}">${u.descripcion || 'Disponible'}</span>
                     </div>
                     <span class="badge-notify" id="notify-${u.user}">0</span>
                 `;
@@ -617,6 +621,12 @@
                 container.appendChild(btn);
 
                 if(unreadCounts[u.user]) updateBadge(u.user, unreadCounts[u.user]);
+
+                // ACTUALIZA EL PANEL DERECHO EN VIVO
+                if(u.user === activeChatId) {
+                    document.getElementById('target-status-big').innerText = u.descripcion || "Disponible";
+                    document.getElementById('target-avatar-big').src = u.foto || "https://via.placeholder.com/160";
+                }
             });
         });
 
@@ -738,7 +748,7 @@
                 };
                 reader.readAsDataURL(fileInput.files[0]);
             } else {
-                socket.emit('update_profile', { desc: phrase }); // Quitamos 'foto: null' para evitar errores
+                socket.emit('update_profile', { desc: phrase }); 
                 closeProfileSettings();
             }
         }
@@ -800,7 +810,6 @@
                 const title = data && data.title ? data.title : "Música en YouTube";
                 const statusStr = "🎵 Escuchando: " + title;
                 
-                // Emite al servidor para que todos vean tu estado musical
                 socket.emit('update_profile', { desc: statusStr });
                 
                 document.getElementById('yt-api-text').innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" width="12" height="12"> ${statusStr}`;
