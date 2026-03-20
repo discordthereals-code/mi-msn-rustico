@@ -1,423 +1,806 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta charset="UTF-8">
-    <title>Windows Live Messenger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>MSN Messenger - EL CÓDIGO MAESTRO FINAL - YOUTUBE & ONRENDER</title>
+
     <style>
         :root {
-            --aero-bg: rgba(255, 255, 255, 0.4);
-            --msn-blue: #0078d7;
-            --border-color: rgba(255, 255, 255, 0.6);
+            --msn-blue: #0055e5;
+            --msn-bg: #71ADFF;
+            --header-grad: linear-gradient(to bottom, #f9fcff 0%, #dcecfc 100%);
+            --border-color: #b4c7de;
+            --white: #ffffff;
+            --shadow: 0 10px 40px rgba(0,0,0,0.4);
+            --yt-red: #FF0000;
+            --status-online: #31a24c;
+            --status-offline: #bdc1c6;
         }
-        * { box-sizing: border-box; }
-        body {
-            background: linear-gradient(135deg, #a7d1f1 0%, #dbe9f6 100%);
+
+        /* RESETEO TOTAL PARA EVITAR SCROLL FANTASMA EN ANDROID */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            height: 100vh; margin: 0; display: flex; justify-content: center; align-items: center; overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* Vistas (Login / Main) */
-        .view { display: none; width: 100%; height: 100%; justify-content: center; align-items: center; }
-        .view.active { display: flex; }
-
-        /* Estilo Aero para ventanas */
-        .msn-window {
-            background: var(--aero-bg);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        html, body {
+            width: 100%;
+            height: 100%;
             overflow: hidden;
+            background-color: var(--msn-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
         }
 
-        /* --- LOGIN VIEW --- */
-        #login-box { width: 300px; padding: 20px; text-align: center; }
-        #login-box img { width: 80px; margin-bottom: 15px; }
-        #login-box input { display: block; width: 100%; padding: 8px; margin-bottom: 10px; border-radius: 4px; border: 1px solid #ccc; }
-        #login-box button { width: 100%; padding: 10px; background: var(--msn-blue); color: white; border: none; border-radius: 4px; cursor: pointer; }
-        #login-status-msg { color: red; font-size: 12px; margin-top: 5px; }
+        /* CONTENEDOR PRINCIPAL: EL "ESCRITORIO" DEL MSN */
+        #app {
+            display: none; /* Se activa tras login */
+            width: 1200px;
+            max-width: 100vw;
+            height: 900px;
+            max-height: 100vh;
+            background: var(--white);
+            border: 1px solid #1c1c1c;
+            flex-direction: column;
+            position: relative;
+            box-shadow: var(--shadow);
+            z-index: 10;
+        }
 
-        /* --- MAIN VIEW --- */
-        #main-window { width: 95%; max-width: 900px; height: 90vh; display: flex; flex-direction: column; }
-        #header { padding: 8px; color: #fff; font-weight: bold; background: rgba(0,0,0,0.1); display: flex; justify-content: space-between; font-size: 12px;}
-        
-        #content-area { flex: 1; display: flex; overflow: hidden; background: white; margin: 5px; border-radius: 4px; }
+        /* CABECERA: PERFIL DEL USUARIO Y BOTONES */
+        header {
+            background: var(--header-grad);
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
 
-        /* Panel Izquierdo (Contactos) */
-        #contacts-panel { width: 220px; border-right: 1px solid #ccc; display: flex; flex-direction: column; }
-        #my-profile { padding: 10px; border-bottom: 1px solid #eee; display: flex; gap: 8px; align-items: center;}
-        
-        /* Contenedor de foto de perfil (Base64) */
-        .avatar-container { position: relative; width: 40px; height: 40px; }
-        .avatar-img { width: 100%; height: 100%; border-radius: 4px; border: 1px solid #aaa; object-fit: cover; background: #eee;}
-        .status-dot { width: 10px; height: 10px; border-radius: 50%; position: absolute; bottom: -2px; right: -2px; border: 1px solid white; }
-        .status-dot.online { background: #5cb85c; }
-        .status-dot.offline { background: #888; }
-        
-        #my-info { flex: 1; }
-        #my-name { font-weight: bold; font-size: 14px; }
-        #my-desc { font-size: 11px; color: #555; }
-        
-        #rooms-list, #contacts-list { flex: 1; overflow-y: auto; padding: 5px; }
-        .list-header { font-size: 11px; color: #777; font-weight: bold; text-transform: uppercase; padding: 5px; margin-top: 5px; }
-        .contact-item { padding: 5px; cursor: pointer; border-radius: 3px; display: flex; align-items: center; gap: 8px; font-size: 13px;}
-        .contact-item:hover, .contact-item.active { background-color: #e1f0fb; }
-        .contact-item small { color: #888; font-size: 11px; }
+        .my-info-block {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            overflow: hidden;
+            flex: 1;
+        }
 
-        /* Panel Central (Chat) */
-        #chat-panel { flex: 1; display: flex; flex-direction: column; }
-        #chat-header { padding: 10px; border-bottom: 1px solid #eee; font-weight: bold; color: var(--msn-blue); font-size: 14px;}
-        #chat-messages { flex: 1; overflow-y: auto; padding: 15px; }
+        #my-avatar-display {
+            width: 68px;
+            height: 68px;
+            border: 2px solid #fff;
+            border-radius: 4px;
+            object-fit: cover;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            background: #e0e0e0;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
 
-        /* Mensajes styling (CON HORA) */
-        .msg-line { margin-bottom: 8px; font-size: 13px; line-height: 1.4; }
-        .msg-time { color: #888; font-size: 10px; margin-right: 6px; }
-        .msg-user { font-weight: bold; color: #0056b3; margin-right: 5px; }
-        .msg-self .msg-user { color: #444; }
-        
-        /* Contenido especial */
-        .emoji { width: 20px; vertical-align: middle; }
-        .yt-embed { width: 100%; max-width: 320px; aspect-ratio: 16/9; margin-top: 5px; border-radius: 4px; display: block;}
-        .buzz-text { color: red; font-weight: bold; text-align: center; font-size: 12px; margin: 10px 0;}
+        #my-avatar-display:hover { transform: scale(1.05); }
 
-        /* Área de input */
-        #typing-status { font-size: 11px; color: #777; padding-left: 10px; height: 15px;}
-        #input-area { padding: 10px; border-top: 1px solid #eee; display: flex; gap: 5px; }
-        #messageInput { flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px;}
-        #input-area button { padding: 8px 15px; cursor: pointer; }
+        .my-details {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
 
-        /* Notificación Toast */
-        #toast-notification { position: fixed; bottom: 10px; right: 10px; width: 220px; background: #fff; border: 1px solid #ccc; border-radius: 6px; padding: 10px; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.2); animation: slideUpToast 0.4s; z-index: 1000;}
-        #toast-notification.active { display: block; }
-        @keyframes slideUpToast { from { transform: translateY(100px); } to { transform: translateY(0); } }
+        #my-user-label {
+            color: var(--msn-blue);
+            font-size: 16px;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
-        /* Modal de Perfil */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 2000; }
-        .modal.active { display: flex; }
-        .modal-content { background: #fff; padding: 20px; border-radius: 8px; width: 300px; }
-        .modal-content input, .modal-content textarea { width: 100%; margin-bottom: 10px; padding: 8px; border-radius: 4px; border: 1px solid #ccc;}
+        #my-status-label {
+            color: #555;
+            font-size: 12px;
+            font-style: italic;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
-        /* Animación Zumbido */
-        .nudge-shake { animation: shakeAnimate 0.1s infinite; }
-        @keyframes shakeAnimate { 0% { left: 3px; } 50% { left: -3px; } 100% { left: 0px; } }
-        #main-window { position: relative; }
+        /* ESTADO DE API (YOUTUBE / CLIMA) */
+        #api-integration-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-top: 2px;
+        }
 
+        #yt-api-text {
+            color: var(--yt-red);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        #weather-api-text {
+            color: #555;
+        }
+
+        .header-btns {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-msn {
+            padding: 7px 15px;
+            background: #fff;
+            border: 1px solid #a0b5d0;
+            color: var(--msn-blue);
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .btn-msn:hover { background: #f0f7ff; }
+
+        /* CUERPO PRINCIPAL */
+        main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* PANEL IZQUIERDO: NUESTROS ICONOS DE ONRENDER */
+        #sidebar-left {
+            width: 320px;
+            border-right: 1px solid #d0deee;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+            flex-shrink: 0;
+        }
+
+        .category-label {
+            background: #eff6ff;
+            padding: 10px 15px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #4a607a;
+            border-bottom: 1px solid #dcecfc;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+            border-bottom: 1px solid #f4f8fd;
+            position: relative;
+            transition: background 0.2s;
+        }
+
+        .contact-item:hover { background: #f0f7ff; }
+
+        .contact-item img {
+            width: 50px;
+            height: 50px;
+            border-radius: 4px;
+            object-fit: cover;
+            border: 1px solid #ddd;
+        }
+
+        .c-info {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .c-name { font-size: 13px; font-weight: bold; color: #333; }
+        .c-status { font-size: 11px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .badge-notify {
+            position: absolute;
+            top: 12px;
+            right: 15px;
+            background: #ff8c00;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 7px;
+            border-radius: 12px;
+            display: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        #dynamic-friends-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* ÁREA DE CONVERSACIÓN CENTRAL */
+        #chat-view {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            min-width: 0;
+        }
+
+        #messages-wall {
+            flex: 1;
+            overflow-y: auto;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: #fff;
+            scroll-behavior: smooth;
+        }
+
+        .msg-block { display: flex; flex-direction: column; }
+        .msg-header { font-size: 12px; font-weight: bold; color: var(--msn-blue); margin-bottom: 2px; }
+        .msg-header span { font-weight: normal; color: #aaa; font-size: 10px; margin-left: 5px; }
+        .msg-content { font-size: 14px; color: #333; line-height: 1.5; word-wrap: break-word; }
+
+        #typing-indicator {
+            height: 25px;
+            padding: 0 25px;
+            font-size: 11px;
+            color: #2b9348;
+            font-style: italic;
+        }
+
+        /* BARRA DE HERRAMIENTAS CHAT */
+        #chat-toolbar {
+            padding: 10px 15px;
+            background: #f1f5f9;
+            border-top: 1px solid #d0deee;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .emoji-btn { font-size: 22px; cursor: pointer; user-select: none; transition: transform 0.1s; }
+        .emoji-btn:hover { transform: scale(1.2); }
+
+        #input-zone {
+            padding: 15px;
+            background: #f7faff;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 15px;
+        }
+
+        #main-textarea {
+            width: 100%;
+            height: 80px;
+            padding: 12px;
+            border: 1px solid #a0b5d0;
+            border-radius: 4px;
+            resize: none;
+            font-size: 15px;
+            outline: none;
+            background: #fff;
+        }
+
+        .btn-send {
+            width: 140px;
+            background: var(--msn-blue);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        /* PANEL DERECHO: VISTA DE CONTACTO */
+        #sidebar-right {
+            width: 260px;
+            background: #fcfcfc;
+            border-left: 1px solid #d0deee;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 15px;
+            flex-shrink: 0;
+        }
+
+        .big-avatar-frame {
+            width: 160px;
+            height: 160px;
+            border: 5px solid #fff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            object-fit: cover;
+            background: #eee;
+        }
+
+        #my-small-preview {
+            margin-top: auto;
+            text-align: center;
+            width: 100%;
+            border-top: 1px solid #eee;
+            padding-top: 30px;
+        }
+
+        /* ESTADOS DE CONEXIÓN */
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+        .online { background: var(--status-online); }
+        .offline { background: var(--status-offline); }
+
+        /* ZUMBIDO: ANIMACIÓN REAL */
+        .nudge-shake { animation: nudge-action 0.1s 10; }
+        @keyframes nudge-action {
+            0% { transform: translate(0,0); }
+            20% { transform: translate(6px,6px); }
+            40% { transform: translate(-6px,-6px); }
+            60% { transform: translate(6px,-6px); }
+            80% { transform: translate(-6px,6px); }
+            100% { transform: translate(0,0); }
+        }
+
+        /* MODALES (LOGIN Y PERFIL) */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            width: 480px;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.6);
+        }
+
+        #login-screen {
+            background: white;
+            padding: 50px;
+            border-radius: 15px;
+            width: 440px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            z-index: 20;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+        }
+        .login-input:focus { border-color: var(--msn-blue); }
+
+        /* RESPONSIVE PARA ANDROID */
+        @media (max-width: 900px) {
+            #sidebar-right { display: none; }
+            #sidebar-left { width: 95px; }
+            #sidebar-left span, #sidebar-left b, #sidebar-left .c-status { display: none; }
+            #app { height: 100%; max-height: 100vh; border: none; }
+            header { padding: 10px; }
+            #my-avatar-display { width: 50px; height: 50px; }
+        }
     </style>
 </head>
-<body>
+<body onclick="enableAudioContext()">
 
-    <div id="login-view" class="view active">
-        <div class="msn-window" id="login-box">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e0/Msn_logo_messanger.png" alt="MSN Logo">
-            <h3>Iniciar Sesión</h3>
-            <input type="text" id="username" placeholder="Usuario">
-            <input type="password" id="password" placeholder="Contraseña">
-            <button onclick="attemptLogin()">Conectar</button>
-            <div id="login-status-msg"></div>
-        </div>
+    <div id="login-screen">
+        <h1 style="color:var(--msn-blue); font-style: italic; margin-bottom:15px; font-size: 34px;">MSN Messenger</h1>
+        <p style="color:#666; font-size:14px; margin-bottom:35px;">Introduce tus credenciales de Passport</p>
+        <input id="login-u" class="login-input" type="text" placeholder="Correo electrónico (ej: msn@live.com)">
+        <input id="login-p" class="login-input" type="password" placeholder="Contraseña">
+        <button onclick="handleLoginAttempt()" class="btn-send" style="margin-top:10px;">Iniciar Sesión</button>
+        <p style="margin-top:20px; font-size:11px; color:#aaa;">© 2026 Microsoft Corporation</p>
     </div>
 
-    <div id="main-view" class="view">
-        <div class="msn-window" id="main-window">
-            <div id="header">Windows Live Messenger<span style="cursor:pointer">✕</span></div>
-            
-            <div id="content-area">
-                <div id="contacts-panel">
-                    <div id="my-profile">
-                        <div class="avatar-container" onclick="openProfileModal()" style="cursor:pointer">
-                            <img id="my-avatar-img" class="avatar-img" src="">
-                            <div class="status-dot online"></div>
-                        </div>
-                        <div id="my-info">
-                            <div id="my-name">Nombre</div>
-                            <div id="my-desc">"Estado aquí..."</div>
-                        </div>
-                    </div>
-                    
-                    <div id="rooms-list">
-                        <div class="list-header">Salas (Con Fotos de Grupo)</div>
-                        <div class="contact-item" id="room-conversando" onclick="switchChat('conversando', true)">💬 Conversando</div>
-                        <div class="contact-item" id="room-juegos" onclick="switchChat('juegos', true)">🎮 Juegos</div>
-                        <div class="contact-item" id="room-solotodo" onclick="switchChat('solotodo', true)">🛒 Solotodo</div>
-                    </div>
-
-                    <div id="contacts-list">
-                        <div class="list-header">Contactos Online</div>
-                        <div id="online-list-container"></div>
-                    </div>
-                </div>
-
-                <div id="chat-panel">
-                    <div id="chat-header">Sala Principal</div>
-                    <div id="chat-messages"></div>
-                    <div id="typing-status"></div>
-                    <div id="input-area">
-                        <input type="text" id="messageInput" placeholder="Escribe un mensaje..." onkeypress="handleKeyPress(event)" onkeydown="handleTyping()">
-                        <button onclick="sendNudge()">📢 Zumbido</button>
-                        <button onclick="sendMessage()">Enviar</button>
+    <div id="app">
+        <header>
+            <div class="my-info-block">
+                <img id="my-avatar-display" onclick="openProfileSettings()" title="Cambiar mi imagen">
+                <div class="my-details">
+                    <b id="my-user-label">Usuario MSN</b>
+                    <span id="my-status-label">Conectando...</span>
+                    <div id="api-integration-line">
+                        <span id="yt-api-text" onclick="setYouTubeStatus()" title="Haz clic para actualizar música">
+                            <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" width="12" height="12"> 
+                            Escuchando: Haz clic para añadir música 🎵
+                        </span>
+                        <span id="weather-api-text">| ☀️ Cargando clima...</span>
                     </div>
                 </div>
             </div>
-        </div>
+            <div class="header-btns">
+                <button class="btn-msn" onclick="openProfileSettings()">Configuración</button>
+            </div>
+        </header>
+
+        <main>
+            <div id="sidebar-left">
+                <div class="category-label">Salas Onrender</div>
+                
+                <button class="contact-item" onclick="switchToChat('conversando', 'Conversando', '/logo-conversando.png', 'Chat principal de la comunidad')">
+                    <img src="/logo-conversando.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
+                    <div class="c-info">
+                        <b class="c-name">Conversando</b>
+                        <span class="c-status">Chat principal de la comunidad</span>
+                    </div>
+                    <span class="badge-notify" id="notify-conversando">0</span>
+                </button>
+
+                <button class="contact-item" onclick="switchToChat('juegos', 'Juegos', '/logo-juegos.png', 'Comunidad Gaming & Fun')">
+                    <img src="/logo-juegos.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
+                    <div class="c-info">
+                        <b class="c-name">Juegos</b>
+                        <span class="c-status">Comunidad Gaming & Fun</span>
+                    </div>
+                    <span class="badge-notify" id="notify-juegos">0</span>
+                </button>
+
+                <button class="contact-item" onclick="switchToChat('solotodo', 'Solo Todo', '/logo-solotodo.png', 'Marketplace & Ofertas')">
+                    <img src="/logo-solotodo.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
+                    <div class="c-info">
+                        <b class="c-name">Solo Todo</b>
+                        <span class="c-status">Ventas, compras y permutas</span>
+                    </div>
+                    <span class="badge-notify" id="notify-solotodo">0</span>
+                </button>
+
+                <div class="category-label">Mis Contactos</div>
+                <div id="dynamic-friends-list"></div>
+            </div>
+
+            <div id="chat-view">
+                <div id="messages-wall"></div>
+                <div id="typing-indicator"></div>
+                
+                <div id="chat-toolbar">
+                    <span class="emoji-btn" onclick="insertEmoji('😊')">😊</span>
+                    <span class="emoji-btn" onclick="insertEmoji('😂')">😂</span>
+                    <span class="emoji-btn" onclick="insertEmoji('❤️')">❤️</span>
+                    <span class="emoji-btn" onclick="insertEmoji('😮')">😮</span>
+                    <span class="emoji-btn" onclick="insertEmoji('😛')">😛</span>
+                    <button class="btn-msn" onclick="emitNudge()" style="margin-left:auto; font-size:10px;">🔔 ENVIAR ZUMBIDO</button>
+                </div>
+
+                <div id="input-zone">
+                    <textarea id="main-textarea" placeholder="Escribe un mensaje aquí..." oninput="reportTyping()"></textarea>
+                    <button class="btn-send" onclick="performSendMessage()">Enviar Mensaje (Enter)</button>
+                </div>
+            </div>
+
+            <div id="sidebar-right">
+                <img id="target-avatar-big" class="big-avatar-frame" src="/logo-conversando.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
+                <h3 id="target-name-big" style="margin-top:20px; color:var(--msn-blue); text-align:center;">Conversando</h3>
+                <p id="target-status-big" style="font-size:12px; color:#666; margin-top:10px; font-style:italic; text-align:center;">Sala General de Chat</p>
+
+                <div id="my-small-preview">
+                    <img id="my-mini-avatar" class="big-avatar-frame" style="width:120px; height:120px;">
+                    <p style="font-size:11px; color:#999; margin-top:10px;">(Tu imagen de perfil)</p>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <div class="modal" id="profile-modal">
+    <div id="modal-profile" class="modal-overlay">
         <div class="modal-content">
-            <h4>Editar Perfil</h4>
-            <textarea id="edit-desc" placeholder="Tu estado..." rows="2"></textarea>
-            <label style="font-size:12px; margin-bottom:5px; display:block">Cambiar Foto (Base64):</label>
-            <input type="file" id="edit-photo" accept="image/*" onchange="previewPhoto(this)">
-            <img id="edit-photo-preview" style="width:50px; height:50px; border-radius:4px; display:none; margin-bottom:10px;">
-            <div style="display:flex; gap:5px; justify-content:flex-end">
-                <button onclick="closeModal()">Cancelar</button>
-                <button onclick="saveProfile()" style="background:var(--msn-blue); color:white;">Guardar</button>
+            <h2 style="color:var(--msn-blue); margin-bottom:25px; text-align: center;">Personalizar Perfil</h2>
+
+            <div style="text-align:left; margin-bottom:20px;">
+                <label style="font-size:12px; font-weight:bold; color:#444;">Mensaje de Estado:</label>
+                <input id="input-new-phrase" type="text" class="login-input" style="margin-top:8px;" placeholder="¿Qué estás pensando?">
+            </div>
+
+            <div style="text-align:left; margin-bottom:30px;">
+                <label style="font-size:12px; font-weight:bold; color:#444;">Cambiar Avatar:</label>
+                <input id="input-new-photo" type="file" accept="image/*" style="width:100%; margin-top:10px; font-size:13px;">
+            </div>
+
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button class="btn-send" style="background:#eee; color:#333;" onclick="closeProfileSettings()">Cancelar</button>
+                <button class="btn-send" onclick="applyProfileChanges()">Guardar Cambios</button>
             </div>
         </div>
     </div>
-
-    <div id="toast-notification">
-        <div style="display:flex; gap:8px; align-items:center">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e0/Msn_logo_messanger.png" style="width:20px; height:20px;">
-            <div>
-                <b style="font-size:12px;" id="toast-user-name">Usuario</b>
-                <div style="font-size:11px;">Ha enviado un mensaje.</div>
-            </div>
-        </div>
-    </div>
-
-    <audio id="sound-nudge" src="https://www.myinstants.com/media/sounds/msn-nudge.mp3"></audio>
-    <audio id="sound-msg" src="https://www.myinstants.com/media/sounds/msn-sound.mp3"></audio>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        let currentUserId = '';
-        let currentChatTarget = 'conversando';
-        let isGroupChat = true;
-        let photoBase64 = null;
+        let myUsername = localStorage.getItem('msn_master_user') || "";
+        let activeChatId = 'conversando';
+        let unreadCounts = {};
         let typingTimeout;
 
-        // Mapa de Emoticonos (links burdos a imágenes locales o placeholders)
-        // Deberás tener tus localmente o usar URLs reales.
-        const emojiMap = {
-            ":)": "smiley", ":(": "sad", ":P": "tongue", 
-            "(H)": "cool", "<3": "heart", "(y)": "thumbsup"
-        };
-        const EMOJI_BASE_URL = "/public/emojis/"; // URL base de ejemplo (deberás tener tus localmente)
+        // ELEMENTOS DE SONIDO
+        const sndLogin = new Audio('https://raw.githubusercontent.com/pabluro/msn-assets/main/login.mp3');
+        const sndMessage = new Audio('https://www.myinstants.com/media/sounds/messenger-mensaje.mp3');
+        const sndBuzz = new Audio('https://www.myinstants.com/media/sounds/msn-messenger-buzz.mp3');
 
-        // --- 1. LOGIN ---
-        function attemptLogin() {
-            const user = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
-            if (user && pass) {
-                socket.emit('login', { user, pass });
-            }
+        function enableAudioContext() {
+            [sndLogin, sndMessage, sndBuzz].forEach(a => {
+                a.play().then(() => { a.pause(); a.currentTime = 0; }).catch(() => {});
+            });
         }
 
-        socket.on('login_status', (data) => {
-            if (data.success) {
-                currentUserId = data.user;
-                updateMyProfileDisplay(data.perfil);
-                document.getElementById('login-view').classList.remove('active');
-                document.getElementById('main-view').classList.add('active');
-                switchChat('conversando', true); // Iniciar en sala global
+        // LÓGICA DE INICIO DE SESIÓN
+        if(myUsername) {
+            socket.emit('login', { user: myUsername, pass: localStorage.getItem('msn_master_pass') });
+        }
+
+        function handleLoginAttempt() {
+            const u = document.getElementById('login-u').value.trim();
+            const p = document.getElementById('login-p').value.trim();
+            if(!u || !p) return alert("Por favor, completa los campos.");
+
+            localStorage.setItem('msn_master_user', u);
+            localStorage.setItem('msn_master_pass', p);
+            socket.emit('login', { user: u, pass: p });
+        }
+
+        socket.on('login_status', res => {
+            if(res.success) {
+                myUsername = res.user;
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app').style.display = 'flex';
+                syncMyProfile(res.perfil);
+                switchToChat('conversando', 'Conversando', '/logo-conversando.png', 'Sala General');
+                sndLogin.play().catch(()=>{});
+                initExternalApis();
             } else {
-                document.getElementById('login-status-msg').innerText = data.msg;
+                alert("Error de autenticación: " + res.msg);
+                localStorage.clear();
             }
         });
 
-        function updateMyProfileDisplay(p) {
-            document.getElementById('my-name').innerText = p.user;
-            document.getElementById('my-desc').innerText = p.descripcion || 'Disponible';
-            if (p.foto) document.getElementById('my-avatar-img').src = p.foto;
+        function syncMyProfile(p) {
+            const pic = p.foto || "/logo-conversando.png";
+            document.getElementById('my-avatar-display').src = pic;
+            document.getElementById('my-mini-avatar').src = pic;
+            document.getElementById('my-user-label').innerText = myUsername;
+            document.getElementById('my-status-label').innerText = p.descripcion || "Disponible";
         }
 
-        // --- 2. GESTIÓN DE PERFIL ---
-        function openProfileModal() {
-            document.getElementById('edit-desc').value = document.getElementById('my-desc').innerText;
-            document.getElementById('profile-modal').classList.add('active');
+        // --- INTEGRACIÓN YOUTUBE & CLIMA REAL ---
+        function initExternalApis() {
+            // CLIMA REAL (SANTIAGO)
+            fetch('https://wttr.in/Santiago?format=%c+%t')
+                .then(res => res.text())
+                .then(data => document.getElementById('weather-api-text').innerText = "| " + data)
+                .catch(() => document.getElementById('weather-api-text').innerText = "| ☀️ 24°C Santiago");
         }
-        function closeModal() { document.getElementById('profile-modal').classList.remove('active'); }
 
-        function previewPhoto(input) {
-            const file = input.files[0];
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                photoBase64 = reader.result;
-                const prev = document.getElementById('edit-photo-preview');
-                prev.src = photoBase64; prev.style.display = 'block';
+        async function setYouTubeStatus() {
+            const input = prompt("Pega el enlace de YouTube o el nombre de la canción:");
+            if(!input) return;
+
+            let finalTitle = input;
+            if(input.includes("youtube.com") || input.includes("youtu.be")) {
+                document.getElementById('yt-api-text').innerText = "🎵 Cargando título...";
+                try {
+                    const res = await fetch(`https://www.youtube.com/oembed?url=${input}&format=json`);
+                    const data = await res.json();
+                    finalTitle = data.title;
+                } catch(e) { finalTitle = "Video de YouTube"; }
             }
-            if (file) reader.readAsDataURL(file);
+
+            const fullStatus = "Escuchando: " + finalTitle;
+            document.getElementById('yt-api-text').innerHTML = `
+                <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" width="12" height="12"> 
+                ${fullStatus} 🎵
+            `;
+
+            // Enviar al servidor para que otros lo vean en nuestro estado
+            socket.emit('update_profile', { desc: fullStatus, foto: null });
         }
 
-        function saveProfile() {
-            const desc = document.getElementById('edit-desc').value;
-            socket.emit('update_profile', { desc, foto: photoBase64 });
-            // Actualización local inmediata
-            document.getElementById('my-desc').innerText = desc;
-            if (photoBase64) document.getElementById('my-avatar-img').src = photoBase64;
-            closeModal();
-            photoBase64 = null;
-        }
+        // GESTIÓN DE CONTACTOS DINÁMICOS
+        socket.on('lista_contactos', list => {
+            const container = document.getElementById('dynamic-friends-list');
+            container.innerHTML = "";
+            list.forEach(u => {
+                if(u.user === myUsername) { syncMyProfile(u); return; }
 
-        // --- 3. CHAT Y HISTORIAL ---
-        function switchChat(target, isGroup) {
-            currentChatTarget = target;
-            isGroupChat = isGroup;
-            
-            document.querySelectorAll('.contact-item').forEach(i => i.classList.remove('active'));
-            const elId = isGroup ? `room-${target}` : `contact-${target}`;
-            const activeEl = document.getElementById(elId);
-            if(activeEl) activeEl.classList.add('active');
+                const btn = document.createElement('button');
+                btn.className = "contact-item";
+                const isOnline = u.online ? 'online' : 'offline';
 
-            document.getElementById('chat-header').innerText = isGroup ? `Sala: ${target}` : `Chat Privado: ${target}`;
-            document.getElementById('chat-messages').innerHTML = '';
+                btn.innerHTML = `
+                    <img src="${u.foto || '/logo-conversando.png'}">
+                    <div class="c-info">
+                        <b class="c-name"><span class="status-dot ${isOnline}"></span>${u.user}</b>
+                        <span class="c-status">${u.descripcion || 'Disponible'}</span>
+                    </div>
+                    <span class="badge-notify" id="notify-${u.user}">0</span>
+                `;
+                btn.onclick = () => switchToChat(u.user, u.user, u.foto, u.descripcion);
+                container.appendChild(btn);
 
-            socket.emit('get_private_history', target);
-        }
-
-        socket.on('actualizar_historial', (data) => {
-            if (data.target === currentChatTarget) {
-                data.history.forEach(appendMessage);
-            }
+                if(unreadCounts[u.user]) updateBadge(u.user, unreadCounts[u.user]);
+            });
         });
 
-        // --- 4. ENVÍO Y RECEPCIÓN multimedia ---
-        function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const text = input.value.trim();
-            if (text) {
-                socket.emit('chat message', { to: currentChatTarget, text, isBuzz: false });
-                input.value = '';
+        // NAVEGACIÓN ENTRE CHATS
+        function switchToChat(id, name, img, desc) {
+            activeChatId = id;
+            unreadCounts[id] = 0;
+            updateBadge(id, 0);
+
+            document.getElementById('target-name-big').innerText = name;
+            document.getElementById('target-status-big').innerText = desc || "Disponible";
+            document.getElementById('target-avatar-big').src = img || "/logo-conversando.png";
+
+            document.getElementById('messages-wall').innerHTML = "";
+            socket.emit('get_private_history', id);
+        }
+
+        function updateBadge(id, n) {
+            const badge = document.getElementById('notify-' + id);
+            if(badge) {
+                badge.innerText = n;
+                badge.style.display = n > 0 ? 'block' : 'none';
+            }
+        }
+
+        // --- SISTEMA DE MENSAJES Y EVENTOS ---
+        function reportTyping() {
+            socket.emit('typing', { to: activeChatId, user: myUsername });
+        }
+
+        socket.on('typing_status', data => {
+            if(data.to === myUsername && data.user === activeChatId) {
+                document.getElementById('typing-indicator').innerText = `${data.user} está escribiendo...`;
                 clearTimeout(typingTimeout);
-                socket.emit('typing', { to: currentChatTarget, user: currentUserId, isTyping: false });
-            }
-        }
-
-        // --- AQUÍ ESTÁ EL ARREGLO PARA LA TECLA ENTER ---
-        function handleKeyPress(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        }
-
-        socket.on('chat message', (data) => {
-            const shouldAppend = isGroupChat 
-                ? (data.to === currentChatTarget) 
-                : (data.user === currentChatTarget || (data.user === currentUserId && data.to === currentChatTarget));
-            
-            if (shouldAppend) {
-                appendMessage(data);
-                if (data.isBuzz) {
-                    triggerNudgeEffects();
-                } else if (data.user !== currentUserId) {
-                    document.getElementById('sound-msg').play();
-                }
-            } else if (data.user !== currentUserId) {
-                showToast(data.user);
+                typingTimeout = setTimeout(() => { document.getElementById('typing-indicator').innerText = ""; }, 3000);
             }
         });
 
-        function appendMessage(data) {
-            const chatMessages = document.getElementById('chat-messages');
-            const isSelf = data.user === currentUserId;
+        function performSendMessage() {
+            const input = document.getElementById('main-textarea');
+            const msg = input.value.trim();
+            if(msg) {
+                socket.emit('chat message', { to: activeChatId, text: msg });
+                input.value = "";
+                input.focus();
+            }
+        }
 
-            if (data.isBuzz) {
-                chatMessages.innerHTML += `<div class="buzz-text">¡${isSelf ? 'Has enviado' : data.user + ' ha enviado'} un zumbido!</div>`;
+        function emitNudge() {
+            socket.emit('chat message', { to: activeChatId, isBuzz: true });
+        }
+
+        socket.on('chat message', m => {
+            const origin = m.to || 'conversando';
+            const isGroup = ['conversando', 'juegos', 'solotodo'].includes(origin);
+            const isCurrent = (isGroup && origin === activeChatId) || 
+                               (m.user === activeChatId && m.to === myUsername) || 
+                               (m.user === myUsername && m.to === activeChatId);
+
+            if(isCurrent) {
+                appendMessage(m);
+                if(m.user !== myUsername) sndMessage.play().catch(()=>{});
             } else {
-                // AQUÍ RENDERIZAMOS LA HORA (data.time)
-                const html = `<div class="msg-line ${isSelf ? 'msg-self' : ''}">
-                                <span class="msg-time">${data.time || ''}</span>
-                                <span class="msg-user">${data.user}:</span>
-                                <span class="msg-content">${processContent(data.text)}</span>
-                             </div>`;
-                chatMessages.innerHTML += html;
-            }
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        // --- 5. PARSER: Links, YouTube, Emoticonos ---
-        function processContent(text) {
-            let p = text.replace(/</g, "&lt;").replace(/>/g, "&gt;"); // Seguridad básica
-            
-            // Links clickeables
-            p = p.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
-            
-            // AQUÍ RENDERIZAMOS YOUTUBE
-            const ytMatch = text.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
-            if (ytMatch) {
-                p += `<iframe class="yt-embed" src="https://www.youtube.com/embed/${ytMatch[1]}" frameborder="0" allowfullscreen></iframe>`;
+                const key = isGroup ? origin : m.user;
+                unreadCounts[key] = (unreadCounts[key] || 0) + 1;
+                updateBadge(key, unreadCounts[key]);
+                sndMessage.play().catch(()=>{});
             }
 
-            // Emoticonos (Placeholder de texto para que no dependa de archivos locales)
-            Object.keys(emojiMap).forEach(key => {
-                // p = p.split(key).join(`<img src="${EMOJI_BASE_URL + emojiMap[key] + '.gif'}" class="emoji">`);
-                p = p.split(key).join(`<strong>${emojiMap[key]}</strong>`); // Placeholder text
-            });
-
-            return p;
-        }
-
-        // --- 6. ZUMBIDOS ---
-        function sendNudge() {
-            socket.emit('chat message', { to: currentChatTarget, text: "BUZZ", isBuzz: true });
-        }
-
-        function triggerNudgeEffects() {
-            document.getElementById('sound-nudge').play();
-            document.getElementById('main-window').classList.add('nudge-shake');
-            setTimeout(() => document.getElementById('main-window').classList.remove('nudge-shake'), 600);
-        }
-
-        // --- 7. LISTA DE CONTACTOS Y FOTOS DE SALAS ---
-        socket.on('lista_contactos', (users) => {
-            const container = document.getElementById('online-list-container');
-            container.innerHTML = '';
-            users.forEach(u => {
-                if (u.user !== currentUserId && u.online === 1) {
-                    const avatarSrc = u.foto || 'https://via.placeholder.com/30'; // Placeholder
-                    const el = document.createElement('div');
-                    el.id = `contact-${u.user}`;
-                    el.className = `contact-item ${currentChatTarget === u.user ? 'active' : ''}`;
-                    el.onclick = () => switchChat(u.user, false);
-                    el.innerHTML = `<div class="avatar-container" style="width:30px; height:30px;">
-                                        <img src="${avatarSrc}" class="avatar-img">
-                                        <div class="status-dot online"></div>
-                                    </div>
-                                    <div>
-                                        <b>${u.user}</b><br>
-                                        <small>${u.descripcion || 'Disponible'}</small>
-                                    </div>`;
-                    container.appendChild(el);
-                }
-            });
-        });
-
-        // --- 8. "ESCRIBIENDO..." Y TOAST ---
-        function handleTyping() {
-            clearTimeout(typingTimeout);
-            socket.emit('typing', { to: currentChatTarget, user: currentUserId, isTyping: true });
-            typingTimeout = setTimeout(() => {
-                socket.emit('typing', { to: currentChatTarget, user: currentUserId, isTyping: false });
-            }, 2000);
-        }
-
-        socket.on('typing_status', (data) => {
-            const typingArea = document.getElementById('typing-status');
-            if (data.to === currentUserId && data.user === currentChatTarget) {
-                typingArea.innerText = data.isTyping ? `${data.user} está escribiendo...` : '';
-            } else if (isGroupChat && data.to === currentChatTarget && data.user !== currentUserId) {
-                typingArea.innerText = data.isTyping ? `${data.user} está escribiendo...` : '';
+            if(m.isBuzz && isCurrent) {
+                document.getElementById('app').classList.add('nudge-shake');
+                sndBuzz.play().catch(()=>{});
+                setTimeout(() => document.getElementById('app').classList.remove('nudge-shake'), 800);
             }
         });
 
-        function showToast(name) {
-            const toast = document.getElementById('toast-notification');
-            document.getElementById('toast-user-name').innerText = name;
-            toast.classList.add('active');
-            setTimeout(() => toast.classList.remove('active'), 3500);
+        socket.on('actualizar_historial', r => {
+            if(r.target === activeChatId) {
+                const wall = document.getElementById('messages-wall');
+                wall.innerHTML = "";
+                r.history.forEach(m => appendMessage(m));
+            }
+        });
+
+        function appendMessage(m) {
+            const wall = document.getElementById('messages-wall');
+            const div = document.createElement('div');
+            div.className = "msg-block";
+
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            let content = m.texto || m.text || "";
+
+            if(m.isBuzz) {
+                content = `<span style="color:red; font-weight:bold;">TE HA ENVIADO UN ZUMBIDO.</span>`;
+            } else {
+                // Parsear Links y Emojis básicos
+                content = content.replace(/(https?:\/\/[^\s]+)/g, url => `<a href="${url}" target="_blank" style="color:var(--msn-blue);">${url}</a>`);
+                content = content.replace(/:\)/g, '😊').replace(/:D/g, '😃').replace(/\(L\)/g, '❤️');
+            }
+
+            div.innerHTML = `
+                <div class="msg-header">${m.user} dice: <span>[${time}]</span></div>
+                <div class="msg-content">${content}</div>
+            `;
+
+            wall.appendChild(div);
+            wall.scrollTop = wall.scrollHeight;
         }
+
+        // --- AJUSTES Y EXTRAS ---
+        function openProfileSettings() {
+            document.getElementById('modal-profile').style.display = 'flex';
+        }
+        
+        function closeProfileSettings() {
+            document.getElementById('modal-profile').style.display = 'none';
+        }
+
+        function applyProfileChanges() {
+            const fileInput = document.getElementById('input-new-photo');
+            const phrase = document.getElementById('input-new-phrase').value;
+
+            if(fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    socket.emit('update_profile', { desc: phrase, foto: e.target.result });
+                    closeProfileSettings();
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                socket.emit('update_profile', { desc: phrase, foto: null });
+                closeProfileSettings();
+            }
+        }
+
+        function insertEmoji(e) {
+            const area = document.getElementById('main-textarea');
+            area.value += e;
+            area.focus();
+        }
+
+        // FIX ANDROID DINÁMICO
+        window.visualViewport.addEventListener('resize', () => {
+            const h = window.visualViewport.height;
+            document.body.style.height = h + 'px';
+            document.getElementById('app').style.height = h + 'px';
+            // Scroll al fondo para que el input no tape el último mensaje
+            const wall = document.getElementById('messages-wall');
+            wall.scrollTop = wall.scrollHeight;
+        });
+
+        // ENVIAR CON ENTER
+        document.getElementById('main-textarea').addEventListener('keydown', e => {
+            if(e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                performSendMessage();
+            }
+        });
     </script>
 </body>
 </html>
