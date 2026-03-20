@@ -50,15 +50,15 @@
             display: none; /* Se activa tras el Login exitoso */
             width: 1200px;
             max-width: 100vw;
-            height: 900px;
-            max-height: 100vh;
+            height: 100%;
+            max-height: 900px;
             background: var(--white);
             border: 1px solid #1c1c1c;
             display: flex;
             flex-direction: column;
             position: relative;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-            z-index: 10;
+            box-shadow: var(--shadow);
+            overflow: hidden;
         }
 
         /* ============================================================
@@ -193,33 +193,41 @@
         /* ============================================================
            8. RESPONSIVE (ANDROID / MÓVIL)
            ============================================================ */
-        @media (max-width: 900px) {
-            #app { height: 100%; width: 100vw; border: none; }
+       @media (max-width: 900px) {
+            #app { 
+                height: 100dvh; /* Usa el 100% de la pantalla real del móvil */
+                width: 100vw; 
+                max-height: none; 
+                border: none; 
+            }
+            
             main { flex-direction: column; }
             
             #sidebar-left { 
                 width: 100%; 
                 height: auto; 
                 flex-direction: row; 
-                overflow-x: auto; /* Barra horizontal de contactos en móvil */
+                overflow-x: auto; /* Scroll horizontal de contactos */
                 overflow-y: hidden;
                 border-bottom: 1px solid #dcecfc;
+                padding: 5px 0;
             }
 
+            /* Los iconos de los grupos ahora tienen tamaño móvil real */
             .contact-item { 
                 flex-direction: column; 
-                width: 85px; 
-                padding: 10px 5px; 
+                min-width: 80px; 
+                padding: 5px; 
                 text-align: center; 
                 border-bottom: none;
+                font-size: 10px;
             }
 
-            .contact-item.active-contact {
-                border-left: none;
-                border-bottom: 4px solid var(--msn-blue);
-            }
+            .contact-item img { width: 40px; height: 40px; }
+            .c-name { font-size: 9px; max-width: 70px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .c-status { display: none; } /* Ocultamos descripción en móvil para no saturar */
 
-            #sidebar-right { width: 100%; padding: 15px; }
+            #sidebar-right { width: 100%; order: 2; padding: 10px; border-left: none; }
             #target-avatar-big, #target-name-big, #my-small-preview { display: none; }
         }
     </style>
