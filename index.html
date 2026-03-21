@@ -471,7 +471,6 @@
                 --shadow: 0 10px 40px rgba(0,0,0,0.8);
             }
 
-            /* FIX: Asegurar alineación al tope para que no quede hueco negro */
             html, body { 
                 background-color: var(--msn-bg); 
                 color: #c9d1d9; 
@@ -606,7 +605,6 @@
                 margin: 0 !important;
             }
 
-            /* FIX: Aseguramos que la vista del chat se fije al tope de la pantalla */
             body.keyboard-active #chat-view {
                 position: absolute !important;
                 top: 0 !important;
@@ -622,7 +620,6 @@
                 flex-direction: column !important;
             }
 
-            /* FIX COMPRESIÓN WSP: Elementos más compactos para ahorrar espacio vertical */
             body.keyboard-active #active-chat-header {
                 padding: 6px 15px !important;
             }
@@ -743,21 +740,21 @@
                 <div id="typing-indicator"></div>
                 
                 <div id="chat-toolbar">
-                    <span class="emoji-btn" onclick="insertEmoji('😊')">😊</span>
-                    <span class="emoji-btn" onclick="insertEmoji('😂')">😂</span>
-                    <span class="emoji-btn" onclick="insertEmoji('❤️')">❤️</span>
-                    <span class="emoji-btn" onclick="insertEmoji('😮')">😮</span>
-                    <span class="emoji-btn" onclick="insertEmoji('😛')">😛</span>
+                    <span class="emoji-btn" onmousedown="event.preventDefault(); insertEmoji('😊')" ontouchstart="event.preventDefault(); insertEmoji('😊')">😊</span>
+                    <span class="emoji-btn" onmousedown="event.preventDefault(); insertEmoji('😂')" ontouchstart="event.preventDefault(); insertEmoji('😂')">😂</span>
+                    <span class="emoji-btn" onmousedown="event.preventDefault(); insertEmoji('❤️')" ontouchstart="event.preventDefault(); insertEmoji('❤️')">❤️</span>
+                    <span class="emoji-btn" onmousedown="event.preventDefault(); insertEmoji('😮')" ontouchstart="event.preventDefault(); insertEmoji('😮')">😮</span>
+                    <span class="emoji-btn" onmousedown="event.preventDefault(); insertEmoji('😛')" ontouchstart="event.preventDefault(); insertEmoji('😛')">😛</span>
                     
                     <span class="emoji-btn" onclick="document.getElementById('file-transfer').click()" title="Enviar archivo">📎</span>
                     <input type="file" id="file-transfer" style="display:none" onchange="sendFile(this)">
                     
-                    <button class="btn-msn" onclick="emitNudge()" style="margin-left:auto; font-size:10px;">🔔 ENVIAR ZUMBIDO</button>
+                    <button class="btn-msn" onmousedown="event.preventDefault(); emitNudge()" ontouchstart="event.preventDefault(); emitNudge()" style="margin-left:auto; font-size:10px;">🔔 ENVIAR ZUMBIDO</button>
                 </div>
 
                 <div id="input-zone">
                     <textarea id="main-textarea" placeholder="Escribe un mensaje aquí..." oninput="reportTyping()"></textarea>
-                    <button class="btn-send" onclick="performSendMessage()">Enviar Mensaje (Enter)</button>
+                    <button class="btn-send" onmousedown="event.preventDefault(); performSendMessage();" ontouchstart="event.preventDefault(); performSendMessage();">Enviar Mensaje (Enter)</button>
                 </div>
             </div>
 
@@ -1060,6 +1057,12 @@
         socket.on('chat message', m => {
             const origin = m.to || 'conversando';
             const isGroup = ['conversando', 'juegos', 'solotodo'].includes(origin);
+            
+            // FIX: Ignorar mensajes privados dirigidos a otras personas
+            if (!isGroup && m.to !== myUsername && m.user !== myUsername) {
+                return; 
+            }
+
             const isCurrent = (isGroup && origin === activeChatId) || 
                                (m.user === activeChatId && m.to === myUsername) || 
                                (m.user === myUsername && m.to === activeChatId);
