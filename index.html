@@ -460,20 +460,18 @@
            ============================================================ */
         @media (max-width: 900px) {
             
-            /* INYECCIÓN DE COLORES DARK MODE PREMIUM */
             :root {
-                --msn-blue: #4fa3ff; /* Azul luminoso estilo Neon */
-                --msn-bg: #050505; /* Fondo ultra oscuro exterior */
+                --msn-blue: #4fa3ff; 
+                --msn-bg: #050505; 
                 --header-grad: linear-gradient(to bottom, #1a1d24 0%, #111318 100%);
                 --border-color: #2b303b;
-                --white: #0d1117; /* Superficie gris/negro principal */
+                --white: #0d1117; 
                 --shadow: 0 10px 40px rgba(0,0,0,0.8);
             }
 
             html, body { background-color: var(--msn-bg); color: #c9d1d9; }
             #app { height: 100%; max-height: 100vh; width: 100vw; border: none; border-radius: 0; background: var(--white); }
             
-            /* Header Oscuro */
             header { padding: 10px; }
             #my-avatar-display { width: 50px; height: 50px; border-color: #2b303b; }
             #my-user-label { font-size: 14px; color: var(--msn-blue); }
@@ -481,13 +479,11 @@
             #weather-api-text { color: #8b9eb0; }
             #yt-api-text { max-width: 200px; color: #ff4d4d; }
             
-            /* Botones Superiores */
             .btn-profile-gear { color: #c9d1d9; }
             .btn-profile-gear:hover { background: #1a1d24; border-color: #3b4252; }
             .btn-msn { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; box-shadow: none; }
             .btn-msn:hover { background: #30363d; }
 
-            /* Estructura Central */
             main { 
                 flex-direction: column; 
                 overflow-y: auto; 
@@ -495,7 +491,6 @@
                 background: var(--white);
             }
             
-            /* Sidebar de Contactos */
             #sidebar-left { 
                 width: 100%; height: auto; border-right: none; 
                 border-bottom: 1px solid var(--border-color); flex-direction: row; 
@@ -520,24 +515,20 @@
             .status-dot { width: 7px; height: 7px; margin-right: 3px; }
             .badge-notify { top: 0; right: 5px; }
 
-            /* Chat General */
             #chat-view { width: 100%; flex: 1; border-bottom: 1px solid var(--border-color); background: var(--white); }
             #active-chat-header { background: #161b22; border-bottom: 1px solid var(--border-color); }
             .ach-name { color: #f0f6fc; }
             .ach-desc { color: #8b9eb0; }
             
-            /* Muro de mensajes */
             #messages-wall { padding: 15px; background: #010409; }
             .msg-content { color: #c9d1d9; }
             .msg-header { color: var(--msn-blue); }
             
-            /* Barra de escritura */
             #chat-toolbar { background: #161b22; border-top: 1px solid var(--border-color); }
             #input-zone { padding: 10px; gap: 8px; flex-direction: column; background: #0d1117; border-top: 1px solid var(--border-color); }
             #main-textarea { height: 50px; font-size: 14px; background: #010409; color: #c9d1d9; border: 1px solid #30363d; }
             .btn-send { width: 100%; padding: 10px; background: var(--msn-blue); color: #000; border: none; font-weight: bold; }
 
-            /* Módulo YouTube Móvil */
             #sidebar-right { 
                 width: 100%; padding: 10px; border-left: none; 
                 flex-shrink: 0; background: #0d1117; 
@@ -546,10 +537,8 @@
             #yt-module div[style*="color: var(--msn-blue)"] { color: var(--msn-blue) !important; }
             #yt-url-input { background: #010409 !important; color: #c9d1d9 !important; border: 1px solid #30363d !important; }
             
-            /* Ocultar elementos sobrantes en móvil */
             #target-avatar-big, #target-name-big, #target-status-big, #my-small-preview { display: none; } 
 
-            /* Login & Modales Dark */
             #login-screen > div { background: #0d1117 !important; border: 1px solid #30363d; box-shadow: 0 10px 40px rgba(0,0,0,0.9) !important; }
             #login-screen p { color: #8b9eb0 !important; }
             .login-input { background: #010409 !important; border: 1px solid #30363d !important; color: #c9d1d9 !important; }
@@ -756,6 +745,32 @@
             audioUnlocked = true;
         }
 
+        /* FIX AUDIO: Función centralizada y segura para disparar audios sin fallos */
+        function playAudio(audioObj) {
+            if (!audioObj) return;
+            try {
+                audioObj.currentTime = 0; 
+                const playPromise = audioObj.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => console.log("Audio prevenido por el navegador. Click en pantalla requerido."));
+                }
+            } catch (e) {}
+        }
+
+        /* FIX SCROLL: Función centralizada para bajar la vista en PC y Celular */
+        function scrollToBottom() {
+            setTimeout(() => {
+                const wall = document.getElementById('messages-wall');
+                if(wall) wall.scrollTop = wall.scrollHeight;
+                
+                // Si estamos en celular, el scroll pertenece a la etiqueta <main>
+                if (window.innerWidth <= 900) {
+                    const mainEl = document.querySelector('main');
+                    if(mainEl) mainEl.scrollTop = mainEl.scrollHeight;
+                }
+            }, 50);
+        }
+
         if(myUsername) {
             socket.emit('login', { user: myUsername, pass: localStorage.getItem('msn_master_pass') });
         }
@@ -778,7 +793,7 @@
                 document.getElementById('app').style.display = 'flex';
                 syncMyProfile(res.perfil);
                 switchToChat('conversando', 'Conversando', '/logo-conversando.png', 'Chat principal de la comunidad');
-                sndLogin.play().catch(()=>{});
+                playAudio(sndLogin);
                 initExternalApis();
             } else {
                 alert("Error de autenticación: " + res.msg);
@@ -894,15 +909,25 @@
             }
         });
 
+        /* FIX ENVIO: Función perfeccionada para soportar backend con text o texto */
         function performSendMessage() {
             const input = document.getElementById('main-textarea');
             const msg = input.value.trim();
             if(msg) {
-                socket.emit('chat message', { to: activeChatId, text: msg });
+                socket.emit('chat message', { to: activeChatId, text: msg, texto: msg, user: myUsername });
                 input.value = "";
                 input.focus();
+                scrollToBottom();
             }
         }
+
+        /* FIX ENTER: Restaurando el disparador al apretar Enter en el teclado */
+        document.getElementById('main-textarea').addEventListener('keydown', e => {
+            if(e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault(); 
+                performSendMessage();
+            }
+        });
 
         function emitNudge() {
             socket.emit('chat message', { to: activeChatId, isBuzz: true });
@@ -929,14 +954,16 @@
                 appendMessage(m);
                 if(m.isBuzz) { 
                     document.getElementById('app').classList.add('nudge-shake'); 
-                    sndBuzz.play().catch(()=>{});
+                    playAudio(sndBuzz);
                     setTimeout(()=>document.getElementById('app').classList.remove('nudge-shake'), 800); 
-                } else if(m.user !== myUsername) { sndMessage.play().catch(()=>{}); }
+                } else if(m.user !== myUsername) { 
+                    playAudio(sndMessage);
+                }
             } else {
                 const key = isGroup ? origin : m.user;
                 unreadCounts[key] = (unreadCounts[key] || 0) + 1;
                 updateBadge(key, unreadCounts[key]);
-                sndMessage.play().catch(()=>{});
+                playAudio(sndMessage);
             }
         });
 
@@ -945,6 +972,7 @@
                 const wall = document.getElementById('messages-wall');
                 wall.innerHTML = "";
                 r.history.forEach(m => appendMessage(m));
+                scrollToBottom();
             }
         });
 
@@ -958,7 +986,7 @@
             if(m.isBuzz) {
                 content = `<span style="color:red; font-weight:bold;">TE HA ENVIADO UN ZUMBIDO.</span>`;
             } else if(m.file) {
-                content = `📎 <a href="${m.file.data}" download="${m.file.name}" style="color:blue; text-decoration:underline;">${m.file.name}</a>`;
+                content = `📎 <a href="${m.file.data}" download="${m.file.name}" style="color:var(--msn-blue); text-decoration:underline;">${m.file.name}</a>`;
             } else {
                 content = content.replace(/(https?:\/\/[^\s]+)/g, url => `<a href="${url}" target="_blank" style="color:var(--msn-blue);">${url}</a>`);
                 content = content.replace(/:\)/g, '😊').replace(/:D/g, '😃').replace(/\(L\)/g, '❤️').replace(/:P/g, '😛').replace(/:O/g, '😮');
@@ -969,7 +997,7 @@
                 <div class="msg-content">${content}</div>
             `;
             wall.appendChild(div);
-            wall.scrollTop = wall.scrollHeight;
+            scrollToBottom();
         }
 
         function openProfileSettings() { document.getElementById('modal-profile').style.display = 'flex'; }
@@ -1061,8 +1089,7 @@
             const h = window.visualViewport.height;
             document.body.style.height = h + 'px';
             document.getElementById('app').style.height = h + 'px';
-            const wall = document.getElementById('messages-wall');
-            wall.scrollTop = wall.scrollHeight;
+            scrollToBottom();
         });
     </script>
 </body>
