@@ -6,6 +6,9 @@
     <title>MSN Messenger - EL CÓDIGO MAESTRO FINAL - YOUTUBE & ONRENDER</title>
 
     <style>
+        /* ============================================================
+           1. VARIABLES DE ENTORNO (MSN CLASSIC PALETTE)
+           ============================================================ */
         :root {
             --msn-blue: #0055e5;
             --msn-bg: #71ADFF;
@@ -18,6 +21,9 @@
             --status-offline: #bdc1c6;
         }
 
+        /* ============================================================
+           2. RESET Y COMPORTAMIENTO GLOBAL
+           ============================================================ */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -37,6 +43,9 @@
             position: fixed;
         }
 
+        /* ============================================================
+           3. CONTENEDOR PRINCIPAL (#app)
+           ============================================================ */
         #app {
             display: none;
             width: 1200px;
@@ -143,9 +152,7 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
 
-        .btn-msn:hover { background: #f0f7ff; }
-
-        /* === AJUSTE BOTÓN PERFIL === */
+        /* Estilo para la Rueda de Perfil */
         .btn-profile-gear {
             display: flex;
             align-items: center;
@@ -164,6 +171,9 @@
             border-radius: 4px;
         }
 
+        /* ============================================================
+           4. ESTRUCTURA CENTRAL (MAIN)
+           ============================================================ */
         main {
             display: flex;
             flex: 1;
@@ -248,6 +258,9 @@
 
         #dynamic-friends-list { flex: 1; overflow-y: auto; }
 
+        /* ============================================================
+           5. VISTA DE CHAT (#chat-view)
+           ============================================================ */
         #chat-view {
             flex: 1;
             display: flex;
@@ -338,6 +351,9 @@
             font-size: 13px;
         }
 
+        /* ============================================================
+           6. PANEL DERECHO (#sidebar-right)
+           ============================================================ */
         #sidebar-right {
             width: 260px;
             background: #fcfcfc;
@@ -420,8 +436,10 @@
             font-size: 16px;
             outline: none;
         }
-        .login-input:focus { border-color: var(--msn-blue); }
 
+        /* ============================================================
+           7. RESPONSIVE ANDROID (FIX SCROLL TÁCTIL)
+           ============================================================ */
         @media (max-width: 900px) {
             #app { height: 100%; max-height: 100vh; width: 100vw; border: none; border-radius: 0; }
             header { padding: 10px; }
@@ -429,7 +447,12 @@
             #my-user-label { font-size: 14px; }
             #yt-api-text { max-width: 200px; }
             
-            main { flex-direction: column; overflow: hidden; }
+            /* FIX: Cambiado overflow: hidden por auto para permitir bajar con el dedo */
+            main { 
+                flex-direction: column; 
+                overflow-y: auto; 
+                -webkit-overflow-scrolling: touch; 
+            }
             
             #sidebar-left { 
                 width: 100%; height: auto; border-right: none; 
@@ -540,7 +563,6 @@
             </div>
 
             <div id="chat-view">
-                
                 <div id="active-chat-header">
                     <div class="ach-left">
                         <img id="ach-avatar" src="/logo-conversando.png" onerror="this.src='https://via.placeholder.com/160'">
@@ -632,6 +654,7 @@
         let unreadCounts = {};
         let typingTimeout;
 
+        /* Sonidos clásicos */
         const sndLogin = new Audio('https://raw.githubusercontent.com/pabluro/msn-assets/main/login.mp3');
         const sndMessage = new Audio('https://www.myinstants.com/media/sounds/messenger-mensaje.mp3');
         const sndBuzz = new Audio('https://www.myinstants.com/media/sounds/msn-nudge.mp3');
@@ -901,11 +924,12 @@
             });
         }
 
-        /* === LÓGICA DE BÚSQUEDA MEJORADA === */
+        /* === FIX: BUSCADOR INTELIGENTE INTERNO === */
         function buscarYoutube() {
             const val = document.getElementById('yt-url-input').value.trim();
             if(!val || !ytPlayerObj) return;
 
+            /* Si es un link real de YouTube, lo carga directamente */
             if(val.includes('youtube.com/') || val.includes('youtu.be/')) {
                 if(val.includes('list=')) {
                     const listId = val.split('list=')[1].split('&')[0];
@@ -917,23 +941,27 @@
                     if(videoId) ytPlayerObj.loadVideoById(videoId);
                 }
             } else {
-                window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(val)}`, '_blank');
+                /* Si es texto, busca y reproduce el primer resultado DENTRO del player */
+                ytPlayerObj.loadPlaylist({
+                    list: val,
+                    listType: 'search'
+                });
             }
             document.getElementById('yt-url-input').value = ""; 
         }
 
-        // Mantenemos el listener original pero lo derivamos a la función
         document.getElementById('yt-url-input').addEventListener('keydown', function(e) {
             if(e.key === 'Enter') buscarYoutube();
         });
 
+        /* === SINCRONIZACIÓN DE MÚSICA EN TIEMPO REAL === */
         function onPlayerStateChange(event) {
             if (event.data == YT.PlayerState.PLAYING) {
                 const data = ytPlayerObj.getVideoData();
                 const title = data && data.title ? data.title : "Música en YouTube";
                 const statusStr = "🎵 Escuchando: " + title;
                 
-                // === BROADCAST DE ESTADO ===
+                // Envío de estado a todos los usuarios conectados
                 socket.emit('update_profile', { desc: statusStr });
                 
                 document.getElementById('yt-api-text').innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" width="12" height="12"> ${statusStr}`;
