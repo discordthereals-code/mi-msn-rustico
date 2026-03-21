@@ -7,7 +7,7 @@
 
     <style>
         /* ============================================================
-           1. VARIABLES DE ENTORNO (MSN CLASSIC PALETTE)
+           1. VARIABLES DE ENTORNO (MSN CLASSIC PALETTE - PC)
            ============================================================ */
         :root {
             --msn-blue: #0055e5;
@@ -146,7 +146,6 @@
 
         .header-btns { display: flex; gap: 10px; align-items: center; }
 
-        /* Estilo para la Rueda de Perfil Animada */
         .btn-profile-gear {
             display: flex;
             align-items: center;
@@ -457,69 +456,120 @@
         .login-input:focus { border-color: var(--msn-blue); }
 
         /* ============================================================
-           7. RESPONSIVE ANDROID (FIX SCROLL TÁCTIL ACTIVADO)
+           7. RESPONSIVE ANDROID (DARK MODE ILUMINADO)
            ============================================================ */
         @media (max-width: 900px) {
-            #app { height: 100%; max-height: 100vh; width: 100vw; border: none; border-radius: 0; }
-            header { padding: 10px; }
-            #my-avatar-display { width: 50px; height: 50px; }
-            #my-user-label { font-size: 14px; }
-            #yt-api-text { max-width: 200px; }
             
+            /* INYECCIÓN DE COLORES DARK MODE PREMIUM */
+            :root {
+                --msn-blue: #4fa3ff; /* Azul luminoso estilo Neon */
+                --msn-bg: #050505; /* Fondo ultra oscuro exterior */
+                --header-grad: linear-gradient(to bottom, #1a1d24 0%, #111318 100%);
+                --border-color: #2b303b;
+                --white: #0d1117; /* Superficie gris/negro principal */
+                --shadow: 0 10px 40px rgba(0,0,0,0.8);
+            }
+
+            html, body { background-color: var(--msn-bg); color: #c9d1d9; }
+            #app { height: 100%; max-height: 100vh; width: 100vw; border: none; border-radius: 0; background: var(--white); }
+            
+            /* Header Oscuro */
+            header { padding: 10px; }
+            #my-avatar-display { width: 50px; height: 50px; border-color: #2b303b; }
+            #my-user-label { font-size: 14px; color: var(--msn-blue); }
+            #my-status-label { color: #8b9eb0; }
+            #weather-api-text { color: #8b9eb0; }
+            #yt-api-text { max-width: 200px; color: #ff4d4d; }
+            
+            /* Botones Superiores */
+            .btn-profile-gear { color: #c9d1d9; }
+            .btn-profile-gear:hover { background: #1a1d24; border-color: #3b4252; }
+            .btn-msn { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; box-shadow: none; }
+            .btn-msn:hover { background: #30363d; }
+
+            /* Estructura Central */
             main { 
                 flex-direction: column; 
                 overflow-y: auto; 
                 -webkit-overflow-scrolling: touch; 
+                background: var(--white);
             }
             
+            /* Sidebar de Contactos */
             #sidebar-left { 
                 width: 100%; height: auto; border-right: none; 
-                border-bottom: 1px solid #dcecfc; flex-direction: row; 
+                border-bottom: 1px solid var(--border-color); flex-direction: row; 
                 overflow-x: auto; flex-shrink: 0; padding: 5px 0;
-                background: #fdfdfd;
+                background: #161b22;
             }
             .category-label { display: none; }
             #dynamic-friends-list { display: flex; flex-direction: row; }
             
             .contact-item { padding: 5px 10px; width: auto; border-bottom: none; justify-content: flex-start; flex-direction: column; gap: 4px; align-items: center; border-left: none; }
-            
+            .contact-item:hover { background: #21262d; }
             .contact-item.active-contact {
-                background: #e8f2ff;
+                background: #1f2937;
                 border-bottom: 3px solid var(--msn-blue);
                 border-radius: 8px 8px 0 0;
             }
 
-            .contact-item img { width: 45px; height: 45px; border-radius: 5px; }
+            .contact-item img { width: 45px; height: 45px; border-radius: 5px; border: 1px solid #30363d; }
             .c-info { display: flex; flex-direction: column; align-items: center; width: 100%; }
-            .c-name { font-size: 10px; font-weight: bold; justify-content: center; max-width: 65px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .c-name { font-size: 10px; font-weight: bold; justify-content: center; max-width: 65px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #c9d1d9; }
             .c-status { display: none; } 
             .status-dot { width: 7px; height: 7px; margin-right: 3px; }
             .badge-notify { top: 0; right: 5px; }
 
-            #chat-view { width: 100%; flex: 1; border-bottom: 1px solid #dcecfc; }
-            #messages-wall { padding: 15px; }
-            #input-zone { padding: 10px; gap: 8px; flex-direction: column; }
-            #main-textarea { height: 50px; font-size: 14px; }
-            .btn-send { width: 100%; padding: 10px; }
+            /* Chat General */
+            #chat-view { width: 100%; flex: 1; border-bottom: 1px solid var(--border-color); background: var(--white); }
+            #active-chat-header { background: #161b22; border-bottom: 1px solid var(--border-color); }
+            .ach-name { color: #f0f6fc; }
+            .ach-desc { color: #8b9eb0; }
+            
+            /* Muro de mensajes */
+            #messages-wall { padding: 15px; background: #010409; }
+            .msg-content { color: #c9d1d9; }
+            .msg-header { color: var(--msn-blue); }
+            
+            /* Barra de escritura */
+            #chat-toolbar { background: #161b22; border-top: 1px solid var(--border-color); }
+            #input-zone { padding: 10px; gap: 8px; flex-direction: column; background: #0d1117; border-top: 1px solid var(--border-color); }
+            #main-textarea { height: 50px; font-size: 14px; background: #010409; color: #c9d1d9; border: 1px solid #30363d; }
+            .btn-send { width: 100%; padding: 10px; background: var(--msn-blue); color: #000; border: none; font-weight: bold; }
 
+            /* Módulo YouTube Móvil */
             #sidebar-right { 
                 width: 100%; padding: 10px; border-left: none; 
-                flex-shrink: 0; background: #fff; 
+                flex-shrink: 0; background: #0d1117; 
             }
-            #yt-module { margin-bottom: 0; width: 100%; }
+            #yt-module { margin-bottom: 0; width: 100%; background: #161b22 !important; border: 1px solid var(--border-color) !important; }
+            #yt-module div[style*="color: var(--msn-blue)"] { color: var(--msn-blue) !important; }
+            #yt-url-input { background: #010409 !important; color: #c9d1d9 !important; border: 1px solid #30363d !important; }
+            
+            /* Ocultar elementos sobrantes en móvil */
             #target-avatar-big, #target-name-big, #target-status-big, #my-small-preview { display: none; } 
+
+            /* Login & Modales Dark */
+            #login-screen > div { background: #0d1117 !important; border: 1px solid #30363d; box-shadow: 0 10px 40px rgba(0,0,0,0.9) !important; }
+            #login-screen p { color: #8b9eb0 !important; }
+            .login-input { background: #010409 !important; border: 1px solid #30363d !important; color: #c9d1d9 !important; }
+            .modal-content { background: #0d1117; border: 1px solid #30363d; }
+            .modal-content h2 { color: var(--msn-blue) !important; }
+            .modal-content label { color: #8b9eb0 !important; }
         }
     </style>
 </head>
 <body onclick="enableAudioContext()">
 
     <div id="login-screen">
-        <h1 style="color:var(--msn-blue); font-style: italic; margin-bottom:15px; font-size: 34px;">MSN Messenger</h1>
-        <p style="color:#666; font-size:14px; margin-bottom:35px;">Introduce tus credenciales de Passport</p>
-        <input id="login-u" class="login-input" type="text" placeholder="Correo electrónico (ej: msn@live.com)">
-        <input id="login-p" class="login-input" type="password" placeholder="Contraseña">
-        <button onclick="handleLoginAttempt()" class="btn-send" style="margin-top:10px; width: 100%; padding: 15px;">Iniciar Sesión</button>
-        <p style="margin-top:20px; font-size:11px; color:#aaa;">© 2026 Microsoft Corporation</p>
+        <div style="background: white; padding: 50px; border-radius: 15px; width: 440px; text-align: center; box-shadow: var(--shadow);">
+            <h1 style="color:var(--msn-blue); font-style: italic; margin-bottom:15px; font-size: 34px;">MSN Messenger</h1>
+            <p style="color:#666; font-size:14px; margin-bottom:35px;">Introduce tus credenciales de Passport</p>
+            <input id="login-u" class="login-input" type="text" placeholder="Correo electrónico (ej: msn@live.com)">
+            <input id="login-p" class="login-input" type="password" placeholder="Contraseña">
+            <button onclick="handleLoginAttempt()" class="btn-send" style="margin-top:10px; width: 100%; padding: 15px;">Iniciar Sesión</button>
+            <p style="margin-top:20px; font-size:11px; color:#aaa;">© 2026 Microsoft Corporation</p>
+        </div>
     </div>
 
     <div id="app">
@@ -776,7 +826,6 @@
                 const activeClass = (u.user === activeChatId) ? ' active-contact' : '';
                 btn.className = "contact-item" + activeClass;
                 
-                /* FIX CLICK: Agregado atributo data-id seguro para evitar choque de comillas */
                 btn.setAttribute('data-id', u.user);
                 
                 btn.innerHTML = `
@@ -801,7 +850,6 @@
             });
         });
 
-        /* FIX CLICK: Selector mejorado utilizando data-id */
         function switchToChat(id, name, img, desc) {
             activeChatId = id;
             unreadCounts[id] = 0;
@@ -951,7 +999,6 @@
 
         let ytPlayerObj;
 
-        /* FIX YOUTUBE: controls 1 para que el usuario vea la UI de búsqueda del iframe */
         function onYouTubeIframeAPIReady() {
             ytPlayerObj = new YT.Player('yt-player', {
                 height: '130', width: '100%', videoId: '',
@@ -969,7 +1016,6 @@
                 let vid = val.includes('v=') ? val.split('v=')[1].split('&')[0] : val.split('youtu.be/')[1].split('?')[0];
                 if(vid) ytPlayerObj.loadVideoById(vid);
             } else {
-                /* FIX FEEDBACK: YouTube reproduce el primer hit automáticamente */
                 ytPlayerObj.loadPlaylist({ list: val, listType: 'search' });
                 
                 inputField.value = ""; 
