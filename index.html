@@ -473,7 +473,6 @@
 
             html, body { background-color: var(--msn-bg); color: #c9d1d9; }
             
-            /* App Rígida para evitar empujes extraños */
             #app { height: 100%; width: 100vw; border: none; border-radius: 0; background: var(--white); display: flex; flex-direction: column; }
             
             header { flex: 0 0 auto; padding: 10px; } 
@@ -488,16 +487,16 @@
             .btn-msn { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; box-shadow: none; }
             .btn-msn:hover { background: #30363d; }
 
-            /* El cuerpo principal contiene el scroll estructural si es necesario */
+            /* Main escroleable pero controlado */
             main { 
                 flex: 1; 
                 display: flex; 
                 flex-direction: column; 
-                overflow: hidden; 
+                overflow-y: auto; 
+                overflow-x: hidden;
                 background: var(--white);
             }
             
-            /* FIX 1: Los contactos no se cortan, altura asegurada y flex rígido */
             #sidebar-left { 
                 width: 100%; 
                 flex: 0 0 auto; 
@@ -530,7 +529,6 @@
             }
             .contact-item:hover { background: #21262d; }
             
-            /* FIX SOMBRA: Evita que el borde sume altura y haga vibrar la UI */
             .contact-item.active-contact {
                 background: #1f2937;
                 box-shadow: inset 0 -3px 0 var(--msn-blue);
@@ -545,13 +543,13 @@
             .status-dot { width: 8px; height: 8px; margin-right: 3px; }
             .badge-notify { top: 2px; right: 5px; }
 
-            /* FIX SERIEDAD: El Chat toma todo el espacio sobrante con min-height 0 */
+            /* El Chat fuerza ocupar el alto completo restante para empujar a YouTube abajo */
             #chat-view { 
                 width: 100%; 
-                flex: 1; 
+                min-height: calc(100dvh - 125px); /* Alto de pantalla menos cabeceras */
+                flex: 1 0 auto; 
                 display: flex;
                 flex-direction: column;
-                min-height: 0; 
                 background: var(--white); 
                 border-bottom: 2px solid #21262d;
             }
@@ -560,7 +558,6 @@
             .ach-name { color: #f0f6fc; }
             .ach-desc { color: #8b9eb0; }
             
-            /* El ÚNICO lugar donde hay scroll vertical es el muro de mensajes */
             #messages-wall { flex: 1; overflow-y: auto; padding: 15px; background: #010409; }
             .msg-content { color: #c9d1d9; }
             .msg-header { color: var(--msn-blue); }
@@ -570,7 +567,7 @@
             #main-textarea { height: 50px; font-size: 14px; background: #010409; color: #c9d1d9; border: 1px solid #30363d; flex-shrink: 0; }
             .btn-send { width: 100%; padding: 10px; background: var(--msn-blue); color: #000; border: none; font-weight: bold; flex-shrink: 0; }
 
-            /* YouTube se queda al fondo, asegurado */
+            /* YouTube se queda abajo. Al hacer scroll general, lo ves. */
             #sidebar-right { 
                 width: 100%; 
                 flex: 0 0 auto;
@@ -592,14 +589,22 @@
             .modal-content label { color: #8b9eb0 !important; }
 
             /* ========================================================= */
-            /* FIX ESTILO WHATSAPP: CUANDO EL TECLADO VIRTUAL SE ABRE    */
+            /* FIX MODO WHATSAPP DEFINITIVO (Activado por JavaScript)    */
             /* ========================================================= */
-            @media (max-height: 600px) {
-                header { display: none !important; }
-                #sidebar-left { display: none !important; }
-                #sidebar-right { display: none !important; }
-                #chat-view { border-bottom: none; }
-                /* La pantalla ahora es 100% Chat, igual que WhatsApp */
+            body.keyboard-active header,
+            body.keyboard-active #sidebar-left,
+            body.keyboard-active #sidebar-right {
+                display: none !important; /* Desaparecen al escribir */
+            }
+            
+            body.keyboard-active main {
+                overflow: hidden !important; /* Bloquea el scroll general */
+            }
+
+            body.keyboard-active #chat-view {
+                min-height: 100% !important;
+                height: 100% !important; /* El chat toma el 100% de la pantalla */
+                border-bottom: none !important;
             }
         }
     </style>
@@ -817,9 +822,24 @@
             }, 50);
         }
 
-        document.getElementById('main-textarea').addEventListener('focus', () => {
-            scrollToBottom();
+        /* ========================================================= */
+        /* FIX WHATSAPP JS: INYECTA CLASE AL ESCRIBIR PARA OCULTAR   */
+        /* ========================================================= */
+        const mainTextarea = document.getElementById('main-textarea');
+        
+        mainTextarea.addEventListener('focus', () => {
+            if (window.innerWidth <= 900) {
+                document.body.classList.add('keyboard-active');
+                scrollToBottom();
+            }
         });
+
+        mainTextarea.addEventListener('blur', () => {
+            if (window.innerWidth <= 900) {
+                document.body.classList.remove('keyboard-active');
+            }
+        });
+        /* ========================================================= */
 
         if(myUsername) {
             socket.emit('login', { user: myUsername, pass: localStorage.getItem('msn_master_pass') });
@@ -1133,6 +1153,7 @@
         }
         function ytNext() { if(ytPlayerObj && ytPlayerObj.nextVideo) ytPlayerObj.nextVideo(); }
 
+        /* Mantiene la pantalla perfectamente ajustada al teclado y hace scroll abajo */
         window.visualViewport.addEventListener('resize', () => {
             const h = window.visualViewport.height;
             document.body.style.height = h + 'px';
