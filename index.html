@@ -6,9 +6,6 @@
     <title>MSN Messenger - EL CÓDIGO MAESTRO FINAL - YOUTUBE & ONRENDER</title>
 
     <style>
-        /* ============================================================
-           1. VARIABLES DE ENTORNO (MSN CLASSIC PALETTE)
-           ============================================================ */
         :root {
             --msn-blue: #0055e5;
             --msn-bg: #71ADFF;
@@ -18,12 +15,11 @@
             --shadow: 0 10px 40px rgba(0,0,0,0.4);
             --yt-red: #FF0000;
             --status-online: #31a24c;
+            --status-busy: #d93025;   /* Rojo MSN Ocupado */
+            --status-away: #f9ab00;   /* Naranja MSN Ausente */
             --status-offline: #bdc1c6;
         }
 
-        /* ============================================================
-           2. RESET Y COMPORTAMIENTO GLOBAL
-           ============================================================ */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -43,9 +39,6 @@
             position: fixed;
         }
 
-        /* ============================================================
-           3. CONTENEDOR PRINCIPAL (#app)
-           ============================================================ */
         #app {
             display: none;
             width: 1200px;
@@ -107,6 +100,7 @@
             text-overflow: ellipsis;
         }
 
+        /* MODIFICADO: Estilo para estados clickeables */
         #my-status-label {
             color: #555;
             font-size: 12px;
@@ -114,6 +108,10 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
         #api-integration-line {
@@ -140,6 +138,27 @@
 
         .header-btns { display: flex; gap: 10px; align-items: center; }
 
+        /* MODIFICADO: Estilo para la rueda dentada animada */
+        .btn-profile-gear {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: var(--msn-blue);
+            font-weight: bold;
+            font-size: 12px;
+            padding: 5px 10px;
+            transition: all 0.2s;
+        }
+        .btn-profile-gear span {
+            display: inline-block;
+            transition: transform 0.5s ease;
+            font-size: 16px;
+        }
+        .btn-profile-gear:hover span {
+            transform: rotate(90deg);
+        }
+
         .btn-msn {
             padding: 7px 15px;
             background: #fff;
@@ -152,28 +171,8 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
 
-        /* Estilo para la Rueda de Perfil */
-        .btn-profile-gear {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            cursor: pointer;
-            color: var(--msn-blue);
-            font-weight: bold;
-            font-size: 12px;
-            padding: 5px 10px;
-            border: 1px solid transparent;
-            transition: all 0.2s;
-        }
-        .btn-profile-gear:hover {
-            background: #fff;
-            border-color: #a0b5d0;
-            border-radius: 4px;
-        }
+        .btn-msn:hover { background: #f0f7ff; }
 
-        /* ============================================================
-           4. ESTRUCTURA CENTRAL (MAIN)
-           ============================================================ */
         main {
             display: flex;
             flex: 1;
@@ -258,9 +257,6 @@
 
         #dynamic-friends-list { flex: 1; overflow-y: auto; }
 
-        /* ============================================================
-           5. VISTA DE CHAT (#chat-view)
-           ============================================================ */
         #chat-view {
             flex: 1;
             display: flex;
@@ -351,9 +347,6 @@
             font-size: 13px;
         }
 
-        /* ============================================================
-           6. PANEL DERECHO (#sidebar-right)
-           ============================================================ */
         #sidebar-right {
             width: 260px;
             background: #fcfcfc;
@@ -386,6 +379,8 @@
 
         .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 4px; flex-shrink: 0; }
         .online { background: var(--status-online); }
+        .busy { background: var(--status-busy); }
+        .away { background: var(--status-away); }
         .offline { background: var(--status-offline); }
 
         .nudge-shake { animation: nudge-action 0.1s 12; }
@@ -436,10 +431,11 @@
             font-size: 16px;
             outline: none;
         }
+        .login-input:focus { border-color: var(--msn-blue); }
 
-        /* ============================================================
-           7. RESPONSIVE ANDROID (FIX SCROLL TÁCTIL)
-           ============================================================ */
+        /* ==================================================== */
+        /* RESPONSIVE PARA ANDROID (FIX SCROLL TÁCTIL ACTIVADO) */
+        /* ==================================================== */
         @media (max-width: 900px) {
             #app { height: 100%; max-height: 100vh; width: 100vw; border: none; border-radius: 0; }
             header { padding: 10px; }
@@ -447,7 +443,7 @@
             #my-user-label { font-size: 14px; }
             #yt-api-text { max-width: 200px; }
             
-            /* FIX: Cambiado overflow: hidden por auto para permitir bajar con el dedo */
+            /* MODIFICADO: Habilitado scroll-y para ver reproductor en móviles */
             main { 
                 flex-direction: column; 
                 overflow-y: auto; 
@@ -510,7 +506,10 @@
                 <img id="my-avatar-display" onclick="openProfileSettings()" title="Cambiar mi imagen">
                 <div class="my-details">
                     <b id="my-user-label">Usuario MSN</b>
-                    <span id="my-status-label">Conectando...</span>
+                    <span id="my-status-label" onclick="cycleMyStatus()">
+                        <span id="my-status-dot" class="status-dot online"></span>
+                        <span id="my-status-text">Disponible</span>
+                    </span>
                     <div id="api-integration-line">
                         <span id="yt-api-text">
                             <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" width="12" height="12"> 
@@ -522,7 +521,7 @@
             </div>
             <div class="header-btns">
                 <div class="btn-profile-gear" onclick="openProfileSettings()">
-                   <span>⚙️</span> Perfil
+                    <span>⚙️</span> Perfil
                 </div>
             </div>
         </header>
@@ -563,6 +562,7 @@
             </div>
 
             <div id="chat-view">
+                
                 <div id="active-chat-header">
                     <div class="ach-left">
                         <img id="ach-avatar" src="/logo-conversando.png" onerror="this.src='https://via.placeholder.com/160'">
@@ -582,6 +582,9 @@
                     <span class="emoji-btn" onclick="insertEmoji('❤️')">❤️</span>
                     <span class="emoji-btn" onclick="insertEmoji('😮')">😮</span>
                     <span class="emoji-btn" onclick="insertEmoji('😛')">😛</span>
+                    <span class="emoji-btn" onclick="document.getElementById('file-transfer').click()">📎</span>
+                    <input type="file" id="file-transfer" style="display:none" onchange="sendFile(this)">
+                    
                     <button class="btn-msn" onclick="emitNudge()" style="margin-left:auto; font-size:10px;">🔔 ENVIAR ZUMBIDO</button>
                 </div>
 
@@ -599,11 +602,9 @@
                     <div id="yt-player-container" style="width: 100%; height: 130px; background: #000; border-radius: 4px; overflow: hidden; margin-bottom: 8px;">
                         <div id="yt-player"></div>
                     </div>
-                    
-                    <div style="display: flex; gap: 5px; margin-bottom: 8px;">
-                        <input id="yt-url-input" type="text" placeholder="Busca canción o pega Link..." 
-                               style="flex: 1; padding: 6px; font-size: 10px; border: 1px solid #ccc; border-radius: 4px; outline: none;">
-                        <button class="btn-msn" onclick="buscarYoutube()" style="background: var(--msn-blue); color: white; padding: 4px 8px;">Ir</button>
+                    <div style="display: flex; gap: 4px; margin-bottom: 8px;">
+                        <input id="yt-url-input" type="text" placeholder="Busca canción o pega Link..." style="flex: 1; padding: 6px; font-size: 10px; border: 1px solid #ccc; border-radius: 4px; outline: none;">
+                        <button class="btn-msn" onclick="buscarYoutube()" style="padding: 4px; background: var(--msn-blue); color: white;">Ir</button>
                     </div>
 
                     <div style="display: flex; justify-content: space-between; align-items: center; gap: 4px;">
@@ -653,8 +654,13 @@
         let activeChatId = 'conversando';
         let unreadCounts = {};
         let typingTimeout;
+        let myStatusIndex = 0;
+        const statusLevels = [
+            { text: "Disponible", class: "online" },
+            { text: "Ocupado", class: "busy" },
+            { text: "Ausente", class: "away" }
+        ];
 
-        /* Sonidos clásicos */
         const sndLogin = new Audio('https://raw.githubusercontent.com/pabluro/msn-assets/main/login.mp3');
         const sndMessage = new Audio('https://www.myinstants.com/media/sounds/messenger-mensaje.mp3');
         const sndBuzz = new Audio('https://www.myinstants.com/media/sounds/msn-nudge.mp3');
@@ -706,12 +712,21 @@
             }
         });
 
+        /* === MODIFICADO: FUNCIÓN PARA ROTAR ESTADOS MSN === */
+        function cycleMyStatus() {
+            myStatusIndex = (myStatusIndex + 1) % statusLevels.length;
+            const s = statusLevels[myStatusIndex];
+            document.getElementById('my-status-dot').className = "status-dot " + s.class;
+            document.getElementById('my-status-text').innerText = s.text;
+            socket.emit('update_profile', { desc: s.text });
+        }
+
         function syncMyProfile(p) {
             const pic = p.foto || "https://via.placeholder.com/160";
             document.getElementById('my-avatar-display').src = pic;
             document.getElementById('my-mini-avatar').src = pic;
             document.getElementById('my-user-label').innerText = myUsername;
-            document.getElementById('my-status-label').innerText = p.descripcion || "Disponible";
+            document.getElementById('my-status-text').innerText = p.descripcion || "Disponible";
         }
 
         function initExternalApis() {
@@ -728,7 +743,12 @@
                 if(u.user === myUsername) { syncMyProfile(u); return; }
 
                 const btn = document.createElement('button');
-                const isOnline = u.online ? 'online' : 'offline';
+                
+                // Determinar clase de estado clásica
+                let sClass = u.online ? 'online' : 'offline';
+                if(u.descripcion === "Ocupado") sClass = "busy";
+                if(u.descripcion === "Ausente") sClass = "away";
+
                 const isMusic = u.descripcion && u.descripcion.includes('🎵');
                 const textStyle = isMusic ? 'color:var(--msn-blue); font-weight:bold;' : '';
 
@@ -738,7 +758,7 @@
                 btn.innerHTML = `
                     <img src="${u.foto || 'https://via.placeholder.com/60'}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
                     <div class="c-info">
-                        <b class="c-name"><span class="status-dot ${isOnline}"></span>${u.user}</b>
+                        <b class="c-name"><span class="status-dot ${sClass}"></span>${u.user}</b>
                         <span class="c-status" style="${textStyle}">${u.descripcion || 'Disponible'}</span>
                     </div>
                     <span class="badge-notify" id="notify-${u.user}">0</span>
@@ -815,6 +835,17 @@
             socket.emit('chat message', { to: activeChatId, isBuzz: true });
         }
 
+        /* === MODIFICADO: FUNCIÓN PARA ENVIAR ARCHIVOS === */
+        function sendFile(input) {
+            const file = input.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                socket.emit('chat message', { to: activeChatId, file: { name: file.name, data: e.target.result } });
+            };
+            reader.readAsDataURL(file);
+        }
+
         socket.on('chat message', m => {
             const origin = m.to || 'conversando';
             const isGroup = ['conversando', 'juegos', 'solotodo'].includes(origin);
@@ -857,9 +888,11 @@
 
             if(m.isBuzz) {
                 content = `<span style="color:red; font-weight:bold;">TE HA ENVIADO UN ZUMBIDO.</span>`;
+            } else if(m.file) {
+                content = `📎 <a href="${m.file.data}" download="${m.file.name}" style="color:blue; text-decoration:underline;">${m.file.name}</a>`;
             } else {
                 content = content.replace(/(https?:\/\/[^\s]+)/g, url => `<a href="${url}" target="_blank" style="color:var(--msn-blue);">${url}</a>`);
-                content = content.replace(/:\)/g, '😊').replace(/:D/g, '😃').replace(/\(L\)/g, '❤️');
+                content = content.replace(/:\)/g, '😊').replace(/:D/g, '😃').replace(/\(L\)/g, '❤️').replace(/:P/g, '😛').replace(/:O/g, '😮');
             }
 
             div.innerHTML = `
@@ -916,32 +949,22 @@
 
         function onYouTubeIframeAPIReady() {
             ytPlayerObj = new YT.Player('yt-player', {
-                height: '130',
-                width: '100%',
-                videoId: '',
+                height: '130', width: '100%', videoId: '',
                 playerVars: { 'controls': 0, 'rel': 0 },
                 events: { 'onStateChange': onPlayerStateChange }
             });
         }
 
-        /* === FIX: BUSCADOR INTELIGENTE INTERNO === */
+        /* === MODIFICADO: BUSCADOR INTELIGENTE INTERNO (FIXED) === */
         function buscarYoutube() {
             const val = document.getElementById('yt-url-input').value.trim();
             if(!val || !ytPlayerObj) return;
 
-            /* Si es un link real de YouTube, lo carga directamente */
             if(val.includes('youtube.com/') || val.includes('youtu.be/')) {
-                if(val.includes('list=')) {
-                    const listId = val.split('list=')[1].split('&')[0];
-                    ytPlayerObj.loadPlaylist({list: listId, listType: 'playlist'});
-                } else {
-                    let videoId = '';
-                    if(val.includes('v=')) videoId = val.split('v=')[1].split('&')[0];
-                    else if(val.includes('youtu.be/')) videoId = val.split('youtu.be/')[1].split('?')[0];
-                    if(videoId) ytPlayerObj.loadVideoById(videoId);
-                }
+                let videoId = val.includes('v=') ? val.split('v=')[1].split('&')[0] : val.split('youtu.be/')[1].split('?')[0];
+                ytPlayerObj.loadVideoById(videoId);
             } else {
-                /* Si es texto, busca y reproduce el primer resultado DENTRO del player */
+                // Busca y reproduce automáticamente el primer resultado dentro del reproductor
                 ytPlayerObj.loadPlaylist({
                     list: val,
                     listType: 'search'
@@ -950,20 +973,13 @@
             document.getElementById('yt-url-input').value = ""; 
         }
 
-        document.getElementById('yt-url-input').addEventListener('keydown', function(e) {
-            if(e.key === 'Enter') buscarYoutube();
-        });
-
-        /* === SINCRONIZACIÓN DE MÚSICA EN TIEMPO REAL === */
         function onPlayerStateChange(event) {
             if (event.data == YT.PlayerState.PLAYING) {
                 const data = ytPlayerObj.getVideoData();
                 const title = data && data.title ? data.title : "Música en YouTube";
                 const statusStr = "🎵 Escuchando: " + title;
                 
-                // Envío de estado a todos los usuarios conectados
                 socket.emit('update_profile', { desc: statusStr });
-                
                 document.getElementById('yt-api-text').innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" width="12" height="12"> ${statusStr}`;
             } else if (event.data == YT.PlayerState.PAUSED || event.data == YT.PlayerState.ENDED) {
                 socket.emit('update_profile', { desc: "Disponible" });
