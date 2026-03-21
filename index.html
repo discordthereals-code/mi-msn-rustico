@@ -458,7 +458,7 @@
         .login-input:focus { border-color: var(--msn-blue); }
 
         /* ============================================================
-           7. RESPONSIVE ANDROID (DARK MODE ILUMINADO) + FIX DE SERIEDAD
+           7. RESPONSIVE ANDROID (DARK MODE ILUMINADO) + ARQUITECTURA WHATSAPP
            ============================================================ */
         @media (max-width: 900px) {
             
@@ -472,9 +472,11 @@
             }
 
             html, body { background-color: var(--msn-bg); color: #c9d1d9; }
-            #app { height: 100dvh; max-height: 100dvh; width: 100vw; border: none; border-radius: 0; background: var(--white); }
             
-            header { padding: 10px; height: 65px; } /* Altura fija predecible */
+            /* App Rígida para evitar empujes extraños */
+            #app { height: 100%; width: 100vw; border: none; border-radius: 0; background: var(--white); display: flex; flex-direction: column; }
+            
+            header { flex: 0 0 auto; padding: 10px; } 
             #my-avatar-display { width: 45px; height: 45px; border-color: #2b303b; }
             #my-user-label { font-size: 14px; color: var(--msn-blue); }
             #my-status-label { color: #8b9eb0; }
@@ -486,67 +488,95 @@
             .btn-msn { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; box-shadow: none; }
             .btn-msn:hover { background: #30363d; }
 
+            /* El cuerpo principal contiene el scroll estructural si es necesario */
             main { 
+                flex: 1; 
+                display: flex; 
                 flex-direction: column; 
-                overflow-y: auto; /* Permite scroll abajo para ver YouTube */
-                overflow-x: hidden;
-                -webkit-overflow-scrolling: touch; 
+                overflow: hidden; 
                 background: var(--white);
             }
             
+            /* FIX 1: Los contactos no se cortan, altura asegurada y flex rígido */
             #sidebar-left { 
-                width: 100%; height: 60px; /* Altura fija rígida */
-                border-right: none; 
-                border-bottom: 1px solid var(--border-color); flex-direction: row; 
-                overflow-x: auto; flex-shrink: 0; padding: 5px 0;
-                background: #161b22;
-            }
-            .category-label { display: none; }
-            #dynamic-friends-list { display: flex; flex-direction: row; }
-            
-            .contact-item { padding: 5px 10px; width: auto; border-bottom: none; justify-content: flex-start; flex-direction: column; gap: 4px; align-items: center; border-left: none; }
-            .contact-item:hover { background: #21262d; }
-            .contact-item.active-contact {
-                background: #1f2937;
-                border-bottom: 3px solid var(--msn-blue);
-                border-radius: 8px 8px 0 0;
-            }
-
-            .contact-item img { width: 40px; height: 40px; border-radius: 5px; border: 1px solid #30363d; }
-            .c-info { display: flex; flex-direction: column; align-items: center; width: 100%; }
-            .c-name { font-size: 10px; font-weight: bold; justify-content: center; max-width: 65px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #c9d1d9; }
-            .c-status { display: none; } 
-            .status-dot { width: 7px; height: 7px; margin-right: 3px; }
-            .badge-notify { top: 0; right: 5px; }
-
-            /* FIX SERIEDAD: Chat rígido, toma la altura de pantalla restante */
-            #chat-view { 
                 width: 100%; 
                 flex: 0 0 auto; 
-                height: calc(100dvh - 125px); /* 100dvh - header(65) - sidebar(60) */
-                border-bottom: 3px solid #21262d; 
-                background: var(--white); 
+                border-right: none; 
+                border-bottom: 1px solid var(--border-color); 
+                display: flex; 
+                flex-direction: row; 
+                align-items: center;
+                overflow-x: auto; 
+                overflow-y: hidden;
+                padding: 10px 5px; 
+                background: #161b22;
+                gap: 5px;
+                -webkit-overflow-scrolling: touch;
+            }
+            .category-label { display: none; }
+            #dynamic-friends-list { display: flex; flex-direction: row; gap: 5px; }
+            
+            .contact-item { 
+                padding: 8px 10px; 
+                width: auto; 
+                flex: 0 0 auto; 
+                border-bottom: none; 
+                justify-content: center; 
+                flex-direction: column; 
+                gap: 5px; 
+                align-items: center; 
+                border-left: none; 
+                border-radius: 8px;
+            }
+            .contact-item:hover { background: #21262d; }
+            
+            /* FIX SOMBRA: Evita que el borde sume altura y haga vibrar la UI */
+            .contact-item.active-contact {
+                background: #1f2937;
+                box-shadow: inset 0 -3px 0 var(--msn-blue);
+                border-left: none;
+                border-bottom: none;
+            }
+
+            .contact-item img { width: 45px; height: 45px; border-radius: 5px; border: 1px solid #30363d; }
+            .c-info { display: flex; flex-direction: column; align-items: center; width: 100%; }
+            .c-name { font-size: 11px; font-weight: bold; justify-content: center; max-width: 65px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #c9d1d9; }
+            .c-status { display: none; } 
+            .status-dot { width: 8px; height: 8px; margin-right: 3px; }
+            .badge-notify { top: 2px; right: 5px; }
+
+            /* FIX SERIEDAD: El Chat toma todo el espacio sobrante con min-height 0 */
+            #chat-view { 
+                width: 100%; 
+                flex: 1; 
                 display: flex;
                 flex-direction: column;
+                min-height: 0; 
+                background: var(--white); 
+                border-bottom: 2px solid #21262d;
             }
             
-            #active-chat-header { background: #161b22; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+            #active-chat-header { background: #161b22; border-bottom: 1px solid var(--border-color); flex: 0 0 auto; }
             .ach-name { color: #f0f6fc; }
             .ach-desc { color: #8b9eb0; }
             
+            /* El ÚNICO lugar donde hay scroll vertical es el muro de mensajes */
             #messages-wall { flex: 1; overflow-y: auto; padding: 15px; background: #010409; }
             .msg-content { color: #c9d1d9; }
             .msg-header { color: var(--msn-blue); }
             
-            #chat-toolbar { flex-shrink: 0; background: #161b22; border-top: 1px solid var(--border-color); }
-            #input-zone { flex-shrink: 0; padding: 10px; gap: 8px; flex-direction: column; background: #0d1117; border-top: 1px solid var(--border-color); }
+            #chat-toolbar { flex: 0 0 auto; background: #161b22; border-top: 1px solid var(--border-color); }
+            #input-zone { flex: 0 0 auto; padding: 10px; gap: 8px; flex-direction: column; background: #0d1117; border-top: 1px solid var(--border-color); }
             #main-textarea { height: 50px; font-size: 14px; background: #010409; color: #c9d1d9; border: 1px solid #30363d; flex-shrink: 0; }
             .btn-send { width: 100%; padding: 10px; background: var(--msn-blue); color: #000; border: none; font-weight: bold; flex-shrink: 0; }
 
-            /* YouTube se queda abajo de forma segura */
+            /* YouTube se queda al fondo, asegurado */
             #sidebar-right { 
-                width: 100%; padding: 20px 10px; border-left: none; 
-                flex: 0 0 auto; background: #0d1117; 
+                width: 100%; 
+                flex: 0 0 auto;
+                padding: 15px 10px; 
+                background: #0d1117; 
+                border-left: none;
             }
             #yt-module { margin-bottom: 0; width: 100%; background: #161b22 !important; border: 1px solid var(--border-color) !important; }
             #yt-module div[style*="color: var(--msn-blue)"] { color: var(--msn-blue) !important; }
@@ -560,6 +590,17 @@
             .modal-content { background: #0d1117; border: 1px solid #30363d; }
             .modal-content h2 { color: var(--msn-blue) !important; }
             .modal-content label { color: #8b9eb0 !important; }
+
+            /* ========================================================= */
+            /* FIX ESTILO WHATSAPP: CUANDO EL TECLADO VIRTUAL SE ABRE    */
+            /* ========================================================= */
+            @media (max-height: 600px) {
+                header { display: none !important; }
+                #sidebar-left { display: none !important; }
+                #sidebar-right { display: none !important; }
+                #chat-view { border-bottom: none; }
+                /* La pantalla ahora es 100% Chat, igual que WhatsApp */
+            }
         }
     </style>
 </head>
@@ -604,8 +645,6 @@
 
         <main id="main-scroll">
             <div id="sidebar-left">
-                <div class="category-label">Salas Onrender</div>
-                
                 <button class="contact-item active-contact" data-id="conversando" onclick="switchToChat('conversando', 'Conversando', '/logo-conversando.png', 'Chat principal de la comunidad')">
                     <img src="/logo-conversando.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/686/686589.png'">
                     <div class="c-info">
@@ -633,7 +672,6 @@
                     <span class="badge-notify" id="notify-solotodo">0</span>
                 </button>
 
-                <div class="category-label">Mis Contactos</div>
                 <div id="dynamic-friends-list"></div>
             </div>
 
@@ -649,6 +687,7 @@
                     </div>
                     <button class="btn-msn" onclick="openProfileSettings()" style="padding: 5px 10px; font-size: 10px;">Opciones</button>
                 </div>
+                
                 <div id="messages-wall"></div>
                 <div id="typing-indicator"></div>
                 
@@ -760,7 +799,6 @@
             audioUnlocked = true;
         }
 
-        /* FIX AUDIO BLINDADO: Obliga a reproducir desde el segundo 0 ignorando fallos */
         function playAudio(audioObj) {
             if (!audioObj) return;
             try {
@@ -772,7 +810,6 @@
             } catch (e) {}
         }
 
-        /* FIX SCROLL AISLADO: Ahora SOLO baja el muro de chat, no la página entera */
         function scrollToBottom() {
             setTimeout(() => {
                 const wall = document.getElementById('messages-wall');
@@ -780,12 +817,8 @@
             }, 50);
         }
 
-        /* FIX AUTO-ENFOQUE MÓVIL: Si tocan la caja de texto, alinea la pantalla al chat */
         document.getElementById('main-textarea').addEventListener('focus', () => {
-            const mainScroll = document.getElementById('main-scroll');
-            if (window.innerWidth <= 900 && mainScroll) {
-                setTimeout(() => { mainScroll.scrollTop = 0; }, 200);
-            }
+            scrollToBottom();
         });
 
         if(myUsername) {
@@ -926,12 +959,10 @@
             }
         });
 
-        /* FIX ENVIAR CON ENTER: Lógica perfeccionada con eventListener abajo */
         function performSendMessage() {
             const input = document.getElementById('main-textarea');
             const msg = input.value.trim();
             if(msg) {
-                /* Envía "text" y "texto" para máxima compatibilidad con el backend */
                 socket.emit('chat message', { to: activeChatId, text: msg, texto: msg, user: myUsername });
                 input.value = "";
                 input.focus();
@@ -939,7 +970,6 @@
             }
         }
 
-        /* FIX ENTER: Al presionar Enter (sin Shift), envía el mensaje directamente */
         document.getElementById('main-textarea').addEventListener('keydown', e => {
             if(e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault(); 
