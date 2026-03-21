@@ -42,7 +42,9 @@
             width: 1200px;
             max-width: 100vw;
             height: 900px;
-            max-height: 100vh;
+            /* === INICIO CAMBIO ELITE: Soporte para altura dinámica en móviles === */
+            max-height: 100dvh; 
+            /* === FIN CAMBIO ELITE === */
             background: var(--white);
             border: 1px solid #1c1c1c;
             flex-direction: column;
@@ -189,7 +191,6 @@
 
         .contact-item:hover { background: #f0f7ff; }
 
-        /* NUEVO: Clase para resaltar el contacto seleccionado */
         .contact-item.active-contact {
             background: #e8f2ff;
             border-left: 4px solid var(--msn-blue);
@@ -238,7 +239,6 @@
             min-width: 0;
         }
 
-        /* NUEVO: Estilos para el encabezado dinámico dentro del chat */
         #active-chat-header {
             display: flex;
             justify-content: space-between;
@@ -405,9 +405,6 @@
         }
         .login-input:focus { border-color: var(--msn-blue); }
 
-        /* ==================================================== */
-        /* RESPONSIVE PARA ANDROID (SCROLL INTACTO + HIGHLIGHT) */
-        /* ==================================================== */
         @media (max-width: 900px) {
             #app { height: 100%; max-height: 100vh; width: 100vw; border: none; border-radius: 0; }
             header { padding: 10px; }
@@ -428,7 +425,6 @@
             
             .contact-item { padding: 5px 10px; width: auto; border-bottom: none; justify-content: flex-start; flex-direction: column; gap: 4px; align-items: center; border-left: none; }
             
-            /* NUEVO: Resaltado en versión móvil (Línea abajo en vez de izquierda) */
             .contact-item.active-contact {
                 background: #e8f2ff;
                 border-bottom: 3px solid var(--msn-blue);
@@ -688,7 +684,6 @@
                 const isMusic = u.descripcion && u.descripcion.includes('🎵');
                 const textStyle = isMusic ? 'color:var(--msn-blue); font-weight:bold;' : '';
 
-                // Añadir clase active-contact dinámicamente si es el chat activo
                 const activeClass = (u.user === activeChatId) ? ' active-contact' : '';
                 btn.className = "contact-item" + activeClass;
 
@@ -705,7 +700,6 @@
 
                 if(unreadCounts[u.user]) updateBadge(u.user, unreadCounts[u.user]);
 
-                // Actualizar info si estamos en ese chat y cambian de estado/foto
                 if(u.user === activeChatId) {
                     document.getElementById('target-status-big').innerText = u.descripcion || "Disponible";
                     document.getElementById('target-avatar-big').src = u.foto || "https://via.placeholder.com/160";
@@ -715,25 +709,19 @@
             });
         });
 
-        // ==========================================================
-        // NUEVO: LÓGICA DE CAMBIO DE CHAT Y ACTUALIZACIÓN DE ESTILOS
-        // ==========================================================
         function switchToChat(id, name, img, desc) {
             activeChatId = id;
             unreadCounts[id] = 0;
             updateBadge(id, 0);
 
-            // 1. Actualizar Panel Lateral Derecho (PC)
             document.getElementById('target-name-big').innerText = name;
             document.getElementById('target-status-big').innerText = desc || "Disponible";
             document.getElementById('target-avatar-big').src = img || "https://via.placeholder.com/160";
 
-            // 2. Actualizar el NUEVO Encabezado Dinámico dentro del Chat (Móvil y PC)
             document.getElementById('ach-title').innerText = name;
             document.getElementById('ach-subtitle').innerText = desc || "Disponible";
             document.getElementById('ach-avatar').src = img || "https://via.placeholder.com/160";
 
-            // 3. Resaltar en la barra deslizable la opción seleccionada
             document.querySelectorAll('.contact-item').forEach(btn => {
                 btn.classList.remove('active-contact');
                 if(btn.getAttribute('onclick').includes(`'${id}'`)) {
@@ -888,20 +876,29 @@
             });
         }
 
+        /* === INICIO CAMBIO ELITE: Buscador Inteligente de YouTube === */
         document.getElementById('yt-url-input').addEventListener('change', function(e) {
-            const url = e.target.value.trim();
-            if(!url || !ytPlayerObj) return;
+            const val = e.target.value.trim();
+            if(!val || !ytPlayerObj) return;
 
-            if(url.includes('list=')) {
-                const listId = url.split('list=')[1].split('&')[0];
-                ytPlayerObj.loadPlaylist({list: listId, listType: 'playlist'});
+            // Detectamos si es una URL de YouTube (Video o Playlist)
+            if(val.includes('youtube.com/') || val.includes('youtu.be/')) {
+                if(val.includes('list=')) {
+                    const listId = val.split('list=')[1].split('&')[0];
+                    ytPlayerObj.loadPlaylist({list: listId, listType: 'playlist'});
+                } else {
+                    let videoId = '';
+                    if(val.includes('v=')) videoId = val.split('v=')[1].split('&')[0];
+                    else if(val.includes('youtu.be/')) videoId = val.split('youtu.be/')[1].split('?')[0];
+                    if(videoId) ytPlayerObj.loadVideoById(videoId);
+                }
             } else {
-                let videoId = '';
-                if(url.includes('v=')) videoId = url.split('v=')[1].split('&')[0];
-                else if(url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1].split('?')[0];
-                if(videoId) ytPlayerObj.loadVideoById(videoId);
+                // Si no es un link, abrimos una búsqueda inteligente en nueva pestaña
+                window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(val)}`, '_blank');
+                alert("🔍 He abierto la búsqueda en una pestaña nueva. ¡Copia el link del video que quieras y pégalo aquí!");
             }
         });
+        /* === FIN CAMBIO ELITE === */
 
         function onPlayerStateChange(event) {
             if (event.data == YT.PlayerState.PLAYING) {
