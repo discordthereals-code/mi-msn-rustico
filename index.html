@@ -42,9 +42,7 @@
             width: 1200px;
             max-width: 100vw;
             height: 900px;
-            /* === INICIO CAMBIO ELITE: Soporte para altura dinámica en móviles === */
             max-height: 100dvh; 
-            /* === FIN CAMBIO ELITE === */
             background: var(--white);
             border: 1px solid #1c1c1c;
             flex-direction: column;
@@ -146,6 +144,25 @@
         }
 
         .btn-msn:hover { background: #f0f7ff; }
+
+        /* === AJUSTE BOTÓN PERFIL === */
+        .btn-profile-gear {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            color: var(--msn-blue);
+            font-weight: bold;
+            font-size: 12px;
+            padding: 5px 10px;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+        .btn-profile-gear:hover {
+            background: #fff;
+            border-color: #a0b5d0;
+            border-radius: 4px;
+        }
 
         main {
             display: flex;
@@ -481,7 +498,9 @@
                 </div>
             </div>
             <div class="header-btns">
-                <button class="btn-msn" onclick="openProfileSettings()">Configuración</button>
+                <div class="btn-profile-gear" onclick="openProfileSettings()">
+                   <span>⚙️</span> Perfil
+                </div>
             </div>
         </header>
 
@@ -558,7 +577,13 @@
                     <div id="yt-player-container" style="width: 100%; height: 130px; background: #000; border-radius: 4px; overflow: hidden; margin-bottom: 8px;">
                         <div id="yt-player"></div>
                     </div>
-                    <input id="yt-url-input" type="text" placeholder="Pega el link del video o playlist..." style="width: 100%; padding: 6px; font-size: 10px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 8px; outline: none;">
+                    
+                    <div style="display: flex; gap: 5px; margin-bottom: 8px;">
+                        <input id="yt-url-input" type="text" placeholder="Busca canción o pega Link..." 
+                               style="flex: 1; padding: 6px; font-size: 10px; border: 1px solid #ccc; border-radius: 4px; outline: none;">
+                        <button class="btn-msn" onclick="buscarYoutube()" style="background: var(--msn-blue); color: white; padding: 4px 8px;">Ir</button>
+                    </div>
+
                     <div style="display: flex; justify-content: space-between; align-items: center; gap: 4px;">
                         <button class="btn-msn" onclick="ytPlay()" title="Reproducir">▶</button>
                         <button class="btn-msn" onclick="ytPause()" title="Pausar">⏸</button>
@@ -876,12 +901,11 @@
             });
         }
 
-        /* === INICIO CAMBIO ELITE: Buscador Inteligente de YouTube === */
-        document.getElementById('yt-url-input').addEventListener('change', function(e) {
-            const val = e.target.value.trim();
+        /* === LÓGICA DE BÚSQUEDA MEJORADA === */
+        function buscarYoutube() {
+            const val = document.getElementById('yt-url-input').value.trim();
             if(!val || !ytPlayerObj) return;
 
-            // Detectamos si es una URL de YouTube (Video o Playlist)
             if(val.includes('youtube.com/') || val.includes('youtu.be/')) {
                 if(val.includes('list=')) {
                     const listId = val.split('list=')[1].split('&')[0];
@@ -893,12 +917,15 @@
                     if(videoId) ytPlayerObj.loadVideoById(videoId);
                 }
             } else {
-                // Si no es un link, abrimos una búsqueda inteligente en nueva pestaña
                 window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(val)}`, '_blank');
-                alert("🔍 He abierto la búsqueda en una pestaña nueva. ¡Copia el link del video que quieras y pégalo aquí!");
             }
+            document.getElementById('yt-url-input').value = ""; 
+        }
+
+        // Mantenemos el listener original pero lo derivamos a la función
+        document.getElementById('yt-url-input').addEventListener('keydown', function(e) {
+            if(e.key === 'Enter') buscarYoutube();
         });
-        /* === FIN CAMBIO ELITE === */
 
         function onPlayerStateChange(event) {
             if (event.data == YT.PlayerState.PLAYING) {
@@ -906,6 +933,7 @@
                 const title = data && data.title ? data.title : "Música en YouTube";
                 const statusStr = "🎵 Escuchando: " + title;
                 
+                // === BROADCAST DE ESTADO ===
                 socket.emit('update_profile', { desc: statusStr });
                 
                 document.getElementById('yt-api-text').innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" width="12" height="12"> ${statusStr}`;
