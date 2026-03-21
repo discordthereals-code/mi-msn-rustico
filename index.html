@@ -471,9 +471,15 @@
                 --shadow: 0 10px 40px rgba(0,0,0,0.8);
             }
 
-            html, body { background-color: var(--msn-bg); color: #c9d1d9; }
+            /* FIX: Asegurar alineación al tope para que no quede hueco negro */
+            html, body { 
+                background-color: var(--msn-bg); 
+                color: #c9d1d9; 
+                align-items: flex-start !important; 
+                justify-content: flex-start !important; 
+            }
             
-            #app { height: 100%; width: 100vw; border: none; border-radius: 0; background: var(--white); display: flex; flex-direction: column; }
+            #app { height: 100%; width: 100vw; border: none; border-radius: 0; background: var(--white); display: flex; flex-direction: column; justify-content: flex-start; }
             
             header { flex: 0 0 auto; padding: 10px; } 
             #my-avatar-display { width: 45px; height: 45px; border-color: #2b303b; }
@@ -487,7 +493,6 @@
             .btn-msn { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; box-shadow: none; }
             .btn-msn:hover { background: #30363d; }
 
-            /* Main escroleable pero controlado */
             main { 
                 flex: 1; 
                 display: flex; 
@@ -543,10 +548,9 @@
             .status-dot { width: 8px; height: 8px; margin-right: 3px; }
             .badge-notify { top: 2px; right: 5px; }
 
-            /* El Chat fuerza ocupar el alto completo restante para empujar a YouTube abajo */
             #chat-view { 
                 width: 100%; 
-                min-height: calc(100dvh - 125px); /* Alto de pantalla menos cabeceras */
+                min-height: calc(100dvh - 125px); 
                 flex: 1 0 auto; 
                 display: flex;
                 flex-direction: column;
@@ -567,7 +571,6 @@
             #main-textarea { height: 50px; font-size: 14px; background: #010409; color: #c9d1d9; border: 1px solid #30363d; flex-shrink: 0; }
             .btn-send { width: 100%; padding: 10px; background: var(--msn-blue); color: #000; border: none; font-weight: bold; flex-shrink: 0; }
 
-            /* YouTube se queda abajo. Al hacer scroll general, lo ves. */
             #sidebar-right { 
                 width: 100%; 
                 flex: 0 0 auto;
@@ -594,17 +597,60 @@
             body.keyboard-active header,
             body.keyboard-active #sidebar-left,
             body.keyboard-active #sidebar-right {
-                display: none !important; /* Desaparecen al escribir */
+                display: none !important; 
             }
             
             body.keyboard-active main {
-                overflow: hidden !important; /* Bloquea el scroll general */
+                overflow: hidden !important; 
+                padding: 0 !important;
+                margin: 0 !important;
             }
 
+            /* FIX: Aseguramos que la vista del chat se fije al tope de la pantalla */
             body.keyboard-active #chat-view {
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
                 min-height: 100% !important;
-                height: 100% !important; /* El chat toma el 100% de la pantalla */
-                border-bottom: none !important;
+                height: 100% !important; 
+                width: 100% !important;
+                border: none !important;
+                z-index: 9999 !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+
+            /* FIX COMPRESIÓN WSP: Elementos más compactos para ahorrar espacio vertical */
+            body.keyboard-active #active-chat-header {
+                padding: 6px 15px !important;
+            }
+            body.keyboard-active .ach-left img {
+                width: 35px !important;
+                height: 35px !important;
+            }
+            body.keyboard-active .ach-name {
+                font-size: 13px !important;
+            }
+            body.keyboard-active #chat-toolbar {
+                padding: 5px 10px !important;
+                gap: 10px !important;
+            }
+            body.keyboard-active .emoji-btn {
+                font-size: 18px !important;
+            }
+            body.keyboard-active #input-zone {
+                padding: 6px 10px !important;
+                gap: 8px !important;
+            }
+            body.keyboard-active #main-textarea {
+                height: 45px !important;
+                padding: 8px !important;
+            }
+            body.keyboard-active .btn-send {
+                padding: 8px !important;
+                font-size: 12px !important;
             }
         }
     </style>
