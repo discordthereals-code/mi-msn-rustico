@@ -21,11 +21,11 @@
             --status-busy: #d93025;   
             --status-away: #f9ab00;   
             --status-offline: #bdc1c6;
-            /* MEJORA: Colores para módulos */
-            --card-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            --card-radius: 12px;
         }
 
+        /* ============================================================
+           2. RESET Y COMPORTAMIENTO GLOBAL
+           ============================================================ */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -45,7 +45,9 @@
             position: fixed;
         }
 
-        /* MEJORA: Contenedor principal con estilo de caja modular */
+        /* ============================================================
+           3. CONTENEDOR PRINCIPAL (#app)
+           ============================================================ */
         #app {
             display: none;
             width: 1200px;
@@ -58,8 +60,6 @@
             position: relative;
             box-shadow: var(--shadow);
             z-index: 10;
-            border-radius: var(--card-radius);
-            overflow: hidden;
         }
 
         header {
@@ -84,7 +84,7 @@
             width: 68px;
             height: 68px;
             border: 2px solid #fff;
-            border-radius: 50%;
+            border-radius: 4px;
             object-fit: cover;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             background: #e0e0e0;
@@ -186,25 +186,23 @@
 
         .btn-msn:hover { background: #f0f7ff; }
 
-        /* MEJORA: Estructura central con separación visual de módulos */
+        /* ============================================================
+           4. ESTRUCTURA CENTRAL (MAIN)
+           ============================================================ */
         main {
             display: flex;
             flex: 1;
             overflow: hidden;
             position: relative;
-            gap: 0;
         }
 
-        /* MÓDULO 2: CONTACTOS Y GRUPOS - Caja separada */
         #sidebar-left {
             width: 320px;
-            border-right: 1px solid var(--border-color);
+            border-right: 1px solid #d0deee;
             display: flex;
             flex-direction: column;
             background: #ffffff;
             flex-shrink: 0;
-            overflow-y: auto;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.02);
         }
 
         .category-label {
@@ -243,7 +241,7 @@
         .contact-item img {
             width: 50px;
             height: 50px;
-            border-radius: 50%;
+            border-radius: 4px;
             object-fit: cover;
             border: 1px solid #ddd;
             background: #eee;
@@ -256,7 +254,7 @@
             flex: 1;
         }
 
-        .c-name { font-size: 13px; font-weight: bold; color: #333; display: flex; align-items: center; gap: 4px; }
+        .c-name { font-size: 13px; font-weight: bold; color: #333; display: flex; align-items: center; }
         .c-status { font-size: 11px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         .badge-notify {
@@ -275,14 +273,15 @@
 
         #dynamic-friends-list { flex: 1; overflow-y: auto; }
 
-        /* MÓDULO 3: CHAT CENTRAL - Caja separada */
+        /* ============================================================
+           5. VISTA DE CHAT (#chat-view)
+           ============================================================ */
         #chat-view {
             flex: 1;
             display: flex;
             flex-direction: column;
             background: white;
             min-width: 0;
-            overflow: hidden;
         }
 
         #active-chat-header {
@@ -295,12 +294,11 @@
             flex-shrink: 0;
         }
         .ach-left { display: flex; align-items: center; gap: 12px; }
-        .ach-left img { width: 50px; height: 50px; border-radius: 50%; border: 1px solid #ddd; object-fit: cover; }
+        .ach-left img { width: 50px; height: 50px; border-radius: 8px; border: 1px solid #ddd; object-fit: cover; }
         .ach-info { display: flex; flex-direction: column; }
         .ach-name { font-size: 15px; color: #333; display: flex; align-items: center; gap: 5px; font-weight: bold; }
         .ach-desc { font-size: 12px; color: #777; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; }
 
-        /* MEJORA: Área de mensajes con scroll independiente */
         #messages-wall {
             flex: 1;
             overflow-y: auto;
@@ -323,30 +321,19 @@
             font-size: 11px;
             color: #2b9348;
             font-style: italic;
-            flex-shrink: 0;
         }
 
-        /* MÓDULO 4: ÁREA DE ESCRIBIR - Caja separada */
         #chat-toolbar {
             padding: 10px 15px;
             background: #f1f5f9;
             border-top: 1px solid #d0deee;
-            border-bottom: 1px solid #d0deee;
             display: flex;
             gap: 15px;
             align-items: center;
             flex-shrink: 0;
         }
 
-        .emoji-btn { 
-            font-size: 22px; 
-            cursor: pointer; 
-            user-select: none; 
-            transition: transform 0.1s; 
-            background: none; 
-            border: none; 
-            padding: 4px;
-        }
+        .emoji-btn { font-size: 22px; cursor: pointer; user-select: none; transition: transform 0.1s; }
         .emoji-btn:hover { transform: scale(1.2); }
 
         #input-zone {
@@ -363,17 +350,11 @@
             height: 80px;
             padding: 12px;
             border: 1px solid #a0b5d0;
-            border-radius: 20px;
+            border-radius: 4px;
             resize: none;
             font-size: 15px;
             outline: none;
             background: #fff;
-            font-family: inherit;
-        }
-
-        #main-textarea:focus {
-            border-color: var(--msn-blue);
-            box-shadow: 0 0 0 3px rgba(0, 85, 229, 0.1);
         }
 
         .btn-send {
@@ -381,19 +362,15 @@
             background: var(--msn-blue);
             color: white;
             border: none;
-            border-radius: 20px;
+            border-radius: 4px;
             font-weight: bold;
             cursor: pointer;
             font-size: 13px;
-            transition: all 0.2s;
         }
 
-        .btn-send:hover {
-            background: #0044cc;
-            transform: scale(1.02);
-        }
-
-        /* MÓDULO 5: PANEL DERECHO (YOUTUBE) - Caja separada */
+        /* ============================================================
+           6. PANEL DERECHO (#sidebar-right)
+           ============================================================ */
         #sidebar-right {
             width: 260px;
             background: #fcfcfc;
@@ -401,10 +378,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px 15px;
+            padding: 30px 15px;
             flex-shrink: 0;
             overflow-y: auto;
-            box-shadow: -2px 0 5px rgba(0,0,0,0.02);
         }
 
         .big-avatar-frame {
@@ -412,7 +388,7 @@
             height: 160px;
             border: 5px solid #fff;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            border-radius: 50%;
+            border-radius: 8px;
             object-fit: cover;
             background: #eee;
         }
@@ -482,8 +458,7 @@
         .login-input:focus { border-color: var(--msn-blue); }
 
         /* ============================================================
-           RESPONSIVE ANDROID - MANTENIENDO TODAS LAS FUNCIONES ORIGINALES
-           SOLO MEJORADO EL COMPORTAMIENTO DEL TECLADO
+           7. RESPONSIVE ANDROID (DARK MODE ILUMINADO) + ARQUITECTURA WHATSAPP
            ============================================================ */
         @media (max-width: 900px) {
             
@@ -498,15 +473,7 @@
 
             html, body { background-color: var(--msn-bg); color: #c9d1d9; }
             
-            #app { 
-                height: 100%; 
-                width: 100vw; 
-                border: none; 
-                border-radius: 0; 
-                background: var(--white); 
-                display: flex; 
-                flex-direction: column; 
-            }
+            #app { height: 100%; width: 100vw; border: none; border-radius: 0; background: var(--white); display: flex; flex-direction: column; }
             
             header { flex: 0 0 auto; padding: 10px; } 
             #my-avatar-display { width: 45px; height: 45px; border-color: #2b303b; }
@@ -520,7 +487,7 @@
             .btn-msn { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; box-shadow: none; }
             .btn-msn:hover { background: #30363d; }
 
-            /* Mantener la estructura original de móvil que ya funcionaba */
+            /* Main escroleable pero controlado */
             main { 
                 flex: 1; 
                 display: flex; 
@@ -569,83 +536,75 @@
                 border-bottom: none;
             }
 
-            .contact-item img { width: 45px; height: 45px; border-radius: 50%; border: 1px solid #30363d; }
+            .contact-item img { width: 45px; height: 45px; border-radius: 5px; border: 1px solid #30363d; }
             .c-info { display: flex; flex-direction: column; align-items: center; width: 100%; }
             .c-name { font-size: 11px; font-weight: bold; justify-content: center; max-width: 65px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #c9d1d9; }
             .c-status { display: none; } 
             .status-dot { width: 8px; height: 8px; margin-right: 3px; }
             .badge-notify { top: 2px; right: 5px; }
 
-            /* MEJORA CLAVE: Chat con scroll independiente y teclado no empuja */
+            /* El Chat fuerza ocupar el alto completo restante para empujar a YouTube abajo */
             #chat-view { 
                 width: 100%; 
-                flex: 1;
+                min-height: calc(100dvh - 125px); /* Alto de pantalla menos cabeceras */
+                flex: 1 0 auto; 
                 display: flex;
                 flex-direction: column;
                 background: var(--white); 
-                overflow: hidden;
-                min-height: 0;
+                border-bottom: 2px solid #21262d;
             }
             
-            #active-chat-header { background: #161b22; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+            #active-chat-header { background: #161b22; border-bottom: 1px solid var(--border-color); flex: 0 0 auto; }
             .ach-name { color: #f0f6fc; }
             .ach-desc { color: #8b9eb0; }
             
-            #messages-wall { 
-                flex: 1; 
-                overflow-y: auto; 
-                padding: 15px; 
-                background: #010409; 
-                min-height: 0;
-            }
+            #messages-wall { flex: 1; overflow-y: auto; padding: 15px; background: #010409; }
             .msg-content { color: #c9d1d9; }
             .msg-header { color: var(--msn-blue); }
             
-            #chat-toolbar { 
-                flex-shrink: 0; 
-                background: #161b22; 
-                border-top: 1px solid var(--border-color);
-                border-bottom: 1px solid var(--border-color);
-            }
-            #input-zone { 
-                flex-shrink: 0; 
-                padding: 10px; 
-                gap: 8px; 
-                background: #0d1117; 
-                border-top: 1px solid var(--border-color); 
-            }
-            #main-textarea { 
-                height: 45px; 
-                font-size: 14px; 
-                background: #010409; 
-                color: #c9d1d9; 
-                border: 1px solid #30363d; 
-                border-radius: 24px;
-            }
-            .btn-send { width: 80px; padding: 8px; background: var(--msn-blue); color: #000; border: none; font-weight: bold; }
+            #chat-toolbar { flex: 0 0 auto; background: #161b22; border-top: 1px solid var(--border-color); }
+            #input-zone { flex: 0 0 auto; padding: 10px; gap: 8px; flex-direction: column; background: #0d1117; border-top: 1px solid var(--border-color); }
+            #main-textarea { height: 50px; font-size: 14px; background: #010409; color: #c9d1d9; border: 1px solid #30363d; flex-shrink: 0; }
+            .btn-send { width: 100%; padding: 10px; background: var(--msn-blue); color: #000; border: none; font-weight: bold; flex-shrink: 0; }
 
+            /* YouTube se queda abajo. Al hacer scroll general, lo ves. */
             #sidebar-right { 
                 width: 100%; 
-                flex-shrink: 0;
+                flex: 0 0 auto;
                 padding: 15px 10px; 
                 background: #0d1117; 
                 border-left: none;
-                border-top: 1px solid var(--border-color);
             }
-            #yt-module { margin-bottom: 0; width: 100%; background: #161b22 !important; border: 1px solid var(--border-color) !important; border-radius: 12px; }
+            #yt-module { margin-bottom: 0; width: 100%; background: #161b22 !important; border: 1px solid var(--border-color) !important; }
+            #yt-module div[style*="color: var(--msn-blue)"] { color: var(--msn-blue) !important; }
+            #yt-url-input { background: #010409 !important; color: #c9d1d9 !important; border: 1px solid #30363d !important; }
             
             #target-avatar-big, #target-name-big, #target-status-big, #my-small-preview { display: none; } 
 
             #login-screen > div { background: #0d1117 !important; border: 1px solid #30363d; box-shadow: 0 10px 40px rgba(0,0,0,0.9) !important; }
+            #login-screen p { color: #8b9eb0 !important; }
             .login-input { background: #010409 !important; border: 1px solid #30363d !important; color: #c9d1d9 !important; }
+            .modal-content { background: #0d1117; border: 1px solid #30363d; }
+            .modal-content h2 { color: var(--msn-blue) !important; }
+            .modal-content label { color: #8b9eb0 !important; }
 
-            /* MEJORA: Cuando el teclado está activo, el YouTube se oculta para dar espacio */
+            /* ========================================================= */
+            /* FIX MODO WHATSAPP DEFINITIVO (Activado por JavaScript)    */
+            /* ========================================================= */
+            body.keyboard-active header,
+            body.keyboard-active #sidebar-left,
             body.keyboard-active #sidebar-right {
-                display: none !important;
+                display: none !important; /* Desaparecen al escribir */
             }
             
+            body.keyboard-active main {
+                overflow: hidden !important; /* Bloquea el scroll general */
+            }
+
             body.keyboard-active #chat-view {
-                height: 100%;
+                min-height: 100% !important;
+                height: 100% !important; /* El chat toma el 100% de la pantalla */
+                border-bottom: none !important;
             }
         }
     </style>
@@ -738,13 +697,13 @@
                 <div id="typing-indicator"></div>
                 
                 <div id="chat-toolbar">
-                    <button class="emoji-btn" onclick="insertEmoji('😊')">😊</button>
-                    <button class="emoji-btn" onclick="insertEmoji('😂')">😂</button>
-                    <button class="emoji-btn" onclick="insertEmoji('❤️')">❤️</button>
-                    <button class="emoji-btn" onclick="insertEmoji('😮')">😮</button>
-                    <button class="emoji-btn" onclick="insertEmoji('😛')">😛</button>
+                    <span class="emoji-btn" onclick="insertEmoji('😊')">😊</span>
+                    <span class="emoji-btn" onclick="insertEmoji('😂')">😂</span>
+                    <span class="emoji-btn" onclick="insertEmoji('❤️')">❤️</span>
+                    <span class="emoji-btn" onclick="insertEmoji('😮')">😮</span>
+                    <span class="emoji-btn" onclick="insertEmoji('😛')">😛</span>
                     
-                    <button class="emoji-btn" onclick="document.getElementById('file-transfer').click()" title="Enviar archivo">📎</button>
+                    <span class="emoji-btn" onclick="document.getElementById('file-transfer').click()" title="Enviar archivo">📎</span>
                     <input type="file" id="file-transfer" style="display:none" onchange="sendFile(this)">
                     
                     <button class="btn-msn" onclick="emitNudge()" style="margin-left:auto; font-size:10px;">🔔 ENVIAR ZUMBIDO</button>
@@ -863,21 +822,24 @@
             }, 50);
         }
 
-        // MEJORA N2: Comportamiento WhatsApp - El teclado no empuja la interfaz
-        const textarea = document.getElementById('main-textarea');
-        if(textarea) {
-            textarea.addEventListener('focus', () => {
-                if(window.innerWidth <= 900) {
-                    document.body.classList.add('keyboard-active');
-                }
-                setTimeout(scrollToBottom, 100);
-            });
-            textarea.addEventListener('blur', () => {
-                if(window.innerWidth <= 900) {
-                    document.body.classList.remove('keyboard-active');
-                }
-            });
-        }
+        /* ========================================================= */
+        /* FIX WHATSAPP JS: INYECTA CLASE AL ESCRIBIR PARA OCULTAR   */
+        /* ========================================================= */
+        const mainTextarea = document.getElementById('main-textarea');
+        
+        mainTextarea.addEventListener('focus', () => {
+            if (window.innerWidth <= 900) {
+                document.body.classList.add('keyboard-active');
+                scrollToBottom();
+            }
+        });
+
+        mainTextarea.addEventListener('blur', () => {
+            if (window.innerWidth <= 900) {
+                document.body.classList.remove('keyboard-active');
+            }
+        });
+        /* ========================================================= */
 
         if(myUsername) {
             socket.emit('login', { user: myUsername, pass: localStorage.getItem('msn_master_pass') });
@@ -928,8 +890,8 @@
         function initExternalApis() {
             fetch('https://wttr.in/Santiago?format=%c+%t')
                 .then(res => res.text())
-                .then(data => document.getElementById('weather-api-text').innerHTML = "| " + data)
-                .catch(() => document.getElementById('weather-api-text').innerHTML = "| ☀️ 24°C Santiago");
+                .then(data => document.getElementById('weather-api-text').innerText = "| " + data)
+                .catch(() => document.getElementById('weather-api-text').innerText = "| ☀️ 24°C Santiago");
         }
 
         socket.on('lista_contactos', list => {
@@ -1035,12 +997,8 @@
             }
         });
 
-        // MEJORA N3: Zumbido con sonido funcional
         function emitNudge() {
-            socket.emit('chat message', { to: activeChatId, isBuzz: true, user: myUsername });
-            playAudio(sndBuzz);
-            document.getElementById('app').classList.add('nudge-shake');
-            setTimeout(() => document.getElementById('app').classList.remove('nudge-shake'), 800);
+            socket.emit('chat message', { to: activeChatId, isBuzz: true });
         }
 
         function sendFile(input) {
@@ -1048,23 +1006,17 @@
             if(!file) return;
             const reader = new FileReader();
             reader.onload = (e) => {
-                socket.emit('chat message', { to: activeChatId, file: { name: file.name, data: e.target.result }, user: myUsername });
+                socket.emit('chat message', { to: activeChatId, file: { name: file.name, data: e.target.result } });
             };
             reader.readAsDataURL(file);
         }
 
-        // MEJORA N1: Notificaciones corregidas - Solo cuando NO es la conversación activa
         socket.on('chat message', m => {
             const origin = m.to || 'conversando';
             const isGroup = ['conversando', 'juegos', 'solotodo'].includes(origin);
-            
-            let isCurrent = false;
-            if(isGroup) {
-                isCurrent = (origin === activeChatId);
-            } else {
-                isCurrent = (m.user === activeChatId && m.to === myUsername) || 
-                            (m.user === myUsername && m.to === activeChatId);
-            }
+            const isCurrent = (isGroup && origin === activeChatId) || 
+                               (m.user === activeChatId && m.to === myUsername) || 
+                               (m.user === myUsername && m.to === activeChatId);
 
             if(isCurrent) {
                 appendMessage(m);
@@ -1075,11 +1027,11 @@
                 } else if(m.user !== myUsername) { 
                     playAudio(sndMessage);
                 }
-            } else if(m.user !== myUsername) {
+            } else {
                 const key = isGroup ? origin : m.user;
                 unreadCounts[key] = (unreadCounts[key] || 0) + 1;
                 updateBadge(key, unreadCounts[key]);
-                if(!m.isBuzz) playAudio(sndMessage);
+                playAudio(sndMessage);
             }
         });
 
@@ -1100,7 +1052,7 @@
             let content = m.texto || m.text || "";
 
             if(m.isBuzz) {
-                content = `<span style="color:red; font-weight:bold;">🔔 TE HA ENVIADO UN ZUMBIDO 🔔</span>`;
+                content = `<span style="color:red; font-weight:bold;">TE HA ENVIADO UN ZUMBIDO.</span>`;
             } else if(m.file) {
                 content = `📎 <a href="${m.file.data}" download="${m.file.name}" style="color:var(--msn-blue); text-decoration:underline;">${m.file.name}</a>`;
             } else {
@@ -1161,6 +1113,7 @@
                 if(vid) ytPlayerObj.loadVideoById(vid);
             } else {
                 ytPlayerObj.loadPlaylist({ list: val, listType: 'search' });
+                
                 inputField.value = ""; 
                 inputField.placeholder = "Reproduciendo búsqueda...";
                 setTimeout(() => {
@@ -1200,7 +1153,7 @@
         }
         function ytNext() { if(ytPlayerObj && ytPlayerObj.nextVideo) ytPlayerObj.nextVideo(); }
 
-        // MEJORA: Scroll suave en móvil
+        /* Mantiene la pantalla perfectamente ajustada al teclado y hace scroll abajo */
         window.visualViewport.addEventListener('resize', () => {
             const h = window.visualViewport.height;
             document.body.style.height = h + 'px';
